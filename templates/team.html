@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}{{ team }} | NetStats{% endblock %}
+
+{% block head_scripts %}
+<script type="module" src="{{ url_for('static', filename='team.js') }}"></script>
+{% endblock %}
+
+{% block nav_tabs %}
+<a href="{{ url_for('home') }}" class="back-button">← Back to Home</a>
+<a class="tab-button {% if active_tab == 'passing' %}active{% endif %}" data-tab="passing" href="#">Passing Network</a>
+<a class="tab-button {% if active_tab == 'lineup' %}active{% endif %}" data-tab="lineup" href="#">Lineup Explorer</a>
+
+<select id="season" class="dropdown season-dropdown" style="margin-left: auto;">
+  {% for s in seasons %}
+    <option value="{{ s }}" {% if s == selected_season %}selected{% endif %}>{{ s }}</option>
+  {% endfor %}
+</select>
+{% endblock %}
+
+{% block content %}
+<div class="page-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+
+
+
+    <div class="form-group">
+      <label>Players</label>
+      <div class="players" id="player-checkboxes">
+        {% for player in players %}
+<label class="player-checkbox">
+  <input type="checkbox" value="{{ player }}" {% if player in selected_players %}checked{% endif %}>
+  {{ player }}
+</label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <input type="hidden" id="team" value="{{ team }}">
+
+  </aside>
+
+  
+  <div class="main-content">
+
+
+
+    <!-- PASSING NETWORK TAB -->
+    <div class="tab-content" id="passing-tab" style="display: block;">
+
+
+
+      <div id="network" style="height: 85vh;"></div>
+
+      <div class="right-panel" id="right-panel" style="width: 420px; position: absolute; top: 0; right: 0; display: none; background: var(--bg-panel); padding: 16px; border-left: 1px solid var(--stroke); height: 100%;">
+
+        <div id="player-details" style="background: var(--bg-dark); border-radius: 8px; padding: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);"></div>
+
+<div id="court-svg-container" style="width: 431px; height: 405.14px;"></div>
+<div class="chart-controls">
+  <label><input type="checkbox" id="heatmap-toggle"> Heatmap</label>
+  <label><input type="checkbox" id="makes-only-toggle"> Makes only</label>
+</div>
+          <svg id="court-svg" width="431" height="405.14" viewBox="0 0 431 405.14"></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- LINEUP EXPLORER TAB -->
+    <!-- LINEUP EXPLORER TAB -->
+<div class="tab-content" id="lineup-tab" style="display: none;">
+  <div class="lineup-explorer-container">
+
+ 
+
+    <!-- Lineup Table -->
+<div id="lineup-table" class="lineup-table-wrapper fade-in-on-load" style="opacity: 0;">
+      <table class="lineup-table">
+        <thead>
+          <tr>
+            <th>Lineup</th>
+            <th>GP</th><th>MIN</th><th>FGM</th><th>FGA</th><th>FG%</th>
+            <th>3PM</th><th>3PA</th><th>3P%</th><th>OREB</th><th>DREB</th>
+            <th>REB</th><th>AST</th><th>TOV</th><th>STL</th><th>BLK</th>
+            <th>PTS</th><th>+/-</th>
+          </tr>
+        </thead>
+        <tbody id="lineup-table-body">
+          <!-- Filled dynamically -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Network + Shot Chart -->
+<div id="lineup-results" class="team-panel">
+      <!-- Assist Network -->
+      <div id="assist-network-container">
+        <div id="assist-network"></div>
+      </div>
+
+      <!-- Shot Chart -->
+      <div id="lineup-shot-chart-container">
+        <svg id="assist-court-svg" width="600" height="563.74" viewBox="0 0 431 405.14"></svg>
+        <div class="chart-controls">
+          <label><input type="checkbox" id="assist-heatmap-toggle"> Heatmap</label>
+          <label><input type="checkbox" id="assist-makes-only-toggle"> Makes only</label>
+          <button id="reset-filter-button">Reset</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+    
+  </div>
+</div>
+{% endblock %}
+

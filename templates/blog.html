@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+<!-- {% block title %}Blog | NetStats{% endblock %} -->
+
+{% block sidebar %}
+<aside class="sidebar">
+  <h2 style="font-size: 20px; margin-bottom: 20px; color: var(--accent);">Blog</h2>
+  {% if logged_in %}
+    <p><a href="/blog/new" class="button-link">✍️ New Post</a></p>
+    <p><a href="/logout" class="button-link">Logout</a></p>
+  {% else %}
+    <p><a href="/login" class="button-link">Admin Login</a></p>
+  {% endif %}
+</aside>
+{% endblock %}
+
+{% block content %}
+  <div>
+    <h1 style="font-size: 24px; margin-bottom: 20px;">Latest Posts</h1>
+    {% for post in posts %}
+      <div class="post-preview" style="margin-bottom: 2rem;">
+        <h2 style="margin-bottom: 4px;">
+          <a href="/blog/{{ post.slug }}" style="color: var(--accent); text-decoration: none;">
+            {{ post.title }}
+          </a>
+        </h2>
+        <p style="color: var(--text-muted);">{{ post.excerpt }}</p>
+      </div>
+    {% endfor %}
+    <p style="margin-top: 40px;"><a href="/" class="button-link">← Back to app</a></p>
+  </div>
+{% endblock %}

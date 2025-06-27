@@ -1,0 +1,6 @@
+.env
+network_data/network_data/
+network_data/
+network_data/
+app_outdated/
+*.zip
