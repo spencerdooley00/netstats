@@ -8,6 +8,10 @@
 
 {% block nav_tabs %}
 <a href="{{ url_for('home') }}" class="back-button">← Back to Home</a>
+<div class="team-id-banner">
+  <img class="nav-team-logo" src="https://cdn.nba.com/logos/nba/{{ logo_map[team] }}/primary/L/logo.svg" alt="{{ team }}">
+  <span class="team-abbr">{{ team }}</span>
+</div>
 <a class="tab-button {% if active_tab == 'passing' %}active{% endif %}" data-tab="passing" href="#">Passing Network</a>
 <a class="tab-button {% if active_tab == 'lineup' %}active{% endif %}" data-tab="lineup" href="#">Lineup Explorer</a>
 

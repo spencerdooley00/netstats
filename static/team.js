@@ -256,10 +256,10 @@ const panel = document.getElementById("player-details");
 const stats = d.stats || {};
 
 panel.innerHTML = `
-    <div style="text-align: right; margin-top: 8px;">
+<div style="text-align: right; margin-top: 64px;">
     <button id="close-panel-button">Close</button>
   </div>
-  <div style="text-align: center;">
+  <div style="text-align: center; margin-top: 64px;">
     <img src="${d.img}" width="110" height="80" style="border-radius: 50%;" />
     <h3>${d.name}</h3>
   </div>

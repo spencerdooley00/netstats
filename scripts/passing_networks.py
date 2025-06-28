@@ -3,14 +3,22 @@ import networkx as nx
 from pyvis.network import Network
 from nltk import ngrams
 import nba_on_court.nba_on_court.nba_on_court as noc
+import boto3
+import json
 
-# Load JSON data from local files
-with open("network_data/all_stats_test.json", "r") as f:
-    all_stats = json.load(f)
+s3 = boto3.client("s3")
 
-with open("network_data/teams.json", "r") as f:
+def load_json_from_s3(bucket, key):
+    obj = s3.get_object(Bucket=bucket, Key=key)
+    return json.load(obj["Body"])
+
+with open("teams.json", "r") as f:
     team_info_all = json.load(f)
-
+all_stats = load_json_from_s3("netstats-data", "all_stats_test.json")
+# lineup_shots_data = load_json_from_s3("netstats-data", "lineup_shots.json")
+# top_lineups_data = load_json_from_s3("netstats-data", "top_lineups.json")
+# player_shots_data = load_json_from_s3("netstats-data", "player_shots.json")
+# assist_data = load_json_from_s3("netstats-data", "conditional_assist_networks_new_id.json")
 # Helper function: Jaccard similarity for name matching
 
 

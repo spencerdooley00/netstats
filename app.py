@@ -195,7 +195,7 @@ def delete_post(slug):
 # with open("network_data/all_stats_test.json", "r") as f:
 #     all_stats = json.load(f)
 
-with open("network_data/teams.json", "r") as f:
+with open("teams.json", "r") as f:
     team_info = json.load(f)
 
 @app.route("/get_lineups", methods=["POST"])
