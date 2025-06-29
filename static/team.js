@@ -776,57 +776,55 @@ fillLineupTable(result); // use the fetched result
 }
 
 const fillLineupTable = (lineups) => {
+  const wrapper = document.getElementById("lineup-table-wrapper");
   const tbody = document.getElementById("lineup-table-body");
+  
+  // Hide the wrapper immediately
+  if (wrapper) {
+    wrapper.style.display = "none";
+    wrapper.style.opacity = 0;
+  }
+
   tbody.innerHTML = "";
 
-  lineups.forEach((lineup, i) => {
+  lineups.forEach((lineup) => {
     const row = document.createElement("tr");
     row.classList.add("lineup-row");
-row.dataset.lineup = lineup.id_key; 
-const formattedLineupName = (lineup.GROUP_NAME || "").split("*--*").join(" - ");
+    row.dataset.lineup = lineup.id_key;
 
-  row.innerHTML = `
-    <td>${formattedLineupName}</td>
+    const formattedLineupName = (lineup.GROUP_NAME || "").split("*--*").join(" - ");
+
+    row.innerHTML = `
+      <td>${formattedLineupName}</td>
       <td>${lineup.GP}</td><td>${lineup.MIN.toFixed(0)}</td><td>${lineup.FGM}</td><td>${lineup.FGA}</td><td>${lineup.FG_PCT}</td>
       <td>${lineup.FG3M}</td><td>${lineup.FG3A}</td><td>${lineup.FG3_PCT}</td><td>${lineup.OREB}</td><td>${lineup.DREB}</td>
       <td>${lineup.REB}</td><td>${lineup.AST}</td><td>${lineup.TOV}</td><td>${lineup.STL}</td><td>${lineup.BLK}</td>
       <td>${lineup.PTS}</td><td>${lineup.PLUS_MINUS}</td>
     `;
 
+    row.addEventListener("click", () => {
+      document.querySelectorAll(".lineup-row").forEach(r => r.classList.remove("selected"));
+      row.classList.add("selected");
 
-    document.getElementById('lineup-table').style.opacity = 1;
+      const lineupId = lineup.id_key;
+      updateAssistNetwork(lineupId);
+      updateLineupShotChart(lineupId);
 
-    
-row.addEventListener("click", () => {
-  document.querySelectorAll(".lineup-row").forEach(r => r.classList.remove("selected"));
-  row.classList.add("selected");
+      document.getElementById("assist-network-container").style.display = "block";
+      document.getElementById("lineup-results").style.display = "flex";
+      document.getElementById('assist-network-container')?.classList.add('show-network');
+      document.getElementById('lineup-shot-chart-container')?.classList.add('show-network');
+    });
 
-  const lineupId = lineup.id_key;
-  console.log("Clicked lineup ID:", lineupId);
-
-  updateAssistNetwork(lineupId);
-  updateLineupShotChart(lineupId);
-  document.getElementById("assist-network-container").style.display = "block";
-
-  document.getElementById("lineup-results").style.display = "flex";
-  document.getElementById('assist-network-container')?.classList.add('show-network');
-  document.getElementById('lineup-shot-chart-container')?.classList.add('show-network');
-
-const wrapper = document.getElementById("lineup-table-wrapper");
-if (wrapper) {
-  wrapper.style.display = "block";
-  wrapper.style.opacity = 0;
-  setTimeout(() => {
-    wrapper.style.opacity = 1;
-  }, 50);
-}
-
-
-});
     tbody.appendChild(row);
   });
-  table.classList.remove("hidden");
-table.style.opacity = 1;
+
+if (wrapper) {
+  wrapper.style.display = "block";  // make it visible
+  requestAnimationFrame(() => {
+    wrapper.style.opacity = 1;      // trigger CSS transition
+  });
+}
 };
 
 

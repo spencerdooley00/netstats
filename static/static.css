@@ -399,7 +399,7 @@ tr:hover { background: var(--stroke); cursor: pointer; }
   overflow-x: auto;
   margin-bottom: 20px;
   width: 100%;
-  transition: opacity 0.5s ease-in;
+  transition: opacity 300ms ease-in-out;
 }
 .lineup-toolbar {
   display: flex;
