@@ -84,6 +84,109 @@ function handleTeamOrSeasonChange() {
 // document.getElementById("season").addEventListener("change", handleTeamOrSeasonChange);
 
 
+// NEW
+function drawHeatmap(data, selector) {
+  const g = d3.select(selector).select("g.court-g");
+  if (g.empty()) {
+    console.warn(`❌ drawHeatmap aborted — ${selector} g.court-g not found`);
+    return;
+  }
+
+  g.selectAll(".shot").remove();
+
+  const heat = d3.contourDensity()
+    .x(d => (d.LOC_X * 0.86) + 215.5)
+    .y(d => (d.LOC_Y * 0.86) + 41.4)
+    .size([431, 405.14])
+    .bandwidth(20)(data);
+
+  g.selectAll("path.heat")
+    .data(heat)
+    .join("path")
+    .attr("class", "shot heat")
+    .attr("d", d3.geoPath())
+    .attr("fill", "orange")
+    .attr("opacity", d => d.value * 8);
+}
+// NEW
+function drawHexbins(data, selector) {
+  const g = d3.select(selector).select("g.court-g");
+  if (g.empty()) {
+    console.warn(`⚠️ ${selector} g.court-g not ready`);
+    return;
+  }
+
+  g.selectAll(".shot").remove();
+
+  const hexbin = d3.hexbin()
+    .x(d => (d.LOC_X * 0.86) + 215.5)
+    .y(d => (d.LOC_Y * 0.86) + 41.4)
+    .radius(12)
+    .extent([[0, 0], [431, 405.14]]);
+
+  const bins = hexbin(data);
+
+  const binStats = bins.map(bin => {
+    const makes = bin.filter(d => d.SHOT_MADE_FLAG).length;
+    const attempts = bin.length;
+    const fgPct = attempts > 0 ? makes / attempts : 0;
+    return { bin, makes, attempts, fgPct, x: bin.x, y: bin.y };
+  });
+
+  const maxAttempts = d3.max(binStats, d => d.attempts);
+
+  const radiusScale = d3.scaleSqrt().domain([0, maxAttempts]).range([0, 12]);
+  const color = d3.scaleLinear().domain([0.0, 1.0]).range(["#444", "#f97316"]);
+
+  const tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
+
+  g.selectAll("path.hex")
+    .data(binStats)
+    .enter()
+    .append("path")
+    .attr("class", "shot hex")
+    .attr("d", d => hexbin.hexagon(radiusScale(d.attempts)))
+    .attr("transform", d => `translate(${d.x},${d.y})`)
+    .attr("fill", d => color(d.fgPct))
+    .attr("opacity", d => 0.4 + 0.6 * (d.attempts / maxAttempts))
+    .attr("stroke", "#fff")
+    .attr("stroke-width", 0.5)
+    .on("mouseover", function (event, d) {
+      d3.select(this).attr("stroke", "#facc15").attr("stroke-width", 2);
+      tooltip.transition().duration(200).style("opacity", 1);
+      tooltip.html(`
+        <strong>FG%:</strong> ${(d.fgPct * 100).toFixed(1)}%<br/>
+        <strong>FGM:</strong> ${d.makes}<br/>
+        <strong>FGA:</strong> ${d.attempts}
+      `)
+      .style("left", (event.pageX + 12) + "px")
+      .style("top", (event.pageY - 28) + "px");
+    })
+    .on("mouseout", function () {
+      d3.select(this).attr("stroke", "#ffffff22").attr("stroke-width", 1);
+      tooltip.transition().duration(200).style("opacity", 0);
+    });
+}
+// NEW
+function renderShots(data, selector, togglePrefix = null) {
+  const heatToggleId = togglePrefix ? `#${togglePrefix}-heatmap-toggle` : "#heatmap-toggle";
+  const makesToggleId = togglePrefix ? `#${togglePrefix}-makes-only-toggle` : "#makes-only-toggle";
+
+  const heat = document.querySelector(heatToggleId)?.checked;
+  const makes = document.querySelector(makesToggleId)?.checked;
+
+  let filtered = data;
+  if (currentPlayerFilter) {
+    filtered = filtered.filter(d => d.PLAYER_NAME?.trim().toLowerCase() === currentPlayerFilter.trim().toLowerCase());
+  }
+  if (makes) {
+    filtered = filtered.filter(d => d.SHOT_MADE_FLAG);
+  }
+
+  heat ? drawHeatmap(filtered, selector) : drawHexbins(filtered, selector);
+}
+
+
 
 
   // Passing Network Logic — like index.js
@@ -157,9 +260,9 @@ const svg = d3.select("#network").append("svg")
     .on("zoom", (event) => svgGroup.attr("transform", event.transform)));
 
     const simulation = d3.forceSimulation(data.nodes)
-    .force("link", d3.forceLink(data.links).id(d => d.id).distance(350))
+    .force("link", d3.forceLink(data.links).id(d => d.id).distance(500))
     .force("charge", d3.forceManyBody().strength(-600))
-    .force("center", d3.forceCenter(width / 2 - 250, height / 2 - 100))
+    .force("center", d3.forceCenter(width / 2 - 150, height / 2 - 150))
     .force("collide", d3.forceCollide().radius(75))
 
 
@@ -217,10 +320,10 @@ const svg = d3.select("#network").append("svg")
 
     node.append("image")
     .attr("xlink:href", d => d.img)
-    .attr("width", 90)
-    .attr("height", 90)
-    .attr("x", -50)
-    .attr("y", -50)
+    .attr("width", 110)
+    .attr("height", 110)
+    .attr("x", -70)
+    .attr("y", -70)
     .attr("clip-path", d => `url(#clip-${d.id.replace(/\\s+/g, "-")})`)
     .attr("pointer-events", "visible");
 
@@ -228,7 +331,8 @@ const svg = d3.select("#network").append("svg")
     .text(d => d.name)
     .attr("text-anchor", "middle")
     .attr("dy", 40)
-    .attr("font-size", "12px");
+    .attr("font-size", "12px")
+    .attr("fill", "#FFFFFF");
 
     const tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
@@ -319,7 +423,7 @@ if (courtGroup.empty()) {
     .then(data => {
         shots = data; // ✅ Store globally
         console.log("Loaded shots:", shots);
-        renderShots(shots);
+renderShots(shots, "#court-svg");
 
 const g = d3.select("#court-svg").select("g.court-g");
 
@@ -356,100 +460,23 @@ const g = d3.select("#court-svg").select("g.court-g");
             });
         }
 
-function drawHexbins(data) {
-const g = d3.select("#court-svg").select("g.court-g");
 
-    // const g = d3.select("#court-svg").select("g.court-g");
-    g.selectAll(".shot").remove();  
 
-    const hexbin = d3.hexbin()
-    .x(d => (d.LOC_X * 0.86) + 215.5)
-    .y(d => (d.LOC_Y * 0.86) + 41.4)
-    .radius(10)
-    .extent([[0, 0], [431, 405.14]]);
 
-    const bins = hexbin(data);
 
-    const binStats = bins.map(bin => {
-    const makes = bin.filter(d => d.SHOT_MADE_FLAG).length;
-    const attempts = bin.length;
-    const fgPct = attempts > 0 ? makes / attempts : 0;
-    return { bin, makes, attempts, fgPct, x: bin.x, y: bin.y };
-    });
 
-    const color = d3.scaleLinear()
-    .domain([0, 1])
-    .range(["#444", "#f97316"]); // miss gray → hot orange
 
-    const tooltip = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0);
 
-    g.selectAll("path.hex")
-    .data(binStats)
-    .enter()
-    .append("path")
-    .attr("class", "shot hex")
-    .attr("d", hexbin.hexagon())
-    .attr("transform", d => `translate(${d.x},${d.y})`)
-    .attr("fill", d => color(d.fgPct))
-    .attr("stroke", "#555")
-    .attr("stroke-width", 0.5)
-    .attr("opacity", 0.85)
-    .on("mouseover", function (event, d) {
-        d3.select(this).attr("stroke", "#facc15").attr("stroke-width", 2);
-        tooltip.transition().duration(200).style("opacity", 0.95);
-        tooltip
-        .html(`<strong>FG%: ${(d.fgPct * 100).toFixed(1)}%</strong><br/>FGM: ${d.makes}<br/>FGA: ${d.attempts}`)
-        .style("left", (event.pageX + 12) + "px")
-        .style("top", (event.pageY - 28) + "px");
-    })
-    .on("mouseout", function () {
-        d3.select(this).attr("stroke", "#555").attr("stroke-width", 0.5);
-        tooltip.transition().duration(150).style("opacity", 0);
-    });
-}
-
-        function drawHeatmap(data) {
-        g.selectAll(".shot").remove();
-
-        const heat = d3.contourDensity()
-            .x(d => (d.LOC_X * 0.86) + 215.5)
-            .y(d => (d.LOC_Y * 0.86) + 41.4)
-            .size([431, 405.14])
-            .bandwidth(20)(data);
-
-        g.selectAll("path.heat")
-            .data(heat)
-            .join("path")
-            .attr("class", "shot heat")
-            .attr("d", d3.geoPath())
-            .attr("fill", "orange")
-            .attr("opacity", d => d.value * 8);
-        }
-
-        function renderShots(data) {
-        const showHeatmap = document.getElementById("heatmap-toggle").checked;
-        const showMakesOnly = document.getElementById("makes-only-toggle").checked;
-        const filtered = showMakesOnly ? data.filter(d => d.SHOT_MADE_FLAG) : data;
-
-        if (showHeatmap) {
-            drawHeatmap(filtered);
-        } else {
-            drawHexbins(filtered);
-        }
-        }
 
         // ✅ Reset toggles and render shots
         document.getElementById("heatmap-toggle").checked = false;
         document.getElementById("makes-only-toggle").checked = false;
-        renderShots(shots);
+renderShots(shots, "#court-svg"); // no prefix
+document.getElementById("heatmap-toggle").onchange = () =>
+  renderShots(shots, "#court-svg");
+document.getElementById("makes-only-toggle").onchange = () =>
+  renderShots(shots, "#court-svg");
 
-        // ✅ Now hook up toggles globally
-        document.getElementById("heatmap-toggle").onchange = () => renderShots(shots);
-        document.getElementById("makes-only-toggle").onchange = () => renderShots(shots);
-    
-            
         });
 
     // const g = courtSvg.select("g");
@@ -615,15 +642,17 @@ node.append("image")
   node.append("text")
     .text(d => d.name)
     .attr("text-anchor", "middle")
-    .attr("dy", 40)
-    .attr("font-size", "12px");
+    .attr("dy", 60)
+    .attr("font-size", "12px")
+    .attr("fill", "#FFFFFF");
 
     
   node.on("click", (event, d) => {
   currentPlayerFilter = d.name;
     console.log("✅ Set currentPlayerFilter to:", currentPlayerFilter);
+waitForCourtAndRender(currentLineupShots);
 
-  renderShots(currentLineupShots);
+  // renderShots(currentLineupShots);
 });
 
 
@@ -666,111 +695,53 @@ if (!container.querySelector("g.court-g")) {
     <svg width="431" height="405.14" viewBox="0 0 431 405.14">
       ${courtSvgHtml}
     </svg>`;
+
+  // defer execution to allow DOM paint cycle
+  setTimeout(() => {
+    waitForCourtAndRender(currentLineupShots);
+  }, 0);
+} else {
+  waitForCourtAndRender(currentLineupShots);
 }
 
 
-const lineupTab = document.querySelector(".tab[data-tab='lineup']");
-if (lineupTab && lineupTab.classList.contains("active")) {
-  renderShots(currentLineupShots);
+
+renderShots(currentLineupShots, "#assist-court-svg", "assist");
+const heatToggle = document.getElementById("assist-heatmap-toggle");
+const makesToggle = document.getElementById("assist-makes-only-toggle");
+
+if (heatToggle) {
+  heatToggle.onchange = () => renderShots(currentLineupShots, "#assist-court-svg", "assist");
 }
-  document.getElementById("assist-heatmap-toggle").onchange = () => renderShots(currentLineupShots);
-  document.getElementById("assist-makes-only-toggle").onchange = () => renderShots(currentLineupShots);
+if (makesToggle) {
+  makesToggle.onchange = () => renderShots(currentLineupShots, "#assist-court-svg", "assist");
+}
 });
-setTimeout(() => {
-  renderShots(currentLineupShots);
-}, 50);
 
 document.getElementById("reset-filter-button").onclick = () => {
   currentPlayerFilter = null;
-  renderShots(currentLineupShots);  // redraw full lineup
+  renderShots(currentLineupShots, "#assist-court-svg");  // ✅ correct
 };
 
 }
+function waitForCourtAndRender(shots, maxTries = 10) {
+  let tries = 0;
 
-function renderShots(data) {
-  const heat = document.getElementById("assist-heatmap-toggle").checked;
-  const makes = document.getElementById("assist-makes-only-toggle").checked;
-console.log("Clicked player name:", currentPlayerFilter);
-console.log("Available PLAYER_NAMEs:", [...new Set(data.map(d => d.PLAYER_NAME))]);
-
-  let filtered = data;
-  if (currentPlayerFilter) {
-    console.log("Clicked player name:", currentPlayerFilter);
-filtered = filtered.filter(d => 
-  d.PLAYER_NAME.trim().toLowerCase() === currentPlayerFilter.trim().toLowerCase()
-);  }
-  if (makes) {
-    filtered = filtered.filter(d => d.SHOT_MADE_FLAG);
+  function tryRender() {
+    const g = d3.select("#assist-court-svg").select("g.court-g");
+   if (!g.empty()) {
+    renderShots(shots, "#assist-court-svg");
+    } else if (tries < maxTries) {
+      tries++;
+      setTimeout(tryRender, 30);  // retry in 30ms
+    } else {
+      console.warn("❌ Failed to find g.court-g after multiple tries");
+    }
   }
 
-heat ? drawHeatmap(filtered) : drawHexbins(filtered);
+  tryRender();
 }
 
-function drawHexbins(data) {
-  const g = d3.select("#assist-court-svg").select("g.court-g");
-  g.selectAll(".shot").remove();
-
-  const hexbin = d3.hexbin()
-    .x(d => (d.LOC_X * 0.86) + 215.5)
-    .y(d => (d.LOC_Y * 0.86) + 41.4)
-    .radius(12)
-    .extent([[0, 0], [431, 405.14]]);
-
-  const bins = hexbin(data);
-
-  const binStats = bins.map(bin => {
-    const makes = bin.filter(d => d.SHOT_MADE_FLAG).length;
-    const attempts = bin.length;
-    const fgPct = attempts > 0 ? makes / attempts : 0;
-    return { bin, makes, attempts, fgPct, x: bin.x, y: bin.y };
-  });
-
-//   const maxAttempts = d3.max(binStats, d => d.attempts);
-const maxAttempts = d3.max(binStats, d => d.attempts);
-
-const radiusScale = d3.scaleSqrt()
-  .domain([0, maxAttempts])
-  .range([0, 12]);  // max hex radius
-
-  const sizeScale = d3.scaleSqrt()
-    .domain([1, maxAttempts])
-    .range([8, 22]);
-
-  const color = d3.scaleLinear()
-    .domain([0.0, 1.0])
-    .range(["#444", "#f97316"]);
-
-  const tooltip = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0);
-g.selectAll("path.hex")
-  .data(binStats)
-  .enter()
-  .append("path")
-  .attr("class", "shot hex")
-  .attr("d", d => hexbin.hexagon(radiusScale(d.attempts)))
-  .attr("transform", d => `translate(${d.x},${d.y})`)
-  .attr("fill", d => color(d.fgPct))
-  .attr("opacity", d => 0.4 + 0.6 * (d.attempts / maxAttempts))
-  .attr("stroke", "#fff")
-  .attr("stroke-width", 0.5)
-
-    .on("mouseover", function (event, d) {
-      d3.select(this).attr("stroke", "#facc15").attr("stroke-width", 2);
-      tooltip.transition().duration(200).style("opacity", 1);
-      tooltip.html(`
-        <strong>FG%:</strong> ${(d.fgPct * 100).toFixed(1)}%<br/>
-        <strong>FGM:</strong> ${d.makes}<br/>
-        <strong>FGA:</strong> ${d.attempts}
-      `)
-      .style("left", (event.pageX + 12) + "px")
-      .style("top", (event.pageY - 28) + "px");
-    })
-    .on("mouseout", function () {
-      d3.select(this).attr("stroke", "#ffffff22").attr("stroke-width", 1);
-      tooltip.transition().duration(200).style("opacity", 0);
-    });
-}
 async function fetchAndRenderTopLineups() {
   const team = document.getElementById("team")?.value;
   const season = document.getElementById("season")?.value;
@@ -812,13 +783,16 @@ const fillLineupTable = (lineups) => {
     const row = document.createElement("tr");
     row.classList.add("lineup-row");
 row.dataset.lineup = lineup.id_key; 
-    row.innerHTML = `
-      <td>${lineup.GROUP_NAME}</td>
+const formattedLineupName = (lineup.GROUP_NAME || "").split("*--*").join(" - ");
+
+  row.innerHTML = `
+    <td>${formattedLineupName}</td>
       <td>${lineup.GP}</td><td>${lineup.MIN.toFixed(0)}</td><td>${lineup.FGM}</td><td>${lineup.FGA}</td><td>${lineup.FG_PCT}</td>
       <td>${lineup.FG3M}</td><td>${lineup.FG3A}</td><td>${lineup.FG3_PCT}</td><td>${lineup.OREB}</td><td>${lineup.DREB}</td>
       <td>${lineup.REB}</td><td>${lineup.AST}</td><td>${lineup.TOV}</td><td>${lineup.STL}</td><td>${lineup.BLK}</td>
       <td>${lineup.PTS}</td><td>${lineup.PLUS_MINUS}</td>
     `;
+
 
     document.getElementById('lineup-table').style.opacity = 1;
 
@@ -851,6 +825,8 @@ if (wrapper) {
 });
     tbody.appendChild(row);
   });
+  table.classList.remove("hidden");
+table.style.opacity = 1;
 };
 
 

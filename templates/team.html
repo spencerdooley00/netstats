@@ -6,21 +6,26 @@
 <script type="module" src="{{ url_for('static', filename='team.js') }}"></script>
 {% endblock %}
 
+
 {% block nav_tabs %}
 <a href="{{ url_for('home') }}" class="back-button">← Back to Home</a>
+
 <div class="team-id-banner">
   <img class="nav-team-logo" src="https://cdn.nba.com/logos/nba/{{ logo_map[team] }}/primary/L/logo.svg" alt="{{ team }}">
   <span class="team-abbr">{{ team }}</span>
+  <div class="season-selector-wrapper">
+    <select id="season" class="season-selector">
+      {% for s in seasons %}
+        <option value="{{ s }}" {% if s == selected_season %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </div>
 </div>
+
 <a class="tab-button {% if active_tab == 'passing' %}active{% endif %}" data-tab="passing" href="#">Passing Network</a>
 <a class="tab-button {% if active_tab == 'lineup' %}active{% endif %}" data-tab="lineup" href="#">Lineup Explorer</a>
-
-<select id="season" class="dropdown season-dropdown" style="margin-left: auto;">
-  {% for s in seasons %}
-    <option value="{{ s }}" {% if s == selected_season %}selected{% endif %}>{{ s }}</option>
-  {% endfor %}
-</select>
 {% endblock %}
+
 
 {% block content %}
 <div class="page-layout">
@@ -81,7 +86,7 @@
  
 
     <!-- Lineup Table -->
-<div id="lineup-table" class="lineup-table-wrapper fade-in-on-load" style="opacity: 0;">
+<div id="lineup-table" class="lineup-table-wrapper hidden fade-in-on-load">
       <table class="lineup-table">
         <thead>
           <tr>
