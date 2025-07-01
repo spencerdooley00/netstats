@@ -115,8 +115,8 @@ header, #main-header {
 }
 
 .nav-team-logo {
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
 }
 
 .team-abbr {
@@ -342,23 +342,43 @@ tr:hover { background: var(--stroke); cursor: pointer; }
   box-shadow: 0 2px 12px rgba(0,0,0,0.3);
   font-size: 14px;
 }
-.player-checkbox {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 8px 0;  
-  align-items: center;
-  background: #1f2937;
-  border-radius: 8px;
-  margin: 4px;
-  font-size: 13px;
-  border: 1px solid var(--stroke);
-  cursor: pointer;
-}
-.player-checkbox:hover { background: var(--stroke); }
 .player-checkbox input[type="checkbox"] {
-  accent-color: var(--accent);
+  display: none;
 }
+.custom-checkbox {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+/* Checked state via class toggle in JS */
+.player-checkbox.checked .custom-checkbox {
+  border: 2px solid var(--accent);
+  background-color: rgba(250, 204, 21, 0.2);
+}
+.player-checkbox.checked {
+  border: 2px solid var(--accent);
+  background-color: rgba(250, 204, 21, 0.08);
+}
+
+
+
+.player-checkbox.checked {
+  border: 2px solid var(--accent);
+  background-color: rgba(250, 204, 21, 0.08);
+}
+
+
+.player-checkbox:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.player-name {
+  font-size: 14px;
+}
+
 
 /* ========== Charts & Shot SVG ========== */
 #court-svg {
@@ -545,3 +565,59 @@ tr:hover { background: var(--stroke); cursor: pointer; }
   color: #1f2937;
 }
 
+/* Hide the default checkbox appearance */
+input.player-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: transparent;
+  border: 2px solid #ccc;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  margin-right: 8px;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Custom "checked" look */
+input.player-checkbox:checked {
+  border-color: var(--accent);
+  background-color: rgba(250, 204, 21, 0.2);
+}
+
+/* Optional hover effect */
+input.player-checkbox:hover {
+  border-color: #aaa;
+}
+
+/* Hide native checkbox */
+.player-checkbox {
+  display: none;
+}
+
+/* Style label when checkbox is checked */
+.player-checkbox:checked + span {
+  border: 2px solid var(--accent);
+  background-color: rgba(250, 204, 21, 0.1);
+}
+
+/* Style all checkbox labels */
+#player-checkboxes label {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* Style the player name span */
+#player-checkboxes span {
+  font-size: 14px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 2px solid transparent;
+}

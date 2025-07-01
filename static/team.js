@@ -217,15 +217,53 @@ function renderShots(data, selector, togglePrefix = null) {
     label.append(` ${player}`);
     checkboxContainer.appendChild(label);
   });
+ 
+
+// ✅ Add listener to whole container ONCE
+// Debounced update to avoid rapid DOM thrashing
+let debounceTimeout;
+checkboxContainer.addEventListener("change", () => {
+  clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    updatePassingNetwork(true);
+  }, 250); // delay to ensure change registers visually first
+});
+
+
+
   checkboxContainer.querySelectorAll(".player-checkbox").forEach(cb => {
     cb.addEventListener("change", () => updatePassingNetwork(true));
   });
+  checkboxContainer.querySelectorAll("input[type='checkbox']").forEach(cb => {
+  cb.addEventListener("change", () => updatePassingNetwork(true));
+});
 
   // ✅ only draw if tab is active
 const passingTab = document.querySelector(".tab-button[data-tab='passing']");
 if (passingTab && passingTab.classList.contains("active")) {
   drawPassingNetwork(data);
 }
+// ✅ Enable checkbox selection styling manually
+document.querySelectorAll("#player-checkboxes input[type='checkbox']").forEach(input => {
+  const label = input.closest(".player-checkbox");
+
+  // Initialize checked state
+  if (input.checked) {
+    label.classList.add("checked");
+  }
+
+  // Listen to change event
+  input.addEventListener("change", () => {
+    if (input.checked) {
+      label.classList.add("checked");
+    } else {
+      label.classList.remove("checked");
+    }
+
+    // Trigger network update if needed
+    updatePassingNetwork(true);
+  });
+});
 });
   }
 

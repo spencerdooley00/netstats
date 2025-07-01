@@ -42,7 +42,8 @@
         {% for player in players %}
 <label class="player-checkbox">
   <input type="checkbox" value="{{ player }}" {% if player in selected_players %}checked{% endif %}>
-  {{ player }}
+  <span class="custom-checkbox"></span>
+  <span class="player-name">{{ player }}</span>
 </label>
         {% endfor %}
       </div>
