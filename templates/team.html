@@ -65,17 +65,19 @@
 
       <div id="network" style="height: 85vh;"></div>
 
-      <div class="right-panel" id="right-panel" style="width: 420px; position: absolute; top: 0; right: 0; display: none; background: var(--bg-panel); padding: 16px; border-left: 1px solid var(--stroke); height: 100%;">
+<div class="right-panel" id="right-panel" style="display: none;">
 
-        <div id="player-details" style="background: var(--bg-dark); border-radius: 8px; padding: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);"></div>
+  <div id="player-details"></div>
 
-<div id="court-svg-container" style="width: 431px; height: 405.14px;"></div>
-<div class="chart-controls">
-  <label><input type="checkbox" id="heatmap-toggle"> Heatmap</label>
-  <label><input type="checkbox" id="makes-only-toggle"> Makes only</label>
+  <div class="shot-chart-container">
+    <div id="court-svg-container"></div>
+    <svg id="court-svg" viewBox="0 0 431 405.14"></svg>
+    <div class="chart-controls">
+      <label><input type="checkbox" id="heatmap-toggle"> Heatmap</label>
+      <label><input type="checkbox" id="makes-only-toggle"> Makes only</label>
+    </div>
+  </div>
 </div>
-          <svg id="court-svg" width="431" height="405.14" viewBox="0 0 431 405.14"></svg>
-        </div>
       </div>
     </div>
 

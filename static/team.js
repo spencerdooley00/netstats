@@ -135,7 +135,9 @@ function drawHexbins(data, selector) {
 
   const maxAttempts = d3.max(binStats, d => d.attempts);
 
-  const radiusScale = d3.scaleSqrt().domain([0, maxAttempts]).range([0, 12]);
+  // const radiusScale = d3.scaleSqrt().domain([0, maxAttempts]).range([0, 12]);
+  // const radiusScale = d3.scaleSqrt().domain([0, maxAttempts]).range([0, 12]);
+  const radiusScale = d3.scaleSqrt().domain([0, maxAttempts]).range([3, 14]); 
   const color = d3.scaleLinear().domain([0.0, 1.0]).range(["#444", "#f97316"]);
 
   const tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
@@ -148,9 +150,9 @@ function drawHexbins(data, selector) {
     .attr("d", d => hexbin.hexagon(radiusScale(d.attempts)))
     .attr("transform", d => `translate(${d.x},${d.y})`)
     .attr("fill", d => color(d.fgPct))
-    .attr("opacity", d => 0.4 + 0.6 * (d.attempts / maxAttempts))
-    .attr("stroke", "#fff")
-    .attr("stroke-width", 0.5)
+.attr("opacity", d => 0.3 + 0.5 * (d.attempts / maxAttempts))
+.attr("stroke", "#1f2937")
+.attr("stroke-width", 0.6)
     .on("mouseover", function (event, d) {
       d3.select(this).attr("stroke", "#facc15").attr("stroke-width", 2);
       tooltip.transition().duration(200).style("opacity", 1);
@@ -221,13 +223,13 @@ function renderShots(data, selector, togglePrefix = null) {
 
 // ✅ Add listener to whole container ONCE
 // Debounced update to avoid rapid DOM thrashing
-let debounceTimeout;
-checkboxContainer.addEventListener("change", () => {
-  clearTimeout(debounceTimeout);
-  debounceTimeout = setTimeout(() => {
-    updatePassingNetwork(true);
-  }, 250); // delay to ensure change registers visually first
-});
+// let debounceTimeout;
+// checkboxContainer.addEventListener("change", () => {
+//   clearTimeout(debounceTimeout);
+//   debounceTimeout = setTimeout(() => {
+//     updatePassingNetwork(true);
+//   }, 250); // delay to ensure change registers visually first
+// });
 
 
 
@@ -270,12 +272,12 @@ document.querySelectorAll("#player-checkboxes input[type='checkbox']").forEach(i
 function drawPassingNetwork(data) {
 d3.select("#passing-tab").selectAll("svg").remove();
 
-    const width = document.getElementById("passing-tab").clientWidth;
+    const width = document.getElementById("passing-tab").clientWidth ;
     const height = window.innerHeight;
 
 const svg = d3.select("#network").append("svg")
-    .attr("width", width)
-    .attr("height", height);
+    .attr("width", width+400)
+    .attr("height", height-100);
 
     svg.append("defs").append("marker")
     .attr("id", "arrow")
@@ -299,9 +301,11 @@ const svg = d3.select("#network").append("svg")
 
     const simulation = d3.forceSimulation(data.nodes)
     .force("link", d3.forceLink(data.links).id(d => d.id).distance(500))
-    .force("charge", d3.forceManyBody().strength(-600))
+    .force("charge", d3.forceManyBody().strength(-400))
     .force("center", d3.forceCenter(width / 2 - 150, height / 2 - 150))
     .force("collide", d3.forceCollide().radius(75))
+  .force("x", d3.forceX(width / 2).strength(0.001))
+.force("y", d3.forceY(height / 2).strength(0.09))
 
 
 
@@ -398,23 +402,22 @@ const panel = document.getElementById("player-details");
 const stats = d.stats || {};
 
 panel.innerHTML = `
-<div style="text-align: right; margin-top: 64px;">
-    <button id="close-panel-button">Close</button>
+  <div class="player-card-header">
+    <button id="close-panel-button" class="close-button">Close</button>
   </div>
-  <div style="text-align: center; margin-top: 64px;">
-    <img src="${d.img}" width="110" height="80" style="border-radius: 50%;" />
-    <h3>${d.name}</h3>
+  <div class="player-card-content">
+    <img src="${d.img}" class="player-card-img" />
+    <h3 class="player-card-name">${d.name}</h3>
   </div>
-  <table style="width: 100%; font-size: 14px; margin-top: 10px; border-spacing: 6px;">
-    <tr><td><strong>PTS:</strong></td><td style="text-align: right;">${stats.PTS?.toFixed(1) ?? "-"}</td></tr>
-    <tr><td><strong>AST:</strong></td><td style="text-align: right;">${stats.AST?.toFixed(1) ?? "-"}</td></tr>
-    <tr><td><strong>REB:</strong></td><td style="text-align: right;">${stats.REB?.toFixed(1) ?? "-"}</td></tr>
-    <tr><td><strong>+/-:</strong></td><td style="text-align: right;">${stats.PLUS_MINUS?.toFixed(1) ?? "-"}</td></tr>
-    <tr><td><strong>MIN:</strong></td><td style="text-align: right;">${stats.MIN?.toFixed(1) ?? "-"}</td></tr>
-    <tr><td><strong>FG%:</strong></td><td style="text-align: right;">${((stats.FG_PCT ?? 0) * 100).toFixed(1)}%</td></tr>
-    <tr><td><strong>3FG%:</strong></td><td style="text-align: right;">${((stats.FG3_PCT ?? 0) * 100).toFixed(1)}%</td></tr>
+  <table class="player-card-table">
+    <tr><td><strong>PTS:</strong></td><td>${stats.PTS?.toFixed(1) ?? "-"}</td></tr>
+    <tr><td><strong>AST:</strong></td><td>${stats.AST?.toFixed(1) ?? "-"}</td></tr>
+    <tr><td><strong>REB:</strong></td><td>${stats.REB?.toFixed(1) ?? "-"}</td></tr>
+    <tr><td><strong>+/-:</strong></td><td>${stats.PLUS_MINUS?.toFixed(1) ?? "-"}</td></tr>
+    <tr><td><strong>MIN:</strong></td><td>${stats.MIN?.toFixed(1) ?? "-"}</td></tr>
+    <tr><td><strong>FG%:</strong></td><td>${((stats.FG_PCT ?? 0) * 100).toFixed(1)}%</td></tr>
+    <tr><td><strong>3FG%:</strong></td><td>${((stats.FG3_PCT ?? 0) * 100).toFixed(1)}%</td></tr>
   </table>
-
 `;
 
 // ✅ Add listener AFTER inserting HTML

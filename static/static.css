@@ -149,7 +149,7 @@ header, #main-header {
   grid-template-columns: 1fr !important;
 }
 .sidebar input[type="checkbox"] {
-  accent-color: var(--yellow); /* bright yellow checks */
+  accent-color: var(--blue); /* bright yellow checks */
   transform: scale(1.2);       /* make them a little bigger */
   margin-right: 8px;
   cursor: pointer;
@@ -311,36 +311,122 @@ tr:hover { background: var(--stroke); cursor: pointer; }
 /* ========== Player Panel ========== */
 .right-panel {
   position: absolute;
-  top: 64px;
+  top: 80px; /* ✅ Push down below the navbar */
   right: 0;
-  width: 420px;
-  height: calc(100% - 64px);
+  width: 550px;
+  height: calc(100% - 64px); /* match */
   background: var(--bg-panel);
-  padding: 16px;
-  padding-top: 32px; /* ✅ Give space for close button */
+  padding: 24px 20px 20px 20px;
   box-sizing: border-box;
   overflow-y: auto;
   z-index: 999;
   border-left: 1px solid var(--stroke);
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.right-panel .close-button {
+.right-panel .close-panel-button {
   position: absolute;
-  top: 8px;   /* ✅ Position inside the panel, not behind navbar */
-  right: 8px;
-  background: transparent;
-  color: white;
+  top: 8px;  /* or even 4px */
+  right: 12px;
+  background: var(--accent);
+  color: #111;
   border: none;
-  font-size: 20px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: bold;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   z-index: 1000;
 }
+
 #player-details {
-  background: var(--bg-dark);
-  border-radius: 10px;
+  background: #2b3544;
+  border-radius: 12px;
   padding: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
   font-size: 14px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+#player-details img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+
+#player-details h3 {
+  margin: 6px 0 4px;
+  font-size: 16px;
+  color: white;
+}
+
+#player-details p {
+  margin: 2px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+#player-details {
+  background: #2b3544;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.player-card-header {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.player-card-img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  margin: 8px 0;
+  object-fit: cover;
+}
+
+.player-card-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 4px 0 8px;
+}
+
+.player-card-table {
+  width: 100%;
+  font-size: 14px;
+  border-spacing: 6px;
+  margin-top: 6px;
+  color: var(--text-light);
+}
+
+.player-card-table td {
+  text-align: right;
+}
+.player-card-table td:first-child {
+  text-align: left;
+}
+
+
+.shot-chart-container {
+  background: #2b3544;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+#court-svg {
+  width: 100%;
+  height: auto;
+  margin-top: 8px;
 }
 .player-checkbox input[type="checkbox"] {
   display: none;
