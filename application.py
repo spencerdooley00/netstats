@@ -17,30 +17,31 @@ from flask import Flask
 
 application = Flask(__name__)
 
+
+s3 = boto3.client("s3")
+
+def load_json_from_s3(bucket, key):
+    try:
+        obj = s3.get_object(Bucket=bucket, Key=key)
+        return json.load(obj["Body"])
+    except Exception as e:
+        print(f"⚠️ Failed to load {key} from {bucket}: {e}")
+        return {}  # or None or [] depending on what your app expects
+
+# S3 Bucket
+bucket = "netstats-data"
+
+# Safely load all files
+all_stats = load_json_from_s3(bucket, "all_stats_test.json")
+lineup_shots_data = load_json_from_s3(bucket, "lineup_shots.json")
+top_lineups_data = load_json_from_s3(bucket, "top_lineups.json")
+player_shots_data = load_json_from_s3(bucket, "player_shots.json")
+assist_data = load_json_from_s3(bucket, "conditional_assist_networks_new_id.json")
+team_info = load_json_from_s3(bucket, "teams.json")
+
 @application.route("/")
 def index():
     return "✅ NetStats deployed successfully!"
-# application = Flask(__name__)
-# s3 = boto3.client("s3")
-
-# def load_json_from_s3(bucket, key):
-#     try:
-#         obj = s3.get_object(Bucket=bucket, Key=key)
-#         return json.load(obj["Body"])
-#     except Exception as e:
-#         print(f"⚠️ Failed to load {key} from {bucket}: {e}")
-#         return {}  # or None or [] depending on what your app expects
-
-# # S3 Bucket
-# bucket = "netstats-data"
-
-# # Safely load all files
-# all_stats = load_json_from_s3(bucket, "all_stats_test.json")
-# lineup_shots_data = load_json_from_s3(bucket, "lineup_shots.json")
-# top_lineups_data = load_json_from_s3(bucket, "top_lineups.json")
-# player_shots_data = load_json_from_s3(bucket, "player_shots.json")
-# assist_data = load_json_from_s3(bucket, "conditional_assist_networks_new_id.json")
-# team_info = load_json_from_s3(bucket, "teams.json")
 
 # # with open("network_data/lineup_shots.json", "r") as f:
 # #     lineup_shots_data = json.load(f)
