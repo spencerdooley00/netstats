@@ -595,7 +595,7 @@ console.log("Links:", data.links);
 
 if (width === 0 || height === 0) {
   console.warn("drawNetwork called before layout ready");
-}
+} 
 
 
   const svg = d3.select("#assist-network").append("svg")
