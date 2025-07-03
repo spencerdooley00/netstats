@@ -50,12 +50,12 @@ headers = {
 }
 
 POSTS_DIR = os.environ["POSTS_DIR"]
-app.secret_key = os.environ["SECRET_KEY"]
+application.secret_key = os.environ["SECRET_KEY"]
 
 USERNAME = os.environ["USERNAME"]
 PASSWORD = os.environ["PASSWORD"]
 
-@app.route("/")
+@application.route("/")
 def home():
     seasons = sorted(all_stats.keys(), reverse=True)
     selected_season = seasons[0]
@@ -67,7 +67,7 @@ def home():
     return render_template("home.html", season=selected_season, team_abbrs=team_abbrs)
 
 
-@app.route("/team/<team>")
+@application.route("/team/<team>")
 def team_view(team):
     seasons = sorted(all_stats.keys(), reverse=True)
     selected_season = request.args.get("season", seasons[0])
@@ -128,7 +128,7 @@ def get_posts():
                     "excerpt": excerpt + "...",
                 })
     return sorted(posts, key=lambda x: x["slug"], reverse=True)
-@app.route("/login", methods=["GET", "POST"])
+@application.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         if request.form["username"] == USERNAME and request.form["password"] == PASSWORD:
@@ -138,18 +138,18 @@ def login():
         else:
             flash("Incorrect username or password.")
     return render_template("login.html")
-@app.route("/logout")
+@application.route("/logout")
 def logout():
     session.pop("logged_in", None)
     flash("Logged out.")
     return redirect(url_for("blog_index"))
 
-@app.route("/blog")
+@application.route("/blog")
 def blog_index():
     posts = get_posts()
     return render_template("blog.html", posts=posts, logged_in=session.get("logged_in", False))
 
-@app.route("/blog/<slug>")
+@application.route("/blog/<slug>")
 def blog_post(slug):
     path = os.path.join(POSTS_DIR, slug + ".md")
     if not os.path.exists(path):
@@ -161,7 +161,7 @@ def blog_post(slug):
     return render_template("blog_post.html", title=title, content=html, slug=slug)
 
 
-@app.route("/blog/new", methods=["GET", "POST"])
+@application.route("/blog/new", methods=["GET", "POST"])
 @login_required
 def new_post():
     if request.method == "POST":
@@ -183,7 +183,7 @@ def new_post():
 
     return render_template("blog_new.html")
 
-@app.route("/blog/<slug>/delete", methods=["POST"])
+@application.route("/blog/<slug>/delete", methods=["POST"])
 @login_required
 def delete_post(slug):
     filepath = os.path.join(POSTS_DIR, slug + ".md")
@@ -200,7 +200,7 @@ def delete_post(slug):
 # with open("teams.json", "r") as f:
 #     team_info = json.load(f)
 
-@app.route("/get_lineups", methods=["POST"])
+@application.route("/get_lineups", methods=["POST"])
 def get_lineups():
     data = request.get_json()
     season = data["season"]
@@ -219,7 +219,7 @@ def extract_player_id_or_name(token):
 def sanitize_key(key):
     return re.sub(r"[.$#[\]/']", '', key)
 
-@app.route("/update_assist_network", methods=["POST"])
+@application.route("/update_assist_network", methods=["POST"])
 def update_assist_network():
     data = request.get_json()
     season = data["season"]
@@ -299,7 +299,7 @@ def update_assist_network():
 
     return jsonify({"nodes": nodes, "links": links})
 
-@app.route("/update_network", methods=["POST"])
+@application.route("/update_network", methods=["POST"])
 def update_network():
     data = request.get_json()
     season = data.get("season")
@@ -334,7 +334,7 @@ def update_network():
 
     return jsonify({"nodes": [], "links": [], "players": [], "selected": []})
 
-@app.route("/player_shots", methods=["POST"])
+@application.route("/player_shots", methods=["POST"])
 def player_shots():
     data = request.get_json()
     player = data.get('player')
@@ -345,12 +345,12 @@ def player_shots():
     return jsonify(shots)
 
 
-@app.route("/blog")
+@application.route("/blog")
 def blog():
     return render_template("blog.html")
 
 
-@app.route("/get_top_lineups", methods=["POST"])
+@application.route("/get_top_lineups", methods=["POST"])
 def get_top_lineups():
     data = request.get_json()
     # team_id = data["team_id"]
@@ -387,14 +387,14 @@ def get_top_lineups():
             **lineup["stats"]
         }
 
-        rows.append(stats)
+        rows.applicationend(stats)
 
     return jsonify(rows)
 
 
 
 
-@app.route("/lineup_shots", methods=["POST"])
+@application.route("/lineup_shots", methods=["POST"])
 def lineup_shots():
     data = request.get_json()
     season = data["season"]
@@ -429,14 +429,14 @@ def get_lineup_ids(season, team, lineup):
         
         player_data = team_data.get(name)
         # if player_data and "id" in player_data:
-        ids.append(player_data['stats']["PLAYER_ID"])
+        ids.applicationend(player_data['stats']["PLAYER_ID"])
         # else:
         #     raise ValueError(f"Player ID not found for {name} in {season_str} {team}")
 
     return ids
 
 
-@app.route("/test_metrics")
+@application.route("/test_metrics")
 def test_metrics():
     season = "2024-25"
     team = "BOS"
