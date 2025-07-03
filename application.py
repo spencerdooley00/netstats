@@ -17,67 +17,63 @@ from flask import Flask
 
 application = Flask(__name__)
 
-
 s3 = boto3.client("s3")
-
-def load_json_from_s3(bucket, key):
-    try:
-        obj = s3.get_object(Bucket=bucket, Key=key)
-        return json.load(obj["Body"])
-    except Exception as e:
-        print(f"⚠️ Failed to load {key} from {bucket}: {e}")
-        return {}  # or None or [] depending on what your app expects
-
-# S3 Bucket
 bucket = "netstats-data"
 
-# Safely load all files
-all_stats = load_json_from_s3(bucket, "all_stats_test.json")
-lineup_shots_data = load_json_from_s3(bucket, "lineup_shots.json")
-top_lineups_data = load_json_from_s3(bucket, "top_lineups.json")
-player_shots_data = load_json_from_s3(bucket, "player_shots.json")
-assist_data = load_json_from_s3(bucket, "conditional_assist_networks_new_id.json")
-team_info = load_json_from_s3(bucket, "teams.json")
+# Memoized cache
+_cache = {}
+
+def load_json_from_s3_lazy(key):
+    if key in _cache:
+        return _cache[key]
+    try:
+        obj = s3.get_object(Bucket=bucket, Key=key)
+        data = json.load(obj["Body"])
+        _cache[key] = data
+        print(f"✅ Loaded {key} from S3")
+        return data
+    except Exception as e:
+        print(f"⚠️ Failed to load {key}: {e}")
+        return {}
+
+
+# with open("network_data/lineup_shots.json", "r") as f:
+#     lineup_shots_data = json.load(f)
+
+# with open("network_data/player_shots.json", "r") as f:
+#     player_shots_data = json.load(f)
+    
+
+# with open("network_data/conditional_assist_networks_new_id.json") as f:
+#     assist_data = json.load(f)
+
+# with open("network_data/all_stats_test.json") as f:
+#     all_stats = json.load(f)
+    
+    
+headers = {
+    'User-Agent': 'Mozilla/5.0',
+    'Referer': 'https://www.nba.com/'
+}
+
+POSTS_DIR = os.environ["POSTS_DIR"]
+application.secret_key = os.environ["SECRET_KEY"]
+
+USERNAME = os.environ["USERNAME"]
+PASSWORD = os.environ["PASSWORD"]
 
 @application.route("/")
-def index():
-    return "✅ NetStats deployed successfully!"
+def home():
+    all_stats = load_json_from_s3_lazy("all_stats_test.json")
 
-# # with open("network_data/lineup_shots.json", "r") as f:
-# #     lineup_shots_data = json.load(f)
-
-# # with open("network_data/player_shots.json", "r") as f:
-# #     player_shots_data = json.load(f)
-    
-
-# # with open("network_data/conditional_assist_networks_new_id.json") as f:
-# #     assist_data = json.load(f)
-
-# # with open("network_data/all_stats_test.json") as f:
-# #     all_stats = json.load(f)
-    
-    
-# headers = {
-#     'User-Agent': 'Mozilla/5.0',
-#     'Referer': 'https://www.nba.com/'
-# }
-
-# POSTS_DIR = os.environ["POSTS_DIR"]
-# application.secret_key = os.environ["SECRET_KEY"]
-
-# USERNAME = os.environ["USERNAME"]
-# PASSWORD = os.environ["PASSWORD"]
-
-# @application.route("/")
-# def home():
-#     seasons = sorted(all_stats.keys(), reverse=True)
-#     selected_season = seasons[0]
-#     team_abbrs = [
-#         "ATL", "BOS", "BKN", "CHA", "CHI", "CLE", "DAL", "DEN", "DET", "GSW",
-#         "HOU", "IND", "LAC", "LAL", "MEM", "MIA", "MIL", "MIN", "NOP", "NYK",
-#         "OKC", "ORL", "PHI", "PHX", "POR", "SAC", "SAS", "TOR", "UTA", "WAS"
-#     ]
-#     return render_template("home.html", season=selected_season, team_abbrs=team_abbrs)
+    seasons = sorted(all_stats.keys(), reverse=True)
+    selected_season = seasons[0]
+    team_abbrs = [
+        "ATL", "BOS", "BKN", "CHA", "CHI", "CLE", "DAL", "DEN", "DET", "GSW",
+        "HOU", "IND", "LAC", "LAL", "MEM", "MIA", "MIL", "MIN", "NOP", "NYK",
+        "OKC", "ORL", "PHI", "PHX", "POR", "SAC", "SAS", "TOR", "UTA", "WAS"
+    ]
+    return render_template("home.html", season=selected_season, team_abbrs=team_abbrs)
 
 
 # @application.route("/team/<team>")
