@@ -1,3 +1,18 @@
+
+from flask import Flask, render_template, request, jsonify, abort, redirect, url_for, flash, session
+import json
+import markdown
+import os
+from scripts.passing_networks import fetch_data, create_network, generate_d3_data, get_player_shot_chart, calculate_network_metrics, get_default_starters
+
+from functools import wraps
+from dotenv import load_dotenv
+load_dotenv()
+import nba_api.stats.endpoints as nba
+import nba_api.stats.static.teams as teams
+import re
+import boto3
+import json
 from flask import Flask
 
 application = Flask(__name__)
@@ -5,20 +20,6 @@ application = Flask(__name__)
 @application.route("/")
 def index():
     return "✅ NetStats deployed successfully!"
-# from flask import Flask, render_template, request, jsonify, abort, redirect, url_for, flash, session
-# import json
-# import markdown
-# import os
-# from scripts.passing_networks import fetch_data, create_network, generate_d3_data, get_player_shot_chart, calculate_network_metrics, get_default_starters
-
-# from functools import wraps
-# from dotenv import load_dotenv
-# load_dotenv()
-# import nba_api.stats.endpoints as nba
-# import nba_api.stats.static.teams as teams
-# import re
-# import boto3
-# import json
 # application = Flask(__name__)
 # s3 = boto3.client("s3")
 
