@@ -28,6 +28,8 @@ lineup_shots_data = load_json_from_s3("netstats-data", "lineup_shots.json")
 top_lineups_data = load_json_from_s3("netstats-data", "top_lineups.json")
 player_shots_data = load_json_from_s3("netstats-data", "player_shots.json")
 assist_data = load_json_from_s3("netstats-data", "conditional_assist_networks_new_id.json")
+team_info = load_json_from_s3("netstats-data", "teams.json")
+
 # with open("network_data/lineup_shots.json", "r") as f:
 #     lineup_shots_data = json.load(f)
 
@@ -195,8 +197,8 @@ def delete_post(slug):
 # with open("network_data/all_stats_test.json", "r") as f:
 #     all_stats = json.load(f)
 
-with open("teams.json", "r") as f:
-    team_info = json.load(f)
+# with open("teams.json", "r") as f:
+#     team_info = json.load(f)
 
 @app.route("/get_lineups", methods=["POST"])
 def get_lineups():
@@ -432,5 +434,4 @@ def get_lineup_ids(season, team, lineup):
         #     raise ValueError(f"Player ID not found for {name} in {season_str} {team}")
 
     return ids
-if __name__ == "__main__":
-    app.run(debug=True)
+
