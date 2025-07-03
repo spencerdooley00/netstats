@@ -187,269 +187,278 @@ def team_view(team):
 # # with open("teams.json", "r") as f:
 # #     team_info = json.load(f)
 
-# @application.route("/get_lineups", methods=["POST"])
-# def get_lineups():
-#     data = request.get_json()
-#     season = data["season"]
-#     team = data["team"]
+@application.route("/get_lineups", methods=["POST"])
+def get_lineups():
+    data = request.get_json()
+    season = data["season"]
+    team = data["team"]
 
-#     lineups = list(assist_data[season][team].keys())
-#     return jsonify({"lineups": lineups})
+    lineups = list(assist_data[season][team].keys())
+    return jsonify({"lineups": lineups})
 
-# from nba_api.stats.static import players
-# def extract_player_id_or_name(token):
-#     # Case: literal ID inside brackets like [1630173]
-#     if re.fullmatch(r"\[\d+\]", token):
-#         return token.strip("[]")
-#     return token  # normal name
+from nba_api.stats.static import players
+def extract_player_id_or_name(token):
+    # Case: literal ID inside brackets like [1630173]
+    if re.fullmatch(r"\[\d+\]", token):
+        return token.strip("[]")
+    return token  # normal name
 
-# def sanitize_key(key):
-#     return re.sub(r"[.$#[\]/']", '', key)
+def sanitize_key(key):
+    return re.sub(r"[.$#[\]/']", '', key)
 
-# @application.route("/update_assist_network", methods=["POST"])
-# def update_assist_network():
-#     data = request.get_json()
-#     season = data["season"]
-#     team = data["team"]
-#     raw_lineup = data["lineup"]
-#     season_short = season[:4]
-
-
-#     # ✅ STEP 1: Convert full-name lineup to player ID key if needed
-#     if "-" in raw_lineup and all(part.isdigit() for part in raw_lineup.split("-")):
-#         id_key = raw_lineup
-#     else:
-#         player_ids = []
-#         for token in raw_lineup:
-#             val = extract_player_id_or_name(token)
-#             if val.isdigit():
-#                 player_ids.append(val)
-#             else:
-#                 matches = players.find_players_by_full_name(val)
-#                 if matches:
-#                     player_ids.append(str(matches[0]["id"]))
-#                 else:
-#                     return jsonify({"error": f"Could not find player ID for '{token}'"}), 400
-#         id_key = "-".join(player_ids)
-#     # lineup_shots = nba.ShotChartLineupDetail(group_id="-"+id_key+"-", context_measure_detailed="FGA", headers=headers).get_data_frames()[0]
-#     # ✅ STEP 2: Get assist data
-#     try:
-#         assist_dict = assist_data[season_short][team][id_key]
-#     except KeyError:
-#         return jsonify({"error": f"Lineup not found: {id_key}"}), 404
-
-#     all_player_ids = set([pid for pid in assist_dict] +
-#                          [tid for v in assist_dict.values() for tid in v])
-
-#     # ✅ STEP 3: ID → Name
-#     id_to_name = {}
-#     for pid in all_player_ids:
-#         try:
-#             id_to_name[pid] = players.find_player_by_id(int(pid))["full_name"]
-#         except:
-#             id_to_name[pid] = f"Unknown ({pid})"
-
-#     # ✅ STEP 4: Image lookup using sanitized full names
-#     stats_team = all_stats.get(season, {}).get(team, {})
-#     img_lookup = {
-#         pid: stats_team.get(sanitize_key(name), {}).get("img", "")
-#         for pid, name in id_to_name.items()
-#     }
-
-#     # ✅ STEP 5: Build D3 graph
-#     nodes, links, seen = [], [], set()
-#     for source_id, targets in assist_dict.items():
-#         source_name = id_to_name.get(source_id, f"Unknown ({source_id})")
-#         if source_name not in seen:
-#             nodes.append({
-#                 "id": source_name,
-#                 "name": source_name,
-#                 "img": img_lookup.get(source_id, "")
-#             })
-#             seen.add(source_name)
-
-#         for target_id, weight in targets.items():
-#             target_name = id_to_name.get(target_id, f"Unknown ({target_id})")
-#             if target_name not in seen:
-#                 nodes.append({
-#                     "id": target_name,
-#                     "name": target_name,
-#                     "img": img_lookup.get(target_id, "")
-#                 })
-#                 seen.add(target_name)
-
-#             links.append({
-#                 "source": source_name,
-#                 "target": target_name,
-#                 "weight": weight
-#             })
-
-#     return jsonify({"nodes": nodes, "links": links})
-
-# @application.route("/update_network", methods=["POST"])
-# def update_network():
-#     data = request.get_json()
-#     season = data.get("season")
-#     team = data.get("team")
-#     selected_players = data.get("players", [])
-
-#     if season and team:
-#         all_data, team_data, team_info = fetch_data(season, team)
-#         color = team_info["primary_color"]
-
-#         # Get all players sorted by MIN descending
-#         sorted_players = sorted(
-#             team_data.items(),
-#             key=lambda item: item[1]["stats"].get("MIN", 0),
-#             reverse=True
-#         )
-#         top8_players = [player for player, _ in sorted_players[:8]]
-
-#         # If user did not select players, default to top 8
-#         if not selected_players:
-#             selected_players = top8_players
-
-#         _, G = create_network(team_data, team, color, "Pass Per Game", selected_players)
-#         d3_data = generate_d3_data(G)
-
-#         return jsonify({
-#             "nodes": d3_data["nodes"],
-#             "links": d3_data["links"],
-#             "players": [p for p, _ in sorted_players],
-#             "selected": selected_players
-#         })
-
-#     return jsonify({"nodes": [], "links": [], "players": [], "selected": []})
-
-# @application.route("/player_shots", methods=["POST"])
-# def player_shots():
-#     data = request.get_json()
-#     player = data.get('player')
-#     team = data.get('team')
-#     season = data.get('season')
-#     season = season[:4]
-#     shots = player_shots_data.get(season, {}).get(team, {}).get(player, [])
-#     return jsonify(shots)
+@application.route("/update_assist_network", methods=["POST"])
+def update_assist_network():
+    data = request.get_json()
+    season = data["season"]
+    team = data["team"]
+    raw_lineup = data["lineup"]
+    season_short = season[:4]
+    all_stats = load_json_from_s3_lazy("all_stats_test.json")
+    assist_data = load_json_from_s3_lazy("conditional_assist_networks_new_id.json")
 
 
-# @application.route("/blog")
-# def blog():
-#     return render_template("blog.html")
+    # ✅ STEP 1: Convert full-name lineup to player ID key if needed
+    if "-" in raw_lineup and all(part.isdigit() for part in raw_lineup.split("-")):
+        id_key = raw_lineup
+    else:
+        player_ids = []
+        for token in raw_lineup:
+            val = extract_player_id_or_name(token)
+            if val.isdigit():
+                player_ids.append(val)
+            else:
+                matches = players.find_players_by_full_name(val)
+                if matches:
+                    player_ids.append(str(matches[0]["id"]))
+                else:
+                    return jsonify({"error": f"Could not find player ID for '{token}'"}), 400
+        id_key = "-".join(player_ids)
+    # lineup_shots = nba.ShotChartLineupDetail(group_id="-"+id_key+"-", context_measure_detailed="FGA", headers=headers).get_data_frames()[0]
+    # ✅ STEP 2: Get assist data
+    try:
+        assist_dict = assist_data[season_short][team][id_key]
+    except KeyError:
+        return jsonify({"error": f"Lineup not found: {id_key}"}), 404
+
+    all_player_ids = set([pid for pid in assist_dict] +
+                         [tid for v in assist_dict.values() for tid in v])
+
+    # ✅ STEP 3: ID → Name
+    id_to_name = {}
+    for pid in all_player_ids:
+        try:
+            id_to_name[pid] = players.find_player_by_id(int(pid))["full_name"]
+        except:
+            id_to_name[pid] = f"Unknown ({pid})"
+
+    # ✅ STEP 4: Image lookup using sanitized full names
+    stats_team = all_stats.get(season, {}).get(team, {})
+    img_lookup = {
+        pid: stats_team.get(sanitize_key(name), {}).get("img", "")
+        for pid, name in id_to_name.items()
+    }
+
+    # ✅ STEP 5: Build D3 graph
+    nodes, links, seen = [], [], set()
+    for source_id, targets in assist_dict.items():
+        source_name = id_to_name.get(source_id, f"Unknown ({source_id})")
+        if source_name not in seen:
+            nodes.append({
+                "id": source_name,
+                "name": source_name,
+                "img": img_lookup.get(source_id, "")
+            })
+            seen.add(source_name)
+
+        for target_id, weight in targets.items():
+            target_name = id_to_name.get(target_id, f"Unknown ({target_id})")
+            if target_name not in seen:
+                nodes.append({
+                    "id": target_name,
+                    "name": target_name,
+                    "img": img_lookup.get(target_id, "")
+                })
+                seen.add(target_name)
+
+            links.append({
+                "source": source_name,
+                "target": target_name,
+                "weight": weight
+            })
+
+    return jsonify({"nodes": nodes, "links": links})
+
+@application.route("/update_network", methods=["POST"])
+def update_network():
+    data = request.get_json()
+    season = data.get("season")
+    team = data.get("team")
+    selected_players = data.get("players", [])
+
+    if season and team:
+        all_data, team_data, team_info = fetch_data(season, team)
+        color = team_info["primary_color"]
+
+        # Get all players sorted by MIN descending
+        sorted_players = sorted(
+            team_data.items(),
+            key=lambda item: item[1]["stats"].get("MIN", 0),
+            reverse=True
+        )
+        top8_players = [player for player, _ in sorted_players[:8]]
+
+        # If user did not select players, default to top 8
+        if not selected_players:
+            selected_players = top8_players
+
+        _, G = create_network(team_data, team, color, "Pass Per Game", selected_players)
+        d3_data = generate_d3_data(G)
+
+        return jsonify({
+            "nodes": d3_data["nodes"],
+            "links": d3_data["links"],
+            "players": [p for p, _ in sorted_players],
+            "selected": selected_players
+        })
+
+    return jsonify({"nodes": [], "links": [], "players": [], "selected": []})
+
+@application.route("/player_shots", methods=["POST"])
+def player_shots():
+    player_shots_data = load_json_from_s3_lazy("player_shots.json")
+
+    data = request.get_json()
+    player = data.get('player')
+    team = data.get('team')
+    season = data.get('season')
+    season = season[:4]
+    shots = player_shots_data.get(season, {}).get(team, {}).get(player, [])
+    return jsonify(shots)
 
 
-# @application.route("/get_top_lineups", methods=["POST"])
-# def get_top_lineups():
-#     data = request.get_json()
-#     # team_id = data["team_id"]
-#     season = data["season"]
-#     team = data['team']
-#     # team = teams.find_team_name_by_id(team_id)['abbreviation']
-
-#     season_str = season[:4]
-
-#     # Load data from JSON
-#     lineups = top_lineups_data.get(season_str, {}).get(team, [])
-#     team_stats = all_stats.get(season_str, {}).get(team, {})
-#     # Build PLAYER_ID → full name map from all_stats
-#     player_lookup = {
-#         str(player_data["stats"]["PLAYER_ID"]): name
-#         for name, player_data in team_stats.items()
-#         if "PLAYER_ID" in player_data["stats"]
-#     }
-
-#     rows = []
-#     for lineup in lineups:
-#         raw_ids = lineup["ids"]
-#         full_names = [player_lookup.get(pid, f"[{pid}]") for pid in raw_ids]
-#         full_names = [name.replace("]", "") for name in full_names]
-#         full_names = [
-#             players.find_player_by_id(name.replace("[", "")).get("full_name", name) if "[" in name else name
-#             for name in full_names
-#         ]
-
-#         full_lineup_key = "*--*".join(full_names)
-#         stats = {
-#             "GROUP_NAME": full_lineup_key,
-#             "id_key": raw_ids,  # <-- ADD THIS LINE
-#             **lineup["stats"]
-#         }
-
-#         rows.applicationend(stats)
-
-#     return jsonify(rows)
+@application.route("/blog")
+def blog():
+    return render_template("blog.html")
 
 
+@application.route("/get_top_lineups", methods=["POST"])
+def get_top_lineups():
+    data = request.get_json()
+    # team_id = data["team_id"]
+    season = data["season"]
+    team = data['team']
+    # team = teams.find_team_name_by_id(team_id)['abbreviation']
+    top_lineups_data = load_json_from_s3_lazy("top_lineups.json")
+    all_stats = load_json_from_s3_lazy("all_stats_test.json")
 
+    season_str = season[:4]
 
-# @application.route("/lineup_shots", methods=["POST"])
-# def lineup_shots():
-#     data = request.get_json()
-#     season = data["season"]
-#     team = data["team"]
-#     lineup = data["lineup"]
-#     season = season[:4]
-    
-#     try:
-#         ids = lineup
-#         id_key = "-".join(str(pid) for pid in ids)
-#         shots = lineup_shots_data.get(season, {}).get(team, {}).get(id_key, [])
-#         return jsonify(shots)
-#     except Exception as e:
-#         return jsonify([])
+    # Load data from JSON
+    lineups = top_lineups_data.get(season_str, {}).get(team, [])
+    team_stats = all_stats.get(season_str, {}).get(team, {})
+    # Build PLAYER_ID → full name map from all_stats
+    player_lookup = {
+        str(player_data["stats"]["PLAYER_ID"]): name
+        for name, player_data in team_stats.items()
+        if "PLAYER_ID" in player_data["stats"]
+    }
+
+    rows = []
+    for lineup in lineups:
+        raw_ids = lineup["ids"]
+        full_names = [player_lookup.get(pid, f"[{pid}]") for pid in raw_ids]
+        full_names = [name.replace("]", "") for name in full_names]
+        full_names = [
+            players.find_player_by_id(name.replace("[", "")).get("full_name", name) if "[" in name else name
+            for name in full_names
+        ]
+
+        full_lineup_key = "*--*".join(full_names)
+        stats = {
+            "GROUP_NAME": full_lineup_key,
+            "id_key": raw_ids,  # <-- ADD THIS LINE
+            **lineup["stats"]
+        }
+
+        rows.applicationend(stats)
+
+    return jsonify(rows)
 
 
 
-# def get_lineup_ids(season, team, lineup):
-#     """
-#     Given a season, team, and lineup name, return a list of player IDs in order.
-#     """
-#     # Convert "2024" → "2024-25"
-#     season_str = f"{season}-{int(season[2:]) + 1}"
+
+@application.route("/lineup_shots", methods=["POST"])
+def lineup_shots():
+    data = request.get_json()
+    season = data["season"]
+    team = data["team"]
+    lineup = data["lineup"]
+    season = season[:4]
+    lineup_shots_data = load_json_from_s3_lazy("lineup_shots.json")
+
+    try:
+        ids = lineup
+        id_key = "-".join(str(pid) for pid in ids)
+        shots = lineup_shots_data.get(season, {}).get(team, {}).get(id_key, [])
+        return jsonify(shots)
+    except Exception as e:
+        return jsonify([])
 
 
-#     player_names = lineup.split("*--*")  # assume lineup names are hyphen-delimited
-#     player_names = [name.strip() for name in player_names]
-#     team_data = all_stats.get(season_str, {}).get(team, {})
-#     ids = []
-#     for name in player_names:
-#         name = sanitize_key(name)
+
+def get_lineup_ids(season, team, lineup):
+    """
+    Given a season, team, and lineup name, return a list of player IDs in order.
+    """
+    # Convert "2024" → "2024-25"
+    all_stats = load_json_from_s3_lazy("all_stats_test.json")
+
+    season_str = f"{season}-{int(season[2:]) + 1}"
+
+
+    player_names = lineup.split("*--*")  # assume lineup names are hyphen-delimited
+    player_names = [name.strip() for name in player_names]
+    team_data = all_stats.get(season_str, {}).get(team, {})
+    ids = []
+    for name in player_names:
+        name = sanitize_key(name)
         
-#         player_data = team_data.get(name)
-#         # if player_data and "id" in player_data:
-#         ids.applicationend(player_data['stats']["PLAYER_ID"])
-#         # else:
-#         #     raise ValueError(f"Player ID not found for {name} in {season_str} {team}")
+        player_data = team_data.get(name)
+        # if player_data and "id" in player_data:
+        ids.append(player_data['stats']["PLAYER_ID"])
+        # else:
+        #     raise ValueError(f"Player ID not found for {name} in {season_str} {team}")
 
-#     return ids
+    return ids
 
 
-# @application.route("/test_metrics")
-# def test_metrics():
-#     season = "2024-25"
-#     team = "BOS"
-#     edge_info = "Pass Per Game"  # or "Assists"
-#     color = "gray"  # optional edge color
+@application.route("/test_metrics")
+def test_metrics():
+    season = "2024-25"
+    team = "BOS"
+    edge_info = "Pass Per Game"  # or "Assists"
+    color = "gray"  # optional edge color
 
-#     # Get default starter list
-#     selected_players = get_default_starters(season, team)
+    # Get default starter list
+    selected_players = get_default_starters(season, team)
 
-#     # Load raw data
-#     _, team_data, _ = fetch_data(season, team)
+    # Load raw data
+    _, team_data, _ = fetch_data(season, team)
 
-#     # Create NetworkX graph
-#     _, G = create_network(team_data, team, color, edge_info, selected_players)
+    # Create NetworkX graph
+    _, G = create_network(team_data, team, color, edge_info, selected_players)
 
-#     # Build scoring lookup from stats
-#     scoring_lookup = {
-#         player: team_data[player]["stats"].get("PTS", 0)
-#         for player in selected_players
-#     }
+    # Build scoring lookup from stats
+    scoring_lookup = {
+        player: team_data[player]["stats"].get("PTS", 0)
+        for player in selected_players
+    }
 
-#     # Calculate metrics
-#     metrics = calculate_network_metrics(G, scoring_lookup)
+    # Calculate metrics
+    metrics = calculate_network_metrics(G, scoring_lookup)
 
-#     # Print to console for dev
-#     import pprint
-#     pprint.pprint(metrics)
+    # Print to console for dev
+    import pprint
+    pprint.pprint(metrics)
 
-#     return jsonify(metrics)  # View in browser as JSON
+    return jsonify(metrics)  # View in browser as JSON
