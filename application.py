@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, jsonify, abort, redirect, url
 import json
 import markdown
 import os
-from scripts.passing_networks import fetch_data, create_network, generate_d3_data, get_player_shot_chart
+from scripts.passing_networks import fetch_data, create_network, generate_d3_data, get_player_shot_chart, calculate_network_metrics, get_default_starters
+
 from functools import wraps
 from dotenv import load_dotenv
 load_dotenv()
@@ -435,3 +436,34 @@ def get_lineup_ids(season, team, lineup):
 
     return ids
 
+
+@app.route("/test_metrics")
+def test_metrics():
+    season = "2024-25"
+    team = "BOS"
+    edge_info = "Pass Per Game"  # or "Assists"
+    color = "gray"  # optional edge color
+
+    # Get default starter list
+    selected_players = get_default_starters(season, team)
+
+    # Load raw data
+    _, team_data, _ = fetch_data(season, team)
+
+    # Create NetworkX graph
+    _, G = create_network(team_data, team, color, edge_info, selected_players)
+
+    # Build scoring lookup from stats
+    scoring_lookup = {
+        player: team_data[player]["stats"].get("PTS", 0)
+        for player in selected_players
+    }
+
+    # Calculate metrics
+    metrics = calculate_network_metrics(G, scoring_lookup)
+
+    # Print to console for dev
+    import pprint
+    pprint.pprint(metrics)
+
+    return jsonify(metrics)  # View in browser as JSON

@@ -12,8 +12,8 @@ def load_json_from_s3(bucket, key):
     obj = s3.get_object(Bucket=bucket, Key=key)
     return json.load(obj["Body"])
 
-with open("teams.json", "r") as f:
-    team_info_all = json.load(f)
+team_info_all = load_json_from_s3("netstats-data", "teams.json")
+
 all_stats = load_json_from_s3("netstats-data", "all_stats_test.json")
 # lineup_shots_data = load_json_from_s3("netstats-data", "lineup_shots.json")
 # top_lineups_data = load_json_from_s3("netstats-data", "top_lineups.json")
@@ -168,3 +168,49 @@ def get_player_shot_chart(player, team, season):
                       .reset_index(drop=True)
                      )
   return player_shot_data
+
+def calculate_network_metrics(G, scoring_lookup=None):
+    """
+    Calculates centrality and role metrics for each node in the graph.
+    
+    Parameters:
+        G (nx.DiGraph): Directed graph of the passing network
+        scoring_lookup (dict): Optional dict mapping player names to point totals
+
+    Returns:
+        dict: Dictionary of metrics per player
+    """
+    metrics = {}
+    scoring_lookup = scoring_lookup or {}
+
+    in_deg = dict(G.in_degree(weight='weight'))
+    out_deg = dict(G.out_degree(weight='weight'))
+    in_conn = dict(G.in_degree())
+    out_conn = dict(G.out_degree())
+    deg_cent = nx.degree_centrality(G)
+    bet_cent = nx.betweenness_centrality(G, weight='weight', normalized=True)
+    close_cent = nx.closeness_centrality(G)
+    eigen_cent = nx.eigenvector_centrality_numpy(G, weight='weight')
+
+    for node in G.nodes():
+        in_weight = in_deg.get(node, 0)
+        out_weight = out_deg.get(node, 0)
+        score = scoring_lookup.get(node, 0)
+
+        metrics[node] = {
+            "in_weight": in_weight,
+            "out_weight": out_weight,
+            "in_degree": in_conn.get(node, 0),
+            "out_degree": out_conn.get(node, 0),
+            "degree_centrality": deg_cent.get(node, 0),
+            "betweenness": bet_cent.get(node, 0),
+            "closeness": close_cent.get(node, 0),
+            "eigenvector": eigen_cent.get(node, 0),
+            "score": score,
+            "hub_score": in_weight + out_weight + score,
+            "distributor_index": in_conn.get(node, 0) + out_conn.get(node, 0) + in_weight + out_weight,
+            "feeder_index": out_weight - in_weight,
+            "finisher_index": in_weight - out_weight + score,
+        }
+
+    return metrics
