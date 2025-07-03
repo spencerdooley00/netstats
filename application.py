@@ -12,8 +12,7 @@ import nba_api.stats.static.teams as teams
 import re
 import boto3
 import json
-app = Flask(__name__)
-
+application = Flask(__name__)
 s3 = boto3.client("s3")
 
 def load_json_from_s3(bucket, key):
