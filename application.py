@@ -51,16 +51,16 @@ def load_json_from_s3_lazy(key):
 #     all_stats = json.load(f)
     
     
-headers = {
-    'User-Agent': 'Mozilla/5.0',
-    'Referer': 'https://www.nba.com/'
-}
+# headers = {
+#     'User-Agent': 'Mozilla/5.0',
+#     'Referer': 'https://www.nba.com/'
+# }
 
-POSTS_DIR = os.environ["POSTS_DIR"]
-application.secret_key = os.environ["SECRET_KEY"]
+# POSTS_DIR = os.environ["POSTS_DIR"]
+# application.secret_key = os.environ["SECRET_KEY"]
 
-USERNAME = os.environ["USERNAME"]
-PASSWORD = os.environ["PASSWORD"]
+# USERNAME = os.environ["USERNAME"]
+# PASSWORD = os.environ["PASSWORD"]
 
 @application.route("/")
 def home():
