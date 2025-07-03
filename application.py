@@ -37,30 +37,6 @@ def load_json_from_s3_lazy(key):
         return {}
 
 
-# with open("network_data/lineup_shots.json", "r") as f:
-#     lineup_shots_data = json.load(f)
-
-# with open("network_data/player_shots.json", "r") as f:
-#     player_shots_data = json.load(f)
-    
-
-# with open("network_data/conditional_assist_networks_new_id.json") as f:
-#     assist_data = json.load(f)
-
-# with open("network_data/all_stats_test.json") as f:
-#     all_stats = json.load(f)
-    
-    
-# headers = {
-#     'User-Agent': 'Mozilla/5.0',
-#     'Referer': 'https://www.nba.com/'
-# }
-
-# POSTS_DIR = os.environ["POSTS_DIR"]
-# application.secret_key = os.environ["SECRET_KEY"]
-
-# USERNAME = os.environ["USERNAME"]
-# PASSWORD = os.environ["PASSWORD"]
 
 @application.route("/")
 def home():
