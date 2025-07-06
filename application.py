@@ -49,7 +49,7 @@ class DecimalEncoder(json.JSONEncoder):
 @application.route("/")
 def home():
 
-    seasons = ["2024-25", "2023-24", "2022-23"]
+    seasons = ["2024-25", "2023-24", "2022-23", "2021-22", "2020-21", "2019-20", "2018-19", "2017-18", "2016-17", "2015-16", "2014-15"]
     selected_season = seasons[0]
 
     team_abbrs = [
@@ -64,7 +64,7 @@ def home():
 @application.route("/team/<team>")
 def team_view(team):
     # Manually define available seasons
-    seasons = ["2024-25", "2023-24", "2022-23"]
+    seasons = ["2024-25", "2023-24", "2022-23", "2021-22", "2020-21", "2019-20", "2018-19", "2017-18", "2016-17", "2015-16", "2014-15"]
 
     # Get selected season from query parameter, fallback to latest
     selected_season = request.args.get("season", seasons[0])
