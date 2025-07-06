@@ -140,9 +140,9 @@ header, #main-header {
 .page-layout {
   display: flex;
   flex-direction: row;
-  height: 100vh;
+  height: calc(100vh - 70px); /* subtract header height */
   overflow: hidden;
-  padding-top: 50px;
+  padding-top: 70px; /* match actual header height */
   box-sizing: border-box;
 }
 .page-layout.no-sidebar {
