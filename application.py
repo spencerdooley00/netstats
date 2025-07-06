@@ -1,4 +1,21 @@
 
+from nba_api.stats.static import players
+import decimal
+from scripts.dynamo_cache import (
+    get_all_stats,
+    get_player_shots,
+    get_lineup_shots,
+    get_top_lineups,
+    get_assist_data
+)
+from flask import Flask, jsonify, request
+from decimal import Decimal
+from boto3.dynamodb.conditions import Key
+from flask import Flask
+import boto3
+import re
+import nba_api.stats.static.teams as teams
+import nba_api.stats.endpoints as nba
 from flask import Flask, render_template, request, jsonify, abort, redirect, url_for, flash, session
 import json
 import markdown
@@ -8,42 +25,33 @@ from scripts.passing_networks import fetch_data, create_network, generate_d3_dat
 from functools import wraps
 from dotenv import load_dotenv
 load_dotenv()
-import nba_api.stats.endpoints as nba
-import nba_api.stats.static.teams as teams
-import re
-import boto3
-import json
-from flask import Flask
 
+
+# DynamoDB client + resource
+REGION = "us-east-2"
+dynamodb = boto3.resource("dynamodb", region_name=REGION)
 application = Flask(__name__)
 
 s3 = boto3.client("s3")
 bucket = "netstats-data"
 
-# Memoized cache
-_cache = {}
+REGION = "us-east-2"
+dynamodb = boto3.resource("dynamodb", region_name=REGION)
 
-def load_json_from_s3_lazy(key):
-    if key in _cache:
-        return _cache[key]
-    try:
-        obj = s3.get_object(Bucket=bucket, Key=key)
-        data = json.load(obj["Body"])
-        _cache[key] = data
-        print(f"✅ Loaded {key} from S3")
-        return data
-    except Exception as e:
-        print(f"⚠️ Failed to load {key}: {e}")
-        return {}
 
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, decimal.Decimal):
+            return float(obj)
+        return super().default(obj)
 
 
 @application.route("/")
 def home():
-    all_stats = load_json_from_s3_lazy("all_stats_test.json")
 
-    seasons = sorted(all_stats.keys(), reverse=True)
+    seasons = ["2024-25", "2023-24", "2022-23"]
     selected_season = seasons[0]
+
     team_abbrs = [
         "ATL", "BOS", "BKN", "CHA", "CHI", "CLE", "DAL", "DEN", "DET", "GSW",
         "HOU", "IND", "LAC", "LAL", "MEM", "MIA", "MIL", "MIN", "NOP", "NYK",
@@ -53,14 +61,18 @@ def home():
 
 
 @application.route("/team/<team>")
+@application.route("/team/<team>")
 def team_view(team):
-    all_stats = load_json_from_s3_lazy("all_stats_test.json")
+    # Manually define available seasons
+    seasons = ["2024-25", "2023-24", "2022-23"]
 
-    seasons = sorted(all_stats.keys(), reverse=True)
+    # Get selected season from query parameter, fallback to latest
     selected_season = request.args.get("season", seasons[0])
-    season_str = selected_season
+    # season_str is just the short year string used in your Dynamo keys
+    season_str = selected_season  # keep this short form for use in Dynamo
 
-    # logo_map like { "LAL": 1610612747, ... }
+    team_data = get_all_stats(season_str, team)
+
     logo_map = {
         "ATL": 1610612737, "BOS": 1610612738, "BKN": 1610612751, "CHA": 1610612766,
         "CHI": 1610612741, "CLE": 1610612739, "DAL": 1610612742, "DEN": 1610612743,
@@ -72,12 +84,12 @@ def team_view(team):
         "UTA": 1610612762, "WAS": 1610612764
     }
 
-    team_data = all_stats.get(season_str, {}).get(team, {})
     if not team_data:
         abort(404)
 
     players = list(team_data.keys())
-    top_8 = sorted(players, key=lambda p: team_data[p]["stats"].get("MIN", 0), reverse=True)[:8]
+    top_8 = sorted(players, key=lambda p: team_data[p]["stats"].get(
+        "MIN", 0), reverse=True)[:8]
 
     return render_template(
         "team.html",
@@ -91,117 +103,12 @@ def team_view(team):
     )
 
 
-# def login_required(f):
-#     @wraps(f)
-#     def wrapped(*args, **kwargs):
-#         if not session.get("logged_in"):
-#             flash("Please log in to access this page.")
-#             return redirect(url_for("login"))
-#         return f(*args, **kwargs)
-#     return wrapped
-
-# def get_posts():
-#     posts = []
-#     for filename in os.listdir(POSTS_DIR):
-#         if filename.endswith(".md"):
-#             slug = filename[:-3]
-#             with open(os.path.join(POSTS_DIR, filename), "r", encoding="utf-8") as f:
-#                 content = f.read()
-#                 title = content.splitlines()[0].replace("# ", "").strip()
-#                 excerpt = content.split("\n\n")[1][:200]  # first paragraph
-#                 posts.append({
-#                     "slug": slug,
-#                     "title": title,
-#                     "excerpt": excerpt + "...",
-#                 })
-#     return sorted(posts, key=lambda x: x["slug"], reverse=True)
-# @application.route("/login", methods=["GET", "POST"])
-# def login():
-#     if request.method == "POST":
-#         if request.form["username"] == USERNAME and request.form["password"] == PASSWORD:
-#             session["logged_in"] = True
-#             flash("Logged in successfully!")
-#             return redirect(url_for("blog_index"))
-#         else:
-#             flash("Incorrect username or password.")
-#     return render_template("login.html")
-# @application.route("/logout")
-# def logout():
-#     session.pop("logged_in", None)
-#     flash("Logged out.")
-#     return redirect(url_for("blog_index"))
-
-# @application.route("/blog")
-# def blog_index():
-#     posts = get_posts()
-#     return render_template("blog.html", posts=posts, logged_in=session.get("logged_in", False))
-
-# @application.route("/blog/<slug>")
-# def blog_post(slug):
-#     path = os.path.join(POSTS_DIR, slug + ".md")
-#     if not os.path.exists(path):
-#         abort(404)
-#     with open(path, "r", encoding="utf-8") as f:
-#         content = f.read()
-#         html = markdown.markdown(content)
-#         title = content.splitlines()[0].replace("# ", "").strip()
-#     return render_template("blog_post.html", title=title, content=html, slug=slug)
-
-
-# @application.route("/blog/new", methods=["GET", "POST"])
-# @login_required
-# def new_post():
-#     if request.method == "POST":
-#         title = request.form["title"].strip()
-#         content = request.form["content"].strip()
-#         slug = title.lower().replace(" ", "-")
-
-#         # Ensure slug is safe
-#         filename = f"{slug}.md"
-#         filepath = os.path.join(POSTS_DIR, filename)
-
-#         # Prepend title as Markdown heading
-#         full_content = f"# {title}\n\n{content}"
-
-#         with open(filepath, "w", encoding="utf-8") as f:
-#             f.write(full_content)
-
-#         return redirect(url_for("blog_post", slug=slug))
-
-#     return render_template("blog_new.html")
-
-# @application.route("/blog/<slug>/delete", methods=["POST"])
-# @login_required
-# def delete_post(slug):
-#     filepath = os.path.join(POSTS_DIR, slug + ".md")
-#     if os.path.exists(filepath):
-#         os.remove(filepath)
-#         flash(f"Deleted post: {slug}")
-#         return redirect(url_for("blog_index"))
-#     else:
-#         abort(404)
-        
-# # with open("network_data/all_stats_test.json", "r") as f:
-# #     all_stats = json.load(f)
-
-# # with open("teams.json", "r") as f:
-# #     team_info = json.load(f)
-
-@application.route("/get_lineups", methods=["POST"])
-def get_lineups():
-    data = request.get_json()
-    season = data["season"]
-    team = data["team"]
-
-    lineups = list(assist_data[season][team].keys())
-    return jsonify({"lineups": lineups})
-
-from nba_api.stats.static import players
 def extract_player_id_or_name(token):
     # Case: literal ID inside brackets like [1630173]
     if re.fullmatch(r"\[\d+\]", token):
         return token.strip("[]")
     return token  # normal name
+
 
 def sanitize_key(key):
     return re.sub(r"[.$#[\]/']", '', key)
@@ -209,13 +116,12 @@ def sanitize_key(key):
 @application.route("/update_assist_network", methods=["POST"])
 def update_assist_network():
     data = request.get_json()
-    season = data["season"]
+    season = data["season"]          # "2024-25"
     team = data["team"]
     raw_lineup = data["lineup"]
-    season_short = season[:4]
-    all_stats = load_json_from_s3_lazy("all_stats_test.json")
-    assist_data = load_json_from_s3_lazy("conditional_assist_networks_new_id.json")
+    season_short = season[:4]        # "2024"
 
+    from scripts.dynamo_cache import get_all_stats, get_assist_data
 
     # ✅ STEP 1: Convert full-name lineup to player ID key if needed
     if "-" in raw_lineup and all(part.isdigit() for part in raw_lineup.split("-")):
@@ -233,17 +139,19 @@ def update_assist_network():
                 else:
                     return jsonify({"error": f"Could not find player ID for '{token}'"}), 400
         id_key = "-".join(player_ids)
-    # lineup_shots = nba.ShotChartLineupDetail(group_id="-"+id_key+"-", context_measure_detailed="FGA", headers=headers).get_data_frames()[0]
-    # ✅ STEP 2: Get assist data
-    try:
-        assist_dict = assist_data[season_short][team][id_key]
-    except KeyError:
+
+    # ✅ STEP 2: Get assist data directly from DynamoDB
+    assist_dict = get_assist_data(season_short, team, id_key)
+    if not assist_dict:
         return jsonify({"error": f"Lineup not found: {id_key}"}), 404
 
+    # ✅ STEP 3: Get all_stats directly from DynamoDB
+    stats_team = get_all_stats(season, team)
+
+    # ✅ STEP 4: Build ID → name map
     all_player_ids = set([pid for pid in assist_dict] +
                          [tid for v in assist_dict.values() for tid in v])
 
-    # ✅ STEP 3: ID → Name
     id_to_name = {}
     for pid in all_player_ids:
         try:
@@ -251,14 +159,13 @@ def update_assist_network():
         except:
             id_to_name[pid] = f"Unknown ({pid})"
 
-    # ✅ STEP 4: Image lookup using sanitized full names
-    stats_team = all_stats.get(season, {}).get(team, {})
+    # ✅ STEP 5: Build image lookup
     img_lookup = {
         pid: stats_team.get(sanitize_key(name), {}).get("img", "")
         for pid, name in id_to_name.items()
     }
 
-    # ✅ STEP 5: Build D3 graph
+    # ✅ STEP 6: Build D3-style nodes + links
     nodes, links, seen = [], [], set()
     for source_id, targets in assist_dict.items():
         source_name = id_to_name.get(source_id, f"Unknown ({source_id})")
@@ -288,18 +195,34 @@ def update_assist_network():
 
     return jsonify({"nodes": nodes, "links": links})
 
+
 @application.route("/update_network", methods=["POST"])
 def update_network():
+    from scripts.dynamo_cache import get_all_stats
+
     data = request.get_json()
-    season = data.get("season")
+    season = data.get("season")        # e.g., "2024-25"
     team = data.get("team")
     selected_players = data.get("players", [])
 
     if season and team:
-        all_data, team_data, team_info = fetch_data(season, team)
-        color = team_info["primary_color"]
+        # 🟢 Direct DynamoDB lookup
+        team_data = get_all_stats(season, team)
 
-        # Get all players sorted by MIN descending
+        # 🟡 Define static color info
+        team_colors = {
+            "ATL": "#E03A3E", "BOS": "#007A33", "BKN": "#000000", "CHA": "#1D1160",
+            "CHI": "#CE1141", "CLE": "#860038", "DAL": "#00538C", "DEN": "#0E2240",
+            "DET": "#C8102E", "GSW": "#1D428A", "HOU": "#CE1141", "IND": "#002D62",
+            "LAC": "#C8102E", "LAL": "#552583", "MEM": "#5D76A9", "MIA": "#98002E",
+            "MIL": "#00471B", "MIN": "#0C2340", "NOP": "#0C2340", "NYK": "#006BB6",
+            "OKC": "#007AC1", "ORL": "#0077C0", "PHI": "#006BB6", "PHX": "#1D1160",
+            "POR": "#E03A3E", "SAC": "#5A2D81", "SAS": "#C4CED4", "TOR": "#CE1141",
+            "UTA": "#002B5C", "WAS": "#002B5C"
+        }
+        color = team_colors.get(team, "#999")
+
+        # 🔵 Sort players by minutes
         sorted_players = sorted(
             team_data.items(),
             key=lambda item: item[1]["stats"].get("MIN", 0),
@@ -307,11 +230,12 @@ def update_network():
         )
         top8_players = [player for player, _ in sorted_players[:8]]
 
-        # If user did not select players, default to top 8
         if not selected_players:
             selected_players = top8_players
 
-        _, G = create_network(team_data, team, color, "Pass Per Game", selected_players)
+        # 🟣 Build passing network
+        _, G = create_network(team_data, team, color,
+                              "Pass Per Game", selected_players)
         d3_data = generate_d3_data(G)
 
         return jsonify({
@@ -323,17 +247,29 @@ def update_network():
 
     return jsonify({"nodes": [], "links": [], "players": [], "selected": []})
 
+
 @application.route("/player_shots", methods=["POST"])
 def player_shots():
-    player_shots_data = load_json_from_s3_lazy("player_shots.json")
+
+    def convert_decimals(obj):
+        if isinstance(obj, list):
+            return [convert_decimals(i) for i in obj]
+        elif isinstance(obj, dict):
+            return {k: convert_decimals(v) for k, v in obj.items()}
+        elif isinstance(obj, decimal.Decimal):
+            return float(obj)
+        else:
+            return obj
 
     data = request.get_json()
     player = data.get('player')
     team = data.get('team')
     season = data.get('season')
-    season = season[:4]
-    shots = player_shots_data.get(season, {}).get(team, {}).get(player, [])
-    return jsonify(shots)
+    season = season[:4]  # Ensure format like "2024"
+
+    shots = get_player_shots(season, team, player)
+    shots_clean = convert_decimals(shots)
+    return jsonify(shots_clean)
 
 
 @application.route("/blog")
@@ -341,96 +277,87 @@ def blog():
     return render_template("blog.html")
 
 
+def convert_decimals(obj):
+    if isinstance(obj, list):
+        return [convert_decimals(i) for i in obj]
+    elif isinstance(obj, dict):
+        return {k: convert_decimals(v) for k, v in obj.items()}
+    elif isinstance(obj, Decimal):
+        return float(obj)
+    else:
+        return obj
 @application.route("/get_top_lineups", methods=["POST"])
-def get_top_lineups():
+def get_top_lineups_route():
     data = request.get_json()
-    # team_id = data["team_id"]
-    season = data["season"]
-    team = data['team']
-    # team = teams.find_team_name_by_id(team_id)['abbreviation']
-    top_lineups_data = load_json_from_s3_lazy("top_lineups.json")
-    all_stats = load_json_from_s3_lazy("all_stats_test.json")
+    season = data["season"][:4]
+    team = data["team"]
 
-    season_str = season[:4]
+    # Query new format
+    all_items = get_top_lineups(season, team)  # returns list with one item that contains "lineups"
+    team_stats = get_all_stats(season, team)
 
-    # Load data from JSON
-    lineups = top_lineups_data.get(season_str, {}).get(team, [])
-    team_stats = all_stats.get(season_str, {}).get(team, {})
-    # Build PLAYER_ID → full name map from all_stats
+    # PLAYER_ID → full name
     player_lookup = {
-        str(player_data["stats"]["PLAYER_ID"]): name
+        str(player_data["stats"].get("PLAYER_ID")): name
         for name, player_data in team_stats.items()
-        if "PLAYER_ID" in player_data["stats"]
+        if "PLAYER_ID" in player_data.get("stats", {})
     }
 
     rows = []
-    for lineup in lineups:
-        raw_ids = lineup["ids"]
-        full_names = [player_lookup.get(pid, f"[{pid}]") for pid in raw_ids]
-        full_names = [name.replace("]", "") for name in full_names]
-        full_names = [
-            players.find_player_by_id(name.replace("[", "")).get("full_name", name) if "[" in name else name
-            for name in full_names
-        ]
+    for item in all_items:
+        for lineup in item.get("lineups", []):
+            raw_ids = lineup["ids"]
+            full_names = [player_lookup.get(pid, f"[{pid}]") for pid in raw_ids]
+            full_names = [name.replace("]", "") for name in full_names]
+            full_names = [
+                players.find_player_by_id(name.replace("[", "")).get("full_name", name)
+                if "[" in name else name
+                for name in full_names
+            ]
+            full_lineup_key = "*--*".join(full_names)
 
-        full_lineup_key = "*--*".join(full_names)
-        stats = {
-            "GROUP_NAME": full_lineup_key,
-            "id_key": raw_ids,  # <-- ADD THIS LINE
-            **lineup["stats"]
-        }
+            stats = {
+                "GROUP_NAME": full_lineup_key,
+                "id_key": raw_ids,
+                **lineup["stats"]
+            }
+            rows.append(stats)
 
-        rows.applicationend(stats)
-
-    return jsonify(rows)
-
-
+    return jsonify(convert_decimals(rows))
 
 
 @application.route("/lineup_shots", methods=["POST"])
 def lineup_shots():
     data = request.get_json()
-    season = data["season"]
+    season = data["season"][:4]
     team = data["team"]
-    lineup = data["lineup"]
-    season = season[:4]
-    lineup_shots_data = load_json_from_s3_lazy("lineup_shots.json")
+    lineup_ids = data["lineup"]  # this should be a list like ["1628384", "1630173", ...]
 
     try:
-        ids = lineup
-        id_key = "-".join(str(pid) for pid in ids)
-        shots = lineup_shots_data.get(season, {}).get(team, {}).get(id_key, [])
+        id_key = "-".join(str(pid) for pid in lineup_ids)
+        shots = get_lineup_shots(season, team, id_key)
         return jsonify(shots)
     except Exception as e:
+        print("Error loading lineup shots:", e)
         return jsonify([])
-
-
 
 def get_lineup_ids(season, team, lineup):
     """
     Given a season, team, and lineup name, return a list of player IDs in order.
     """
-    # Convert "2024" → "2024-25"
-    all_stats = load_json_from_s3_lazy("all_stats_test.json")
+    season_str = f"{season}-{int(season[2:]) + 1}"  # "2024" → "2024-25"
+    team_data = get_all_stats(season[:4], team)
 
-    season_str = f"{season}-{int(season[2:]) + 1}"
-
-
-    player_names = lineup.split("*--*")  # assume lineup names are hyphen-delimited
-    player_names = [name.strip() for name in player_names]
-    team_data = all_stats.get(season_str, {}).get(team, {})
+    player_names = lineup.split("*--*")
     ids = []
     for name in player_names:
         name = sanitize_key(name)
-        
         player_data = team_data.get(name)
-        # if player_data and "id" in player_data:
-        ids.append(player_data['stats']["PLAYER_ID"])
-        # else:
-        #     raise ValueError(f"Player ID not found for {name} in {season_str} {team}")
-
+        if player_data and "stats" in player_data and "PLAYER_ID" in player_data["stats"]:
+            ids.append(str(player_data["stats"]["PLAYER_ID"]))
+        else:
+            raise ValueError(f"Missing ID for {name} in {season_str} {team}")
     return ids
-
 
 @application.route("/test_metrics")
 def test_metrics():
