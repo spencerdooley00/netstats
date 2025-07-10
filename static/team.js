@@ -302,10 +302,9 @@ const svg = d3.select("#network").append("svg")
     const simulation = d3.forceSimulation(data.nodes)
     .force("link", d3.forceLink(data.links).id(d => d.id).distance(500))
     .force("charge", d3.forceManyBody().strength(-400))
-    .force("center", d3.forceCenter(width / 2 - 150, height / 2 - 150))
-    .force("collide", d3.forceCollide().radius(75))
+.force("center", d3.forceCenter(width / 2, height / 2 - 120))  // <– shift up a bit
+.force("y", d3.forceY(height / 2 - 120).strength(0.1))     .force("collide", d3.forceCollide().radius(75))
   .force("x", d3.forceX(width / 2).strength(0.001))
-.force("y", d3.forceY(height / 2).strength(0.09))
 
 
 
