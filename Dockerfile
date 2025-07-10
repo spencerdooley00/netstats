@@ -17,6 +17,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 WORKDIR /app
 COPY ./templates ./templates
 COPY ./static ./static
+RUN ls -l ./static
 COPY ./scripts ./scripts
 COPY ./nba_on_court ./nba_on_court
 COPY application.py .
