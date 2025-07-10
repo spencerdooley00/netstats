@@ -389,3 +389,7 @@ def test_metrics():
     pprint.pprint(metrics)
 
     return jsonify(metrics)  # View in browser as JSON
+
+
+if __name__ == "__main__":
+    application.run(host="0.0.0.0", port=8080)
