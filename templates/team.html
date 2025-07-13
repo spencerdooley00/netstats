@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 
 {% block title %}{{ team }} | NetStats{% endblock %}
+{% block page_class %}team-view{% endblock %}
 
 {% block head_scripts %}
 <script type="module" src="{{ url_for('static', filename='team.js') }}"></script>
 {% endblock %}
+
 
 {% block nav_tabs %}
 <a href="{{ url_for('home') }}" class="back-button">← Back to Home</a>
@@ -26,7 +28,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="team-panel">
+<div class="team-layout">
+
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="form-group">
@@ -44,10 +47,15 @@
     <input type="hidden" id="team" value="{{ team }}">
   </aside>
 
+  <!-- Main Content (just once!) -->
   <div class="main-content">
+
     <!-- PASSING NETWORK TAB -->
     <div class="tab-content" id="passing-tab" style="display: block;">
-      <div id="network" style="height: 85vh;"></div>
+      <div class="chart-controls" style="margin-bottom: 12px;">
+  <label><input type="checkbox" id="flow-toggle"> Flow</label>
+</div>
+      <div id="network"></div>
 
       <div class="right-panel" id="right-panel" style="display: none;">
         <div id="player-details"></div>
@@ -63,8 +71,9 @@
     </div>
 
     <!-- LINEUP EXPLORER TAB -->
-    <div class="tab-content" id="lineup-tab" style="display: none;">
+<div class="tab-content" id="lineup-tab" style="display: none; overflow-y: auto; padding: 16px 24px;">
       <div class="lineup-explorer-container">
+
         <div id="lineup-table-wrapper" style="display: none; opacity: 0;">
           <table class="lineup-table">
             <thead>
@@ -86,18 +95,19 @@
           <div id="assist-network-container">
             <div id="assist-network"></div>
           </div>
-
           <div id="lineup-shot-chart-container">
             <svg id="assist-court-svg" width="600" height="563.74" viewBox="0 0 431 405.14"></svg>
-            <div class="chart-controls">
+<div id="assist-chart-controls" style="display: none;" class="chart-controls">
               <label><input type="checkbox" id="assist-heatmap-toggle"> Heatmap</label>
-              <label><input type="checkbox" id="assist-makes-only-toggle"> Makes only</label>
+              <!-- <label><input type="checkbox" id="assist-makes-only-toggle"> Makes only</label> -->
               <button id="reset-filter-button">Reset</button>
             </div>
           </div>
         </div>
+
       </div>
     </div>
+
   </div>
 </div>
 {% endblock %}

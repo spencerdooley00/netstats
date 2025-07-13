@@ -192,85 +192,75 @@ function renderShots(data, selector, togglePrefix = null) {
 
 
   // Passing Network Logic — like index.js
-  function updatePassingNetwork(preservePlayers = false) {
-    const season = document.getElementById("season").value;
-    const team = document.getElementById("team").value;
-    const players = preservePlayers
-      ? Array.from(document.querySelectorAll(".player-checkbox:checked")).map(cb => cb.value)
-      : undefined;
+ function updatePassingNetwork(preservePlayers = false) {
+  const season = document.getElementById("season").value;
+  const team = document.getElementById("team").value;
 
-    fetch("/update_network", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ season, team, players })
-    })
+  const players = preservePlayers
+    ? Array.from(document.querySelectorAll("#player-checkboxes input[type='checkbox']:checked")).map(cb => cb.value)
+    : undefined;
+
+  console.log("Sending updatePassingNetwork", { season, team, players });  // ✅ Debug log
+
+  fetch("/update_network", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ season, team, players })
+  })
     .then(res => res.json())
     .then(data => {
-  const checkboxContainer = document.getElementById("player-checkboxes");
-  checkboxContainer.innerHTML = "";
-  data.players.forEach(player => {
-    const label = document.createElement("label");
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.className = "player-checkbox";
-    checkbox.value = player;
-    if (data.selected.includes(player)) checkbox.checked = true;
-    label.appendChild(checkbox);
-    label.append(` ${player}`);
-    checkboxContainer.appendChild(label);
-  });
- 
+      const checkboxContainer = document.getElementById("player-checkboxes");
+      checkboxContainer.innerHTML = "";
 
-// ✅ Add listener to whole container ONCE
-// Debounced update to avoid rapid DOM thrashing
-// let debounceTimeout;
-// checkboxContainer.addEventListener("change", () => {
-//   clearTimeout(debounceTimeout);
-//   debounceTimeout = setTimeout(() => {
-//     updatePassingNetwork(true);
-//   }, 250); // delay to ensure change registers visually first
-// });
+      data.players.forEach(player => {
+        const label = document.createElement("label");
+        label.className = "player-checkbox";
 
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = player;
+        if (data.selected.includes(player)) {
+          checkbox.checked = true;
+          label.classList.add("checked");
+        }
 
+        const customBox = document.createElement("span");
+        customBox.className = "custom-checkbox";
 
-  checkboxContainer.querySelectorAll(".player-checkbox").forEach(cb => {
-    cb.addEventListener("change", () => updatePassingNetwork(true));
-  });
-  checkboxContainer.querySelectorAll("input[type='checkbox']").forEach(cb => {
-  cb.addEventListener("change", () => updatePassingNetwork(true));
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "player-name";
+        nameSpan.textContent = player;
+
+        label.appendChild(checkbox);
+        label.appendChild(customBox);
+        label.appendChild(nameSpan);
+        checkboxContainer.appendChild(label);
+
+        checkbox.addEventListener("change", () => {
+          label.classList.toggle("checked", checkbox.checked);
+          updatePassingNetwork(true);
+        });
+      });
+
+      // Only draw network if tab is active
+      const passingTab = document.querySelector(".tab-button[data-tab='passing']");
+      if (passingTab && passingTab.classList.contains("active")) {
+        drawPassingNetwork(data);
+        window.currentNetworkData = data;
+        document.getElementById("flow-toggle")?.addEventListener("change", () => {
+  if (window.currentNetworkData) drawPassingNetwork(window.currentNetworkData);
 });
 
-  // ✅ only draw if tab is active
-const passingTab = document.querySelector(".tab-button[data-tab='passing']");
-if (passingTab && passingTab.classList.contains("active")) {
-  drawPassingNetwork(data);
+      }
+    });
 }
-// ✅ Enable checkbox selection styling manually
-document.querySelectorAll("#player-checkboxes input[type='checkbox']").forEach(input => {
-  const label = input.closest(".player-checkbox");
-
-  // Initialize checked state
-  if (input.checked) {
-    label.classList.add("checked");
-  }
-
-  // Listen to change event
-  input.addEventListener("change", () => {
-    if (input.checked) {
-      label.classList.add("checked");
-    } else {
-      label.classList.remove("checked");
-    }
-
-    // Trigger network update if needed
-    updatePassingNetwork(true);
-  });
-});
-});
-  }
 
 function drawPassingNetwork(data) {
+  
 d3.select("#passing-tab").selectAll("svg").remove();
+const isFlow = document.getElementById("flow-toggle")?.checked;
+let links = data.links; // default to directional
+
 
     const width = document.getElementById("passing-tab").clientWidth ;
     const height = window.innerHeight;
@@ -293,7 +283,11 @@ const svg = d3.select("#network").append("svg")
     .attr("fill", "#666");
 
 
-    const svgGroup = svg.append("g");
+const centerX = width / 2;
+const centerY = height / 2 - 60;  // tweak this vertical offset if needed
+
+const svgGroup = svg.append("g")
+  .attr("transform", `translate(-70,70)`);    
 
     svg.call(d3.zoom()
     .scaleExtent([0.5, 2])
@@ -302,14 +296,98 @@ const svg = d3.select("#network").append("svg")
     const simulation = d3.forceSimulation(data.nodes)
     .force("link", d3.forceLink(data.links).id(d => d.id).distance(500))
     .force("charge", d3.forceManyBody().strength(-400))
-.force("center", d3.forceCenter(width / 2, height / 2 - 120))  // <– shift up a bit
-.force("y", d3.forceY(height / 2 - 120).strength(0.1))     .force("collide", d3.forceCollide().radius(75))
+    .force("center", d3.forceCenter(width / 2 - 150, height / 2 - 150))
+    .force("collide", d3.forceCollide().radius(75))
   .force("x", d3.forceX(width / 2).strength(0.001))
+.force("y", d3.forceY(height / 2).strength(0.09))
 
 
 
-    data.links.sort((a, b) => a.weight - b.weight);
+if (isFlow) {
+  const combinedMap = new Map();
+  data.links.forEach(link => {
+    const sourceId = typeof link.source === "object" ? link.source.id : link.source;
+    const targetId = typeof link.target === "object" ? link.target.id : link.target;
+    const key = [sourceId, targetId].sort().join("-");
 
+    if (!combinedMap.has(key)) {
+      combinedMap.set(key, {
+        source: link.source,
+        target: link.target,
+        weight: 0,
+        a2b: 0,
+        b2a: 0
+      });
+    }
+
+    const entry = combinedMap.get(key);
+    const isAB = sourceId < targetId;
+    if (isAB) {
+      entry.a2b += +link.weight;
+    } else {
+      entry.b2a += +link.weight;
+    }
+    entry.weight = entry.a2b + entry.b2a;
+  });
+
+  links = Array.from(combinedMap.values());
+}
+
+const linkGroup = svgGroup.append("g")
+  .attr("class", "links");
+
+const linkA = linkGroup.selectAll(".link-a")
+  .data(links)
+  .enter().append("line")
+  .attr("class", "link-a")
+  .attr("stroke", "#007bff") // blue
+  .attr("stroke-opacity", 0.8);
+
+const linkB = linkGroup.selectAll(".link-b")
+  .data(links)
+  .enter().append("line")
+  .attr("class", "link-b")
+  .attr("stroke", "#facc15") // yellow
+  .attr("stroke-opacity", 0.8);
+
+  const tooltip2 = d3.select("body").append("div")
+  .attr("class", "tooltip")
+  .style("opacity", 0);
+
+  function formatTooltip(d) {
+  const a = d.source.name || d.source;
+  const b = d.target.name || d.target;
+  return `
+    <strong>${a} ↔ ${b}</strong><br>
+    ${a} → ${b}: ${d.a2b.toFixed(1)}<br>
+    ${b} → ${a}: ${d.b2a.toFixed(1)}<br>
+    Total: ${d.weight.toFixed(1)}
+  `;
+}
+
+linkA
+  .on("mouseover", (event, d) => {
+    tooltip2.transition().duration(200).style("opacity", 0.95);
+    tooltip2.html(formatTooltip(d))
+      .style("left", (event.pageX + 12) + "px")
+      .style("top", (event.pageY - 20) + "px");
+  })
+  .on("mouseout", () => {
+    tooltip2.transition().duration(200).style("opacity", 0);
+  });
+
+linkB
+  .on("mouseover", (event, d) => {
+    tooltip2.transition().duration(200).style("opacity", 0.95);
+    tooltip2.html(formatTooltip(d))
+      .style("left", (event.pageX + 12) + "px")
+      .style("top", (event.pageY - 20) + "px");
+  })
+  .on("mouseout", () => {
+    tooltip2.transition().duration(200).style("opacity", 0);
+  });
+
+data.links.sort((a, b) => a.weight - b.weight);
     const link = svgGroup.append("g")
     .selectAll("path")
     .data(data.links)
@@ -319,7 +397,7 @@ const svg = d3.select("#network").append("svg")
 .attr("opacity", 0.9)
 
     .attr("fill", "none")
-    .attr("marker-end", "url(#arrow)");
+.attr("marker-end", isFlow ? null : "url(#arrow)");
     link
         .on("mouseover", function (event, d) {
         d3.select(this)
@@ -399,7 +477,6 @@ rightPanel.style.display = "block";
 
 const panel = document.getElementById("player-details");
 const stats = d.stats || {};
-
 panel.innerHTML = `
   <div class="player-card-header">
     <button id="close-panel-button" class="close-button">Close</button>
@@ -527,18 +604,34 @@ const g = d3.select("#court-svg").select("g.court-g");
         
     });
 
-    simulation.on("tick", () => {
+   simulation.on("tick", () => {
+  if (isFlow) {
+    // Split link into blue (a2b) and yellow (b2a) segments
+    linkA
+      .attr("x1", d => d.source.x)
+      .attr("y1", d => d.source.y)
+      .attr("x2", d => d.source.x + (d.target.x - d.source.x) * (d.a2b / d.weight))
+      .attr("y2", d => d.source.y + (d.target.y - d.source.y) * (d.a2b / d.weight))
+      .attr("stroke-width", d => Math.max(1, d.weight ** 0.6));
+
+    linkB
+      .attr("x1", d => d.target.x)
+      .attr("y1", d => d.target.y)
+      .attr("x2", d => d.target.x - (d.target.x - d.source.x) * (d.b2a / d.weight))
+      .attr("y2", d => d.target.y - (d.target.y - d.source.y) * (d.b2a / d.weight))
+      .attr("stroke-width", d => Math.max(1, d.weight ** 0.6));
+  } else {
     link.attr("d", d => {
-        const dx = d.target.x - d.source.x;
-        const dy = d.target.y - d.source.y;
-        const dr = Math.sqrt(dx * dx + dy * dy) * 1.5;
-        return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
+      const dx = d.target.x - d.source.x;
+      const dy = d.target.y - d.source.y;
+      const dr = Math.sqrt(dx * dx + dy * dy) * 1.5;
+      return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
     });
-//   simulation.on("tick", () => {
-//   visibleLinks.attr("d", arcPath);
-//   hoverLinks.attr("d", arcPath);
-    node.attr("transform", d => `translate(${d.x},${d.y})`);
+  }
+
+  node.attr("transform", d => `translate(${d.x},${d.y})`);
 });
+
 
 }  
 function updateAssistNetwork(lineup) {
@@ -595,7 +688,7 @@ console.log("Links:", data.links);
 
 if (width === 0 || height === 0) {
   console.warn("drawNetwork called before layout ready");
-} 
+}
 
 
   const svg = d3.select("#assist-network").append("svg")
@@ -625,7 +718,7 @@ data.nodes.forEach(d => {
 });
 
 const simulation = d3.forceSimulation(data.nodes)
-  .force("link", d3.forceLink(data.links).id(d => d.id).distance(350))
+  .force("link", d3.forceLink(links).id(d => d.id).distance(350))
   .force("charge", d3.forceManyBody().strength(-600))
   .force("collide", d3.forceCollide().radius(90))
   .force("center", d3.forceCenter((width - 120) / 2, (height - 120) / 2));
@@ -636,7 +729,8 @@ simulation.alpha(1).restart();
     .attr("class", "tooltip").style("opacity", 0);
 console.log("Appending links and nodes", data.nodes.length, data.links.length);
 
-  const link = svgGroup.append("g").selectAll("path")
+  const link = svgGroup.append("g")
+  .selectAll("path")
     .data(data.links)
     .enter().append("path")
 .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)))
@@ -748,6 +842,8 @@ if (!container.querySelector("g.court-g")) {
 
 
 renderShots(currentLineupShots, "#assist-court-svg", "assist");
+document.getElementById("assist-chart-controls").style.display = "block";
+
 const heatToggle = document.getElementById("assist-heatmap-toggle");
 const makesToggle = document.getElementById("assist-makes-only-toggle");
 
@@ -833,7 +929,7 @@ const fillLineupTable = (lineups) => {
     row.classList.add("lineup-row");
     row.dataset.lineup = lineup.id_key;
 
-const formattedLineupName = (lineup.GROUP_NAME || "").split("*--*").join(" - ");
+    const formattedLineupName = (lineup.GROUP_NAME || "").split("*--*").join(" - ");
 
 row.innerHTML = `
   <td>${formattedLineupName}</td>
