@@ -188,35 +188,29 @@ function renderShots(data, selector, togglePrefix = null) {
   heat ? drawHeatmap(filtered, selector) : drawHexbins(filtered, selector);
 }
 
-
 function renderFlowLinks(svgGroup, links) {
   const tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
-
   const defs = svgGroup.append("defs");
 
+  // Gradients
   links.forEach((d) => {
     const id = `grad-${d.source.id}-${d.target.id}`.replace(/\s+/g, "-");
-
     const grad = defs.append("linearGradient")
       .attr("id", id)
-      .attr("gradientUnits", "userSpaceOnUse")
-      .attr("x1", 0)
-      .attr("y1", 0)
-      .attr("x2", 100)
-      .attr("y2", 0); // Will be overridden dynamically
+      .attr("gradientUnits", "userSpaceOnUse");
 
-    const pctA = d.a2b / d.weight;
-    const pctB = d.b2a / d.weight;
-    const dominantFromA = pctA >= pctB;
-    const mainShare = dominantFromA ? pctA : pctB;
+    // Decide who passes more
+    const fromA = d.a2b >= d.b2a;
+    d.dominantSource = fromA ? d.source : d.target;
+    d.dominantTarget = fromA ? d.target : d.source;
+    d.dominantShare = fromA ? d.a2b / d.weight : d.b2a / d.weight;
 
-    // Gradient: strong blue → white at cutoff point
     grad.append("stop")
       .attr("offset", "0%")
       .attr("stop-color", "#007bff");
 
     grad.append("stop")
-      .attr("offset", `${(mainShare * 100).toFixed(1)}%`)
+      .attr("offset", `${(d.dominantShare * 100).toFixed(1)}%`)
       .attr("stop-color", "#ffffff");
 
     grad.append("stop")
@@ -224,16 +218,17 @@ function renderFlowLinks(svgGroup, links) {
       .attr("stop-color", "#ffffff");
   });
 
-  // Draw edges with blue-to-white gradient
+  // Edge lines
   const link = svgGroup.append("g")
     .attr("class", "flow-links")
     .selectAll("line")
     .data(links)
     .enter().append("line")
-    .attr("stroke-width", d => Math.max(1, 3*(d.weight ** 0.6)))
+    .attr("stroke-width", d => Math.max(2, d.weight ** 0.75))
     .attr("stroke-opacity", 0.95)
     .attr("stroke", d => `url(#grad-${d.source.id}-${d.target.id}`.replace(/\s+/g, "-") + ")");
 
+  // Tooltip
   function formatTooltip(d) {
     const a = d.source.name || d.source;
     const b = d.target.name || d.target;
@@ -254,8 +249,9 @@ function renderFlowLinks(svgGroup, links) {
     })
     .on("mouseout", () => tooltip.transition().duration(200).style("opacity", 0));
 
-  return { linkA: link, linkB: link }; // unified gradient link
+  return { linkA: link, linkB: link };
 }
+
 
 // function renderFlowLinks(svgGroup, links) {
 //   const tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
@@ -632,7 +628,7 @@ node.append("image")
 
   node.on("click", handleNodeClick);
 
-  simulation.on("tick", () => {
+simulation.on("tick", () => {
   node.attr("transform", d => `translate(${d.x},${d.y})`);
 
   if (isFlow && linkA) {
@@ -641,15 +637,14 @@ node.append("image")
       .attr("y1", d => d.source.y)
       .attr("x2", d => d.target.x)
       .attr("y2", d => d.target.y)
-      .attr("stroke-width", d => Math.max(1, 3*(d.weight ** 0.6)));
+      .attr("stroke-width", d => Math.max(2, d.weight ** 0.75));
 
-    // Update gradient orientation per edge
     links.forEach(d => {
       d3.select(`#grad-${d.source.id}-${d.target.id}`.replace(/\s+/g, "-"))
-        .attr("x1", d.source.x)
-        .attr("y1", d.source.y)
-        .attr("x2", d.target.x)
-        .attr("y2", d.target.y);
+        .attr("x1", d.dominantSource.x)
+        .attr("y1", d.dominantSource.y)
+        .attr("x2", d.dominantTarget.x)
+        .attr("y2", d.dominantTarget.y);
     });
   }
 
@@ -718,6 +713,8 @@ if (width < 100 || height < 100) {
 console.log("Drawing network with data:", data);
 console.log("Nodes:", data.nodes);
 console.log("Links:", data.links);
+const links = data.links;
+
 
 if (width === 0 || height === 0) {
   console.warn("drawNetwork called before layout ready");
