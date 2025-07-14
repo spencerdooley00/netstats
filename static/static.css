@@ -377,48 +377,47 @@ select, button, input[type="checkbox"] {
   right: 30px;
   z-index: 10;
 }
-
 .toggle-label {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  gap: 6px;
+  margin-right: 12px;
   font-size: 14px;
-  font-weight: 500;
-  color: #e2e8f0;
+  color: #eee;
   cursor: pointer;
-  gap: 8px;
 }
 
-.toggle-label input {
+.toggle-label input[type="checkbox"] {
   display: none;
 }
 
 .custom-toggle {
-  width: 40px;
+  width: 36px;
   height: 20px;
-  background-color: #334155;
   border-radius: 9999px;
+  background-color: #666;
   position: relative;
-  transition: background-color 0.2s;
+  transition: background-color 0.3s ease;
 }
 
 .custom-toggle::before {
   content: "";
+  position: absolute;
+  left: 2px;
+  top: 2px;
   width: 16px;
   height: 16px;
-  border-radius: 50%;
   background-color: white;
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  transition: transform 0.2s;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
 }
 
-#flow-toggle:checked + .custom-toggle {
-  background-color: #3b82f6;
+.toggle-label input:checked + .custom-toggle {
+  background-color: #3b82f6; /* blue-500 */
 }
 
-#flow-toggle:checked + .custom-toggle::before {
-  transform: translateX(20px);
+.toggle-label input:checked + .custom-toggle::before {
+  transform: translateX(16px);
 }
 
 
@@ -514,7 +513,7 @@ select, button, input[type="checkbox"] {
     padding-bottom: 80px; /* or more, like 32px */
 
 }
-
+/* 
 .chart-controls label,
 .chart-controls button {
   background: var(--secondary);
@@ -538,7 +537,7 @@ select, button, input[type="checkbox"] {
 .chart-controls input[type="checkbox"] {
   margin-right: 4px;
   accent-color: var(--accent); /* adds a modern highlight color to checkbox */
-}
+} */
 
 #reset-filter-button {
   background: var(--accent);

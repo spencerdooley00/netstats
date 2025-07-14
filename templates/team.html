@@ -66,10 +66,19 @@
         <div class="shot-chart-container">
           <div id="court-svg-container"></div>
           <svg id="court-svg" viewBox="0 0 431 405.14"></svg>
-          <div class="chart-controls">
-            <label><input type="checkbox" id="heatmap-toggle"> Heatmap</label>
-            <label><input type="checkbox" id="makes-only-toggle"> Makes only</label>
-          </div>
+<div class="chart-controls">
+  <label class="toggle-label">
+    <input type="checkbox" id="heatmap-toggle" />
+    <span class="custom-toggle"></span>
+    Heatmap
+  </label>
+  <label class="toggle-label">
+    <input type="checkbox" id="makes-only-toggle" />
+    <span class="custom-toggle"></span>
+    Makes only
+  </label>
+</div>
+
         </div>
       </div>
     </div>
@@ -102,10 +111,14 @@
           <div id="lineup-shot-chart-container">
             <svg id="assist-court-svg" width="600" height="563.74" viewBox="0 0 431 405.14"></svg>
 <div id="assist-chart-controls" style="display: none;" class="chart-controls">
-              <label><input type="checkbox" id="assist-heatmap-toggle"> Heatmap</label>
-              <!-- <label><input type="checkbox" id="assist-makes-only-toggle"> Makes only</label> -->
-              <button id="reset-filter-button">Reset</button>
-            </div>
+  <label class="toggle-label">
+    <input type="checkbox" id="assist-heatmap-toggle" />
+    <span class="custom-toggle"></span>
+    Heatmap
+  </label>
+  <button id="reset-filter-button">Reset</button>
+</div>
+
           </div>
         </div>
 
