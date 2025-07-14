@@ -50,9 +50,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (lineupTable) lineupTable.style.display = "none";
   }
 
+  // ✨ NEW — Reset player card when leaving or re-entering passing tab
+  const rightPanel = document.getElementById("right-panel");
+  if (rightPanel && tabName !== "passing") {
+    rightPanel.style.display = "none";
+rightPanel.style.display = "none";
+  }
+
   if (tabName === "passing") updatePassingNetwork(true);
   if (tabName === "assist" && currentAssistNetworkData) drawAssistNetwork(currentAssistNetworkData);
 }
+
 
 
 
@@ -433,13 +441,23 @@ function handleNodeClick(event, d) {
       shots = data; // store globally
       renderShots(shots, "#court-svg");
 
-      document.getElementById("heatmap-toggle").checked = false;
-      document.getElementById("makes-only-toggle").checked = false;
+// Just attach event listeners if not already added
+const heatToggle = document.getElementById("heatmap-toggle");
+const makesToggle = document.getElementById("makes-only-toggle");
 
-      document.getElementById("heatmap-toggle").onchange = () =>
-        renderShots(shots, "#court-svg");
-      document.getElementById("makes-only-toggle").onchange = () =>
-        renderShots(shots, "#court-svg");
+if (heatToggle && !heatToggle.dataset.bound) {
+  heatToggle.addEventListener("change", () => renderShots(shots, "#court-svg"));
+  heatToggle.dataset.bound = "true";
+}
+
+if (makesToggle && !makesToggle.dataset.bound) {
+  makesToggle.addEventListener("change", () => renderShots(shots, "#court-svg"));
+  makesToggle.dataset.bound = "true";
+}
+
+// 🔥 DO NOT reset the .checked values — preserve toggle state
+renderShots(shots, "#court-svg");
+
     });
 }
 
