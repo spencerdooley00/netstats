@@ -531,9 +531,45 @@ renderShots(shots, "#court-svg");
       if (passingTab && passingTab.classList.contains("active")) {
         drawPassingNetwork(data);
         window.currentNetworkData = data;
-        document.getElementById("flow-toggle")?.addEventListener("change", () => {
-  if (window.currentNetworkData) drawPassingNetwork(window.currentNetworkData);
+document.getElementById("flow-toggle")?.addEventListener("change", () => {
+  if (!window.currentNetworkData) return;
+
+  drawPassingNetwork(window.currentNetworkData);  // Rebuilds the network
+
+  // If player panel is open and we have shots, re-render chart
+  const panelVisible = document.getElementById("right-panel")?.style.display !== "none";
+  if (!panelVisible || !shots?.length) return;
+
+  const container = document.getElementById("court-svg-container");
+  if (!container) return;
+
+  // 1. Clear and re-add court SVG
+  container.innerHTML = "";
+  const courtSvg = d3.select(container)
+    .append("svg")
+    .attr("id", "court-svg")
+    .attr("width", 431)
+    .attr("height", 405.14)
+    .attr("viewBox", "0 0 431 405.14");
+
+  courtSvg.html(courtSvgHtml);  // Adds court SVG markup
+
+  // 2. Wait for g.court-g to appear, then render
+  let tries = 0;
+  function tryRender() {
+    const g = d3.select("#court-svg").select("g.court-g");
+    if (!g.empty()) {
+      renderShots(shots, "#court-svg");  // ✅ Renders with toggle state
+    } else if (tries < 10) {
+      tries++;
+      setTimeout(tryRender, 30);
+    } else {
+      console.warn("❌ Flow toggle: g.court-g not ready after multiple attempts");
+    }
+  }
+  tryRender();
 });
+
 
       }
     });
@@ -843,7 +879,7 @@ node.append("image")
   node.on("click", (event, d) => {
   currentPlayerFilter = d.name;
     console.log("✅ Set currentPlayerFilter to:", currentPlayerFilter);
-waitForCourtAndRender(currentLineupShots);
+waitForCourtAndRender(currentLineupShots, "#assist-court-svg", 10, "assist");
 
   // renderShots(currentLineupShots);
 });
@@ -892,7 +928,7 @@ if (!container.querySelector("g.court-g")) {
   // defer execution to allow DOM paint cycle
   setTimeout(() => waitForCourtAndRender(currentLineupShots), 0);
 } else {
-  waitForCourtAndRender(currentLineupShots);
+waitForCourtAndRender(currentLineupShots, "#assist-court-svg", 10, "assist");
 }
 
 document.getElementById("assist-chart-controls").style.display = "block";
@@ -921,23 +957,24 @@ document.getElementById("reset-filter-button").onclick = () => {
 };
 
 }
-function waitForCourtAndRender(shots, maxTries = 10) {
+function waitForCourtAndRender(shots, selector = "#assist-court-svg", maxTries = 10, togglePrefix = "assist") {
   let tries = 0;
 
   function tryRender() {
-    const g = d3.select("#assist-court-svg").select("g.court-g");
+    const g = d3.select(selector).select("g.court-g");
     if (!g.empty()) {
-      renderShots(shots, "#assist-court-svg", "assist");  // ✅ respects toggles
+      renderShots(shots, selector, togglePrefix);
     } else if (tries < maxTries) {
       tries++;
       setTimeout(tryRender, 30);
     } else {
-      console.warn("❌ Failed to find g.court-g after multiple tries");
+      console.warn(`❌ Failed to find g.court-g in ${selector} after ${maxTries} tries`);
     }
   }
 
   tryRender();
 }
+
 
 async function fetchAndRenderTopLineups() {
   const team = document.getElementById("team")?.value;
