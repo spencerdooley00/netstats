@@ -513,31 +513,7 @@ select, button, input[type="checkbox"] {
     padding-bottom: 80px; /* or more, like 32px */
 
 }
-/* 
-.chart-controls label,
-.chart-controls button {
-  background: var(--secondary);
-  color: var(--fg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 13px;
-  margin-right: 8px;
-  cursor: pointer;
-  transition: background 0.2s, border 0.2s;
-}
 
-.chart-controls label:hover,
-.chart-controls button:hover {
-  background: var(--highlight);
-  color: black;
-  border-color: var(--highlight);
-}
-
-.chart-controls input[type="checkbox"] {
-  margin-right: 4px;
-  accent-color: var(--accent); /* adds a modern highlight color to checkbox */
-} */
 
 #reset-filter-button {
   background: var(--accent);
