@@ -315,6 +315,11 @@ select, button, input[type="checkbox"] {
   transition: all 0.2s ease;
   background: transparent;
 }
+.player-checkbox.checked {
+  border: 1px solid var(--accent);
+  background: rgba(250, 204, 21, 0.07); /* subtle yellow tint */
+  box-shadow: 0 0 4px 1px var(--accent);
+}
 
 .player-checkbox:hover {
   background: rgba(255, 255, 255, 0.05);
@@ -418,6 +423,46 @@ select, button, input[type="checkbox"] {
 
 .toggle-label input:checked + .custom-toggle::before {
   transform: translateX(16px);
+}
+
+
+.toggle-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+    justify-content: center;  /* 👈 center items horizontally */
+
+
+    
+}
+
+.assist-toggle-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.toggle-pill {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  user-select: none;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  background: transparent;
+  color: var(--fg);
+}
+
+.toggle-pill:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+input[type="checkbox"]:checked + .toggle-pill {
+  background: var(--accent);
+  color: #111;
+  border-color: var(--accent);
+  font-weight: bold;
 }
 
 

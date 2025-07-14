@@ -138,7 +138,7 @@ function drawHexbins(data, selector) {
   const bins = hexbin(data);
 
   const binStats = bins.map(bin => {
-    const makes = bin.filter(d => d.SHOT_MADE_FLAG).length;
+const makes = bin.filter(d => Number(d.SHOT_MADE_FLAG) === 1).length;
     const attempts = bin.length;
     const fgPct = attempts > 0 ? makes / attempts : 0;
     return { bin, makes, attempts, fgPct, x: bin.x, y: bin.y };
@@ -193,8 +193,10 @@ function renderShots(data, selector, togglePrefix = null) {
     filtered = filtered.filter(d => d.PLAYER_NAME?.trim().toLowerCase() === currentPlayerFilter.trim().toLowerCase());
   }
   if (makes) {
-    filtered = filtered.filter(d => d.SHOT_MADE_FLAG);
+  filtered = filtered.filter(d => Number(d.SHOT_MADE_FLAG) === 1);
   }
+console.log("heat:", heat, "makes:", makes, "filtered length:", filtered.length);
+console.log("SHOT_MADE_FLAG values:", [...new Set(filtered.map(s => s.SHOT_MADE_FLAG))]);
 
   heat ? drawHeatmap(filtered, selector) : drawHexbins(filtered, selector);
 }
@@ -980,10 +982,17 @@ if (makesToggle && !makesToggle.dataset.bound) {
 renderShots(currentLineupShots, "#assist-court-svg", "assist");
 
 });
-
 document.getElementById("reset-filter-button").onclick = () => {
   currentPlayerFilter = null;
-  renderShots(currentLineupShots, "#assist-court-svg");  // ✅ correct
+
+  // Reset toggles
+  const heatToggle = document.getElementById("assist-heatmap-toggle");
+  const makesToggle = document.getElementById("assist-makes-only-toggle");
+  if (heatToggle) heatToggle.checked = false;
+  if (makesToggle) makesToggle.checked = false;
+
+  // Redraw with full data
+  renderShots(currentLineupShots, "#assist-court-svg", "assist");
 };
 
 }
