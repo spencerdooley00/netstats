@@ -57,7 +57,10 @@ document.addEventListener("DOMContentLoaded", () => {
 rightPanel.style.display = "none";
   }
 
-  if (tabName === "passing") updatePassingNetwork(true);
+  if (tabName === "passing") {
+  currentPlayerFilter = null;  // ✅ Clear Lineup tab player filter
+  updatePassingNetwork(true);
+}
   if (tabName === "assist" && currentAssistNetworkData) drawAssistNetwork(currentAssistNetworkData);
 }
 
@@ -408,21 +411,28 @@ function handleNodeClick(event, d) {
     document.getElementById("right-panel").style.display = "none";
   });
 
-  const svgContainer = document.getElementById("court-svg-container");
-  if (!svgContainer) {
-    console.warn("❌ court-svg-container not found");
-    return;
-  }
+  let svgContainer = document.getElementById("court-svg-container");
 
+// 🔧 If it doesn't exist (maybe removed by tab switch), recreate it
+if (!svgContainer) {
+  const rightPanel = document.getElementById("right-panel");
+  svgContainer = document.createElement("div");
+  svgContainer.id = "court-svg-container";
+  rightPanel.appendChild(svgContainer);
+} else {
   svgContainer.innerHTML = "";
-  const courtSvg = d3.select(svgContainer)
-    .append("svg")
-    .attr("id", "court-svg")
-    .attr("width", 431)
-    .attr("height", 405.14)
-    .attr("viewBox", "0 0 431 405.14");
+}
 
-  courtSvg.html(courtSvgHtml); // assumes courtSvgHtml is defined globally
+// Always rebuild court SVG
+const courtSvg = d3.select(svgContainer)
+  .append("svg")
+  .attr("id", "court-svg")
+  .attr("width", 431)
+  .attr("height", 405.14)
+  .attr("viewBox", "0 0 431 405.14");
+
+courtSvg.html(courtSvgHtml);
+
 
   const g = courtSvg.select("g.court-g");
   if (g.empty()) {
@@ -880,27 +890,29 @@ if (!container.querySelector("g.court-g")) {
     </svg>`;
 
   // defer execution to allow DOM paint cycle
-  setTimeout(() => {
-    waitForCourtAndRender(currentLineupShots);
-  }, 0);
+  setTimeout(() => waitForCourtAndRender(currentLineupShots), 0);
 } else {
   waitForCourtAndRender(currentLineupShots);
 }
 
-
-
-renderShots(currentLineupShots, "#assist-court-svg", "assist");
 document.getElementById("assist-chart-controls").style.display = "block";
 
 const heatToggle = document.getElementById("assist-heatmap-toggle");
 const makesToggle = document.getElementById("assist-makes-only-toggle");
 
-if (heatToggle) {
-  heatToggle.onchange = () => renderShots(currentLineupShots, "#assist-court-svg", "assist");
+// Attach listeners only once
+if (heatToggle && !heatToggle.dataset.bound) {
+  heatToggle.addEventListener("change", () => renderShots(currentLineupShots, "#assist-court-svg", "assist"));
+  heatToggle.dataset.bound = "true";
 }
-if (makesToggle) {
-  makesToggle.onchange = () => renderShots(currentLineupShots, "#assist-court-svg", "assist");
+if (makesToggle && !makesToggle.dataset.bound) {
+  makesToggle.addEventListener("change", () => renderShots(currentLineupShots, "#assist-court-svg", "assist"));
+  makesToggle.dataset.bound = "true";
 }
+
+// Explicit render based on current toggle state
+renderShots(currentLineupShots, "#assist-court-svg", "assist");
+
 });
 
 document.getElementById("reset-filter-button").onclick = () => {
@@ -914,11 +926,11 @@ function waitForCourtAndRender(shots, maxTries = 10) {
 
   function tryRender() {
     const g = d3.select("#assist-court-svg").select("g.court-g");
-   if (!g.empty()) {
-    renderShots(shots, "#assist-court-svg");
+    if (!g.empty()) {
+      renderShots(shots, "#assist-court-svg", "assist");  // ✅ respects toggles
     } else if (tries < maxTries) {
       tries++;
-      setTimeout(tryRender, 30);  // retry in 30ms
+      setTimeout(tryRender, 30);
     } else {
       console.warn("❌ Failed to find g.court-g after multiple tries");
     }
