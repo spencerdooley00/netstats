@@ -339,6 +339,9 @@ function renderDirectionalLinks(svgGroup, links) {
     .selectAll("path")
     .data(links)
     .enter().append("path")
+  .attr("class", "passing-link")  // ✅ Add this
+  .attr("data-source", d => d.source.id || d.source)
+  .attr("data-target", d => d.target.id || d.target)
     .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)))
     .attr("stroke-width", d => d.weight ** 0.6 + 0.5)
     .attr("opacity", 0.9)
@@ -682,13 +685,40 @@ node.append("image")
 
   // === ON NODE CLICK ===
   node.on("mouseover", (event, d) => {
-    tooltip.transition().duration(200).style("opacity", 0.9);
-    tooltip.html(`<strong>${d.name}</strong>`)
-      .style("left", (event.pageX + 10) + "px")
-      .style("top", (event.pageY - 20) + "px");
-  }).on("mouseout", () => {
-    tooltip.transition().duration(300).style("opacity", 0);
-  });
+  if (!isFlow) {
+    const playerId = d.id;
+
+    d3.selectAll("path.passing-link")
+      .attr("opacity", l => {
+        const source = l.source.id || l.source;
+        const target = l.target.id || l.target;
+        return (source === playerId || target === playerId) ? 1 : 0;
+      })
+      .attr("stroke", l => {
+        const source = l.source.id || l.source;
+        const target = l.target.id || l.target;
+        if (source === playerId) return "#3b82f6";  // blue
+        if (target === playerId) return "#facc15";  // yellow
+        return "none";
+      });
+  }
+
+  tooltip.transition().duration(200).style("opacity", 0.9);
+  tooltip.html(`<strong>${d.name}</strong>`)
+    .style("left", (event.pageX + 10) + "px")
+    .style("top", (event.pageY - 20) + "px");
+});
+
+node.on("mouseout", () => {
+  tooltip.transition().duration(300).style("opacity", 0);
+
+  if (!isFlow) {
+    d3.selectAll("path.passing-link")
+      .attr("opacity", 0.9)
+      .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)));
+  }
+});
+
 
   node.on("click", handleNodeClick);
 
