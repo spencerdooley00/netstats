@@ -189,6 +189,266 @@ function renderShots(data, selector, togglePrefix = null) {
 }
 
 
+function renderFlowLinks(svgGroup, links) {
+  const tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
+
+  const defs = svgGroup.append("defs");
+
+  links.forEach((d) => {
+    const id = `grad-${d.source.id}-${d.target.id}`.replace(/\s+/g, "-");
+
+    const grad = defs.append("linearGradient")
+      .attr("id", id)
+      .attr("gradientUnits", "userSpaceOnUse")
+      .attr("x1", 0)
+      .attr("y1", 0)
+      .attr("x2", 100)
+      .attr("y2", 0); // Will be overridden dynamically
+
+    const pctA = d.a2b / d.weight;
+    const pctB = d.b2a / d.weight;
+    const dominantFromA = pctA >= pctB;
+    const mainShare = dominantFromA ? pctA : pctB;
+
+    // Gradient: strong blue → white at cutoff point
+    grad.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", "#007bff");
+
+    grad.append("stop")
+      .attr("offset", `${(mainShare * 100).toFixed(1)}%`)
+      .attr("stop-color", "#ffffff");
+
+    grad.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "#ffffff");
+  });
+
+  // Draw edges with blue-to-white gradient
+  const link = svgGroup.append("g")
+    .attr("class", "flow-links")
+    .selectAll("line")
+    .data(links)
+    .enter().append("line")
+    .attr("stroke-width", d => Math.max(1, 3*(d.weight ** 0.6)))
+    .attr("stroke-opacity", 0.95)
+    .attr("stroke", d => `url(#grad-${d.source.id}-${d.target.id}`.replace(/\s+/g, "-") + ")");
+
+  function formatTooltip(d) {
+    const a = d.source.name || d.source;
+    const b = d.target.name || d.target;
+    return `
+      <strong>${a} ↔ ${b}</strong><br>
+      ${a} → ${b}: ${d.a2b.toFixed(1)}<br>
+      ${b} → ${a}: ${d.b2a.toFixed(1)}<br>
+      Total: ${d.weight.toFixed(1)}
+    `;
+  }
+
+  link
+    .on("mouseover", (event, d) => {
+      tooltip.transition().duration(200).style("opacity", 0.95);
+      tooltip.html(formatTooltip(d))
+        .style("left", (event.pageX + 12) + "px")
+        .style("top", (event.pageY - 20) + "px");
+    })
+    .on("mouseout", () => tooltip.transition().duration(200).style("opacity", 0));
+
+  return { linkA: link, linkB: link }; // unified gradient link
+}
+
+// function renderFlowLinks(svgGroup, links) {
+//   const tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
+
+//   // === Define Gradients ===
+//   const defs = svgGroup.append("defs");
+
+//   links.forEach((d, i) => {
+//     const id = `grad-${d.source.id}-${d.target.id}`.replace(/\s+/g, "-");
+//     const grad = defs.append("linearGradient")
+//       .attr("id", id)
+//       .attr("gradientUnits", "userSpaceOnUse")
+//       .attr("x1", 0)
+//       .attr("y1", 0)
+//       .attr("x2", 100)
+//       .attr("y2", 0); // Will be overridden dynamically per line
+
+//     const pctA = d.a2b / d.weight;
+//     const pctB = d.b2a / d.weight;
+
+//     grad.append("stop")
+//       .attr("offset", "0%")
+//       .attr("stop-color", pctA >= pctB ? "#007bff" : "#facc15");
+
+//     grad.append("stop")
+//       .attr("offset", `${Math.round(pctA * 100)}%`)
+//       .attr("stop-color", "#ffffff");
+
+//     grad.append("stop")
+//       .attr("offset", "100%")
+//       .attr("stop-color", pctA < pctB ? "#007bff" : "#facc15");
+//   });
+
+//   // === Draw gradient edges ===
+//   const link = svgGroup.append("g")
+//     .attr("class", "flow-links")
+//     .selectAll("line")
+//     .data(links)
+//     .enter().append("line")
+//     .attr("stroke-width", d => Math.max(1, d.weight ** 0.6))
+//     .attr("stroke-opacity", 0.95)
+//     .attr("stroke", d => `url(#grad-${d.source.id}-${d.target.id}`.replace(/\s+/g, "-") + ")");
+
+//   function formatTooltip(d) {
+//     const a = d.source.name || d.source;
+//     const b = d.target.name || d.target;
+//     return `
+//       <strong>${a} ↔ ${b}</strong><br>
+//       ${a} → ${b}: ${d.a2b.toFixed(1)}<br>
+//       ${b} → ${a}: ${d.b2a.toFixed(1)}<br>
+//       Total: ${d.weight.toFixed(1)}
+//     `;
+//   }
+
+//   link.on("mouseover", (event, d) => {
+//     tooltip.transition().duration(200).style("opacity", 0.95);
+//     tooltip.html(formatTooltip(d))
+//       .style("left", (event.pageX + 12) + "px")
+//       .style("top", (event.pageY - 20) + "px");
+//   }).on("mouseout", () => tooltip.transition().duration(200).style("opacity", 0));
+
+//   return {
+//     linkA: link, // reuse the same key so `simulation.on("tick")` still works
+//     linkB: link
+//   };
+// }
+
+
+
+function renderDirectionalLinks(svgGroup, links) {
+  const tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
+
+  const link = svgGroup.append("g")
+    .selectAll("path")
+    .data(links)
+    .enter().append("path")
+    .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)))
+    .attr("stroke-width", d => d.weight ** 0.6 + 0.5)
+    .attr("opacity", 0.9)
+    .attr("fill", "none")
+    .attr("marker-end", "url(#arrow)");
+
+  link
+    .on("mouseover", function (event, d) {
+      d3.select(this)
+        .raise()
+        .transition()
+        .duration(100)
+        .attr("stroke-width", d => d.weight ** 0.6 + 2.5)
+        .attr("stroke", "#ffA500");
+
+      tooltip.transition().duration(200).style("opacity", 0.95);
+      tooltip.html(`<strong>${d.source.name} → ${d.target.name}</strong><br>Passes: ${d.weight}`)
+        .style("left", (event.pageX + 12) + "px")
+        .style("top", (event.pageY - 20) + "px");
+    })
+    .on("mouseout", function () {
+      d3.select(this)
+        .transition()
+        .duration(100)
+        .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)))
+        .attr("stroke-width", d => d.weight ** 0.6 + 0.5)
+        .attr("opacity", 0.9);
+
+      tooltip.transition().duration(200).style("opacity", 0);
+    });
+
+  return link;
+}
+
+function handleNodeClick(event, d) {
+  const season = document.getElementById("season").value;
+  const team = document.getElementById("team").value;
+  const rightPanel = document.getElementById("right-panel");
+
+  if (!rightPanel) {
+    console.warn("⚠️ right-panel not found in DOM!");
+    return;
+  }
+
+  rightPanel.style.display = "block";
+
+  const panel = document.getElementById("player-details");
+  const stats = d.stats || {};
+  panel.innerHTML = `
+    <div class="player-card-header">
+      <button id="close-panel-button" class="close-button">Close</button>
+    </div>
+    <div class="player-card-content">
+      <img src="${d.img}" class="player-card-img" />
+      <h3 class="player-card-name">${d.name}</h3>
+    </div>
+    <table class="player-card-table">
+      <tr><td><strong>PTS:</strong></td><td>${isFinite(stats.PTS) ? Number(stats.PTS).toFixed(1) : "-"}</td></tr>
+      <tr><td><strong>AST:</strong></td><td>${isFinite(stats.AST) ? Number(stats.AST).toFixed(1) : "-"}</td></tr>
+      <tr><td><strong>REB:</strong></td><td>${isFinite(stats.REB) ? Number(stats.REB).toFixed(1) : "-"}</td></tr>
+      <tr><td><strong>+/-:</strong></td><td>${isFinite(stats.PLUS_MINUS) ? Number(stats.PLUS_MINUS).toFixed(1) : "-"}</td></tr>
+      <tr><td><strong>MIN:</strong></td><td>${isFinite(stats.MIN) ? Number(stats.MIN).toFixed(1) : "-"}</td></tr>
+      <tr><td><strong>FG%:</strong></td><td>${isFinite(stats.FG_PCT) ? (Number(stats.FG_PCT) * 100).toFixed(1) + "%" : "-"}</td></tr>
+      <tr><td><strong>3FG%:</strong></td><td>${isFinite(stats.FG3_PCT) ? (Number(stats.FG3_PCT) * 100).toFixed(1) + "%" : "-"}</td></tr>
+    </table>
+  `;
+
+  // Close panel button listener
+  document.getElementById("close-panel-button")?.addEventListener("click", () => {
+    document.getElementById("right-panel").style.display = "none";
+  });
+
+  const svgContainer = document.getElementById("court-svg-container");
+  if (!svgContainer) {
+    console.warn("❌ court-svg-container not found");
+    return;
+  }
+
+  svgContainer.innerHTML = "";
+  const courtSvg = d3.select(svgContainer)
+    .append("svg")
+    .attr("id", "court-svg")
+    .attr("width", 431)
+    .attr("height", 405.14)
+    .attr("viewBox", "0 0 431 405.14");
+
+  courtSvg.html(courtSvgHtml); // assumes courtSvgHtml is defined globally
+
+  const g = courtSvg.select("g.court-g");
+  if (g.empty()) {
+    console.warn("❌ g.court-g missing");
+    return;
+  }
+
+  // Fetch & render shot data
+  fetch("/player_shots", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ player: d.name, season, team })
+  })
+    .then(res => res.json())
+    .then(data => {
+      shots = data; // store globally
+      renderShots(shots, "#court-svg");
+
+      document.getElementById("heatmap-toggle").checked = false;
+      document.getElementById("makes-only-toggle").checked = false;
+
+      document.getElementById("heatmap-toggle").onchange = () =>
+        renderShots(shots, "#court-svg");
+      document.getElementById("makes-only-toggle").onchange = () =>
+        renderShots(shots, "#court-svg");
+    });
+}
+
+
+
 
 
   // Passing Network Logic — like index.js
@@ -256,20 +516,18 @@ function renderShots(data, selector, togglePrefix = null) {
 }
 
 function drawPassingNetwork(data) {
-  
-d3.select("#passing-tab").selectAll("svg").remove();
-const isFlow = document.getElementById("flow-toggle")?.checked;
-let links = data.links; // default to directional
+  d3.select("#passing-tab").selectAll("svg").remove();
+  const isFlow = document.getElementById("flow-toggle")?.checked;
 
+  let links = data.links;
+  const width = document.getElementById("passing-tab").clientWidth;
+  const height = window.innerHeight;
 
-    const width = document.getElementById("passing-tab").clientWidth ;
-    const height = window.innerHeight;
+  const svg = d3.select("#network").append("svg")
+    .attr("width", width + 400)
+    .attr("height", height - 100);
 
-const svg = d3.select("#network").append("svg")
-    .attr("width", width+400)
-    .attr("height", height-100);
-
-    svg.append("defs").append("marker")
+  svg.append("defs").append("marker")
     .attr("id", "arrow")
     .attr("viewBox", "0 -5 10 10")
     .attr("refX", 60)
@@ -277,350 +535,125 @@ const svg = d3.select("#network").append("svg")
     .attr("markerWidth", 8)
     .attr("markerHeight", 8)
     .attr("orient", "auto")
-    .attr("markerUnits", "userSpaceOnUse") // scales correctly with stroke width
+    .attr("markerUnits", "userSpaceOnUse")
     .append("path")
     .attr("d", "M0,-5L10,0L0,5")
     .attr("fill", "#666");
 
+  const svgGroup = svg.append("g").attr("transform", `translate(-70,70)`);
 
-const centerX = width / 2;
-const centerY = height / 2 - 60;  // tweak this vertical offset if needed
+  svg.call(d3.zoom().scaleExtent([0.5, 2]).on("zoom", (event) => {
+    svgGroup.attr("transform", event.transform);
+  }));
 
-const svgGroup = svg.append("g")
-  .attr("transform", `translate(-70,70)`);    
-
-    svg.call(d3.zoom()
-    .scaleExtent([0.5, 2])
-    .on("zoom", (event) => svgGroup.attr("transform", event.transform)));
-
-    const simulation = d3.forceSimulation(data.nodes)
+  const simulation = d3.forceSimulation(data.nodes)
     .force("link", d3.forceLink(data.links).id(d => d.id).distance(500))
     .force("charge", d3.forceManyBody().strength(-400))
     .force("center", d3.forceCenter(width / 2 - 150, height / 2 - 150))
     .force("collide", d3.forceCollide().radius(75))
-  .force("x", d3.forceX(width / 2).strength(0.001))
-.force("y", d3.forceY(height / 2).strength(0.09))
+    .force("x", d3.forceX(width / 2).strength(0.001))
+    .force("y", d3.forceY(height / 2).strength(0.09));
 
+  // === FLOW VS NON-FLOW ===
+  let link, linkA, linkB;
+  if (isFlow) {
+    const combinedMap = new Map();
+    data.links.forEach(link => {
+      const sourceId = typeof link.source === "object" ? link.source.id : link.source;
+      const targetId = typeof link.target === "object" ? link.target.id : link.target;
+      const key = [sourceId, targetId].sort().join("-");
 
-
-if (isFlow) {
-  const combinedMap = new Map();
-  data.links.forEach(link => {
-    const sourceId = typeof link.source === "object" ? link.source.id : link.source;
-    const targetId = typeof link.target === "object" ? link.target.id : link.target;
-    const key = [sourceId, targetId].sort().join("-");
-
-    if (!combinedMap.has(key)) {
-      combinedMap.set(key, {
-        source: link.source,
-        target: link.target,
-        weight: 0,
-        a2b: 0,
-        b2a: 0
-      });
-    }
-
-    const entry = combinedMap.get(key);
-    const isAB = sourceId < targetId;
-    if (isAB) {
-      entry.a2b += +link.weight;
-    } else {
-      entry.b2a += +link.weight;
-    }
-    entry.weight = entry.a2b + entry.b2a;
-  });
-
-  links = Array.from(combinedMap.values());
-}
-
-const linkGroup = svgGroup.append("g")
-  .attr("class", "links");
-
-const linkA = linkGroup.selectAll(".link-a")
-  .data(links)
-  .enter().append("line")
-  .attr("class", "link-a")
-  .attr("stroke", "#007bff") // blue
-  .attr("stroke-opacity", 0.8);
-
-const linkB = linkGroup.selectAll(".link-b")
-  .data(links)
-  .enter().append("line")
-  .attr("class", "link-b")
-  .attr("stroke", "#facc15") // yellow
-  .attr("stroke-opacity", 0.8);
-
-  const tooltip2 = d3.select("body").append("div")
-  .attr("class", "tooltip")
-  .style("opacity", 0);
-
-  function formatTooltip(d) {
-  const a = d.source.name || d.source;
-  const b = d.target.name || d.target;
-  return `
-    <strong>${a} ↔ ${b}</strong><br>
-    ${a} → ${b}: ${d.a2b.toFixed(1)}<br>
-    ${b} → ${a}: ${d.b2a.toFixed(1)}<br>
-    Total: ${d.weight.toFixed(1)}
-  `;
-}
-
-linkA
-  .on("mouseover", (event, d) => {
-    tooltip2.transition().duration(200).style("opacity", 0.95);
-    tooltip2.html(formatTooltip(d))
-      .style("left", (event.pageX + 12) + "px")
-      .style("top", (event.pageY - 20) + "px");
-  })
-  .on("mouseout", () => {
-    tooltip2.transition().duration(200).style("opacity", 0);
-  });
-
-linkB
-  .on("mouseover", (event, d) => {
-    tooltip2.transition().duration(200).style("opacity", 0.95);
-    tooltip2.html(formatTooltip(d))
-      .style("left", (event.pageX + 12) + "px")
-      .style("top", (event.pageY - 20) + "px");
-  })
-  .on("mouseout", () => {
-    tooltip2.transition().duration(200).style("opacity", 0);
-  });
-
-data.links.sort((a, b) => a.weight - b.weight);
-    const link = svgGroup.append("g")
-    .selectAll("path")
-    .data(data.links)
-    .enter().append("path")
-.attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)))
-.attr("stroke-width", d => d.weight ** 0.6 + 0.5)
-.attr("opacity", 0.9)
-
-    .attr("fill", "none")
-.attr("marker-end", isFlow ? null : "url(#arrow)");
-    link
-        .on("mouseover", function (event, d) {
-        d3.select(this)
-            .raise()
-            .transition()
-            .duration(100)
-            .attr("stroke-width", d => d.weight ** 0.6 + 0.5+2)
-            .attr("stroke", "#ffA500");
-
-        tooltip.transition().duration(200).style("opacity", 0.95);
-        tooltip.html(`<strong>${d.source.name} → ${d.target.name}</strong><br>Passes: ${d.weight}`)
-            .style("left", (event.pageX + 12) + "px")
-            .style("top", (event.pageY - 20) + "px");
-        })
-        .on("mouseout", function (event, d) {
-        d3.select(this)
-            .transition()
-            .duration(100)
-           .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)))
-.attr("stroke-width", d => d.weight ** 0.6 + 0.5)
-.attr("opacity", 0.9)
-
-        tooltip.transition().duration(200).style("opacity", 0);
+      if (!combinedMap.has(key)) {
+        combinedMap.set(key, {
+          source: link.source,
+          target: link.target,
+          weight: 0,
+          a2b: 0,
+          b2a: 0
         });
+      }
 
+      const entry = combinedMap.get(key);
+      const isAB = sourceId < targetId;
+      if (isAB) entry.a2b += +link.weight;
+      else entry.b2a += +link.weight;
+      entry.weight = entry.a2b + entry.b2a;
+    });
 
+    links = Array.from(combinedMap.values());
+    ({ linkA, linkB } = renderFlowLinks(svgGroup, links));
+  } else {
+    link = renderDirectionalLinks(svgGroup, data.links);
+  }
 
-    const node = svgGroup.append("g")
+  // === NODES ===
+  const node = svgGroup.append("g")
     .selectAll("g")
     .data(data.nodes)
     .enter().append("g");
 
-    node.append("clipPath")
-    .attr("id", d => `clip-${d.id.replace(/\\s+/g, "-")}`)
+  node.append("clipPath")
+    .attr("id", d => `clip-${d.id.replace(/\s+/g, "-")}`)
     .append("circle")
-    .attr("r", 30)
-    .attr("cx", 0)
-    .attr("cy", 0);
+  .attr("r", 40)            // increase radius to show more face
+  .attr("cx", 0)
+  .attr("cy", 0);
 
-    node.append("image")
-    .attr("xlink:href", d => d.img)
-    .attr("width", 110)
-    .attr("height", 110)
-    .attr("x", -70)
-    .attr("y", -70)
-    .attr("clip-path", d => `url(#clip-${d.id.replace(/\\s+/g, "-")})`)
+node.append("image")
+  .attr("xlink:href", d => d.img)
+  .attr("width", 80)        // match visible area
+
+    .attr("height", 80)
+    .attr("x", -40)
+    .attr("y", -40)
+    .attr("clip-path", d => `url(#clip-${d.id.replace(/\s+/g, "-")})`)
     .attr("pointer-events", "visible");
 
-    node.append("text")
+  node.append("text")
     .text(d => d.name)
     .attr("text-anchor", "middle")
     .attr("dy", 40)
     .attr("font-size", "12px")
     .attr("fill", "#FFFFFF");
 
-    const tooltip = d3.select("body").append("div")
+  const tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
-    node.on("mouseover", (event, d) => {
+  // === ON NODE CLICK ===
+  node.on("mouseover", (event, d) => {
     tooltip.transition().duration(200).style("opacity", 0.9);
     tooltip.html(`<strong>${d.name}</strong>`)
-        .style("left", (event.pageX + 10) + "px")
-        .style("top", (event.pageY - 20) + "px");
-    }).on("mouseout", () => {
+      .style("left", (event.pageX + 10) + "px")
+      .style("top", (event.pageY - 20) + "px");
+  }).on("mouseout", () => {
     tooltip.transition().duration(300).style("opacity", 0);
-    });
-    node.on("click", (event, d) => {
-    const season = document.getElementById("season").value;
-    const team = document.getElementById("team").value;
-const rightPanel = document.getElementById("right-panel");
-if (!rightPanel) {
-  console.warn("⚠️ right-panel not found in DOM!");
-  return;
-}
-rightPanel.style.display = "block";
+  });
 
-const panel = document.getElementById("player-details");
-const stats = d.stats || {};
-panel.innerHTML = `
-  <div class="player-card-header">
-    <button id="close-panel-button" class="close-button">Close</button>
-  </div>
-  <div class="player-card-content">
-    <img src="${d.img}" class="player-card-img" />
-    <h3 class="player-card-name">${d.name}</h3>
-  </div>
-  <table class="player-card-table">
-<tr><td><strong>PTS:</strong></td><td>${isFinite(stats.PTS) ? Number(stats.PTS).toFixed(1) : "-"}</td></tr>
-<tr><td><strong>AST:</strong></td><td>${isFinite(stats.AST) ? Number(stats.AST).toFixed(1) : "-"}</td></tr>
-<tr><td><strong>REB:</strong></td><td>${isFinite(stats.REB) ? Number(stats.REB).toFixed(1) : "-"}</td></tr>
-<tr><td><strong>+/-:</strong></td><td>${isFinite(stats.PLUS_MINUS) ? Number(stats.PLUS_MINUS).toFixed(1) : "-"}</td></tr>
-<tr><td><strong>MIN:</strong></td><td>${isFinite(stats.MIN) ? Number(stats.MIN).toFixed(1) : "-"}</td></tr>
-<tr><td><strong>FG%:</strong></td><td>${isFinite(stats.FG_PCT) ? (Number(stats.FG_PCT) * 100).toFixed(1) + "%" : "-"}</td></tr>
-<tr><td><strong>3FG%:</strong></td><td>${isFinite(stats.FG3_PCT) ? (Number(stats.FG3_PCT) * 100).toFixed(1) + "%" : "-"}</td></tr>
+  node.on("click", handleNodeClick);
 
-  </table>
-`;
+  simulation.on("tick", () => {
+  node.attr("transform", d => `translate(${d.x},${d.y})`);
 
-// ✅ Add listener AFTER inserting HTML
-document.getElementById("close-panel-button")?.addEventListener("click", () => {
-  document.getElementById("right-panel").style.display = "none";
-});
-
-const svgContainer = document.getElementById("court-svg-container");
-if (!svgContainer) {
-  console.warn("❌ court-svg-container not found");
-  return;
-}
-
-svgContainer.innerHTML = "";
-
-const courtSvg = d3.select(svgContainer)
-  .append("svg")
-  .attr("id", "court-svg")
-  .attr("width", 431)
-  .attr("height", 405.14)
-  .attr("viewBox", "0 0 431 405.14");
-
-courtSvg.html(courtSvgHtml);
-
-// ✅ Rename this variable if 'g' was already used
-const courtGroup = courtSvg.select("g.court-g");
-if (courtGroup.empty()) {
-  console.warn("❌ g.court-g missing");
-} else {
-  console.log("✅ court SVG injected");
-}
-
-
-
-
-
-    // Fetch shot data and overlay
-    fetch("/player_shots", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ player: d.name, season, team })
-    })
-    .then(res => res.json())
-    .then(data => {
-        shots = data; // ✅ Store globally
-        console.log("Loaded shots:", shots);
-renderShots(shots, "#court-svg");
-
-const g = d3.select("#court-svg").select("g.court-g");
-
-        // const g = courtSvg.select("g");
-        const toggle = document.getElementById("heatmap-toggle");
-
-        function drawRawShots(data) {
-        g.selectAll(".shot").remove();
-
-        g.selectAll("circle.shot")
-            .data(data)
-            .enter()
-            .append("circle")
-            .attr("class", "shot")
-            .attr("cx", d => (d.LOC_X * 0.86) + 215.5)
-            .attr("cy", d => (d.LOC_Y * 0.86) + 41.4)
-            .attr("r", 5)
-            .attr("fill", d => d.SHOT_MADE_FLAG ? "#FB923C" : "#64748Baa")
-            .attr("stroke", d => d.SHOT_MADE_FLAG ? "#FED7AA" : "#94A3B8aa")
-            .attr("opacity", 0.95)
-            .on("mouseover", function () {
-            d3.select(this)
-                .transition()
-                .duration(100)
-                .attr("r", 8)
-                .attr("opacity", 1);
-            })
-            .on("mouseout", function () {
-            d3.select(this)
-                .transition()
-                .duration(100)
-                .attr("r", 5)
-                .attr("opacity", 0.95);
-            });
-        }
-
-
-
-
-
-
-
-
-
-        // ✅ Reset toggles and render shots
-        document.getElementById("heatmap-toggle").checked = false;
-        document.getElementById("makes-only-toggle").checked = false;
-renderShots(shots, "#court-svg"); // no prefix
-document.getElementById("heatmap-toggle").onchange = () =>
-  renderShots(shots, "#court-svg");
-document.getElementById("makes-only-toggle").onchange = () =>
-  renderShots(shots, "#court-svg");
-
-        });
-
-    // const g = courtSvg.select("g");
-const g = d3.select("#court-svg").select("g.court-g");
-
-
-        
-    });
-
-   simulation.on("tick", () => {
-  if (isFlow) {
-    // Split link into blue (a2b) and yellow (b2a) segments
+  if (isFlow && linkA) {
     linkA
       .attr("x1", d => d.source.x)
       .attr("y1", d => d.source.y)
-      .attr("x2", d => d.source.x + (d.target.x - d.source.x) * (d.a2b / d.weight))
-      .attr("y2", d => d.source.y + (d.target.y - d.source.y) * (d.a2b / d.weight))
-      .attr("stroke-width", d => Math.max(1, d.weight ** 0.6));
+      .attr("x2", d => d.target.x)
+      .attr("y2", d => d.target.y)
+      .attr("stroke-width", d => Math.max(1, 3*(d.weight ** 0.6)));
 
-    linkB
-      .attr("x1", d => d.target.x)
-      .attr("y1", d => d.target.y)
-      .attr("x2", d => d.target.x - (d.target.x - d.source.x) * (d.b2a / d.weight))
-      .attr("y2", d => d.target.y - (d.target.y - d.source.y) * (d.b2a / d.weight))
-      .attr("stroke-width", d => Math.max(1, d.weight ** 0.6));
-  } else {
+    // Update gradient orientation per edge
+    links.forEach(d => {
+      d3.select(`#grad-${d.source.id}-${d.target.id}`.replace(/\s+/g, "-"))
+        .attr("x1", d.source.x)
+        .attr("y1", d.source.y)
+        .attr("x2", d.target.x)
+        .attr("y2", d.target.y);
+    });
+  }
+
+  if (!isFlow && link) {
     link.attr("d", d => {
       const dx = d.target.x - d.source.x;
       const dy = d.target.y - d.source.y;
@@ -628,12 +661,12 @@ const g = d3.select("#court-svg").select("g.court-g");
       return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
     });
   }
-
-  node.attr("transform", d => `translate(${d.x},${d.y})`);
 });
 
 
-}  
+
+}
+ 
 function updateAssistNetwork(lineup) {
   const season = document.getElementById("season").value;
   const team = document.getElementById("team").value;
