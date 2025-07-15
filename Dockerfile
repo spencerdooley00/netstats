@@ -20,6 +20,7 @@ COPY ./static ./static
 RUN echo "=== STATIC FILES ===" && ls -l /app/static
 COPY ./scripts ./scripts
 COPY ./nba_on_court ./nba_on_court
+COPY league_roles_by_season.json .
 COPY application.py .
 
 EXPOSE 8080
