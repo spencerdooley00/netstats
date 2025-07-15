@@ -1,0 +1,331 @@
+{
+  "top_hubs": [
+    {
+      "player": "Jordan Miller",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Kris Dunn",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Ben Simmons",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Kawhi Leonard",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "James Harden",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Patty Mills",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Patrick Baldwin Jr",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Bogdan Bogdanovi\u0107",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Kobe Brown",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Drew Eubanks",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    }
+  ],
+  "distributors": [
+    {
+      "player": "Jordan Miller",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Kris Dunn",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Ben Simmons",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Kawhi Leonard",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "James Harden",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Patty Mills",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Patrick Baldwin Jr",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Bogdan Bogdanovi\u0107",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Kobe Brown",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Drew Eubanks",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    }
+  ],
+  "finishers": [
+    {
+      "player": "Jordan Miller",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Kris Dunn",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Ben Simmons",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Kawhi Leonard",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "James Harden",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Patty Mills",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Patrick Baldwin Jr",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Bogdan Bogdanovi\u0107",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Kobe Brown",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Drew Eubanks",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    }
+  ],
+  "strongest_connections": [],
+  "black_holes": [
+    {
+      "player": "Jordan Miller",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Kris Dunn",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Ben Simmons",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Kawhi Leonard",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "James Harden",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Patty Mills",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Patrick Baldwin Jr",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Bogdan Bogdanovi\u0107",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Kobe Brown",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    },
+    {
+      "player": "Drew Eubanks",
+      "team": "LAC",
+      "points": 0,
+      "fg_pct": 0.0,
+      "passes_made": 0,
+      "passes_received": 0
+    }
+  ]
+}

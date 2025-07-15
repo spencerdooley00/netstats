@@ -345,7 +345,7 @@ function renderDirectionalLinks(svgGroup, links) {
   .attr("data-source", d => d.source.id || d.source)
   .attr("data-target", d => d.target.id || d.target)
     .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)))
-    .attr("stroke-width", d => d.weight ** 0.6 + 0.5)
+    .attr("stroke-width", d => d.weight ** 0.8)
     .attr("opacity", 0.9)
     .attr("fill", "none")
     .attr("marker-end", "url(#arrow)");
@@ -356,7 +356,7 @@ function renderDirectionalLinks(svgGroup, links) {
         .raise()
         .transition()
         .duration(100)
-        .attr("stroke-width", d => d.weight ** 0.6 + 2.5)
+        .attr("stroke-width", d => d.weight ** 0.8 + 2.5)
         .attr("stroke", "#ffA500");
 
       tooltip.transition().duration(200).style("opacity", 0.95);
@@ -369,7 +369,7 @@ function renderDirectionalLinks(svgGroup, links) {
         .transition()
         .duration(100)
         .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)))
-        .attr("stroke-width", d => d.weight ** 0.6 + 0.5)
+        .attr("stroke-width", d => d.weight ** 0.8 + 2.5)
         .attr("opacity", 0.9);
 
       tooltip.transition().duration(200).style("opacity", 0);
@@ -860,7 +860,7 @@ console.log("Appending links and nodes", data.nodes.length, data.links.length);
     .data(data.links)
     .enter().append("path")
 .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)))
-.attr("stroke-width", d => d.weight ** 0.6 + 0.5)
+.attr("stroke-width", d => d.weight ** 0.5)
 .attr("opacity", 0.9)
 
     .attr("fill", "none")
@@ -874,7 +874,7 @@ console.log("Appending links and nodes", data.nodes.length, data.links.length);
     .on("mouseout", function () {
       d3.select(this).transition().duration(100)
       .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)))
-.attr("stroke-width", d => d.weight ** 0.6 + 0.5)
+.attr("stroke-width", d => d.weight ** 0.5)
         // .attr("stroke", "rgba(96, 165, 250, 0.85)")  // Tailwind's `blue-400`
 
         // .attr("stroke-width", d => d.weight ** 0.6);

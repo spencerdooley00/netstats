@@ -16,8 +16,12 @@
 <a href="/" class="logo">
   <img src="{{ url_for('static', filename='logo.png') }}" alt="NetStats" height="70">
 </a>
-  {% block nav_tabs %}{% endblock %}
-</header>
+{% block nav_tabs %}
+<nav class="tab-bar">
+  <a href="/" class="tab-button {% if request.path == '/' %}active{% endif %}">Team Explorer</a>
+  <a href="/league" class="tab-button {% if request.path.startswith('/league') %}active{% endif %}">League Explorer</a>
+</nav>
+{% endblock %}</header>
 
 <div class="page-layout {% block page_class %}{% endblock %}">
 <main>

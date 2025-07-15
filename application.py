@@ -359,37 +359,19 @@ def get_lineup_ids(season, team, lineup):
             raise ValueError(f"Missing ID for {name} in {season_str} {team}")
     return ids
 
-@application.route("/test_metrics")
-def test_metrics():
-    season = "2024-25"
-    team = "BOS"
-    edge_info = "Pass Per Game"  # or "Assists"
-    color = "gray"  # optional edge color
+with open('league_roles_by_season.json', 'r') as f:
+    league_roles = json.load(f)
+@application.route("/league_roles", methods=["POST"])
+def get_league_roles():
+    season = request.json.get("season")
+    # Assuming league_roles is preloaded somewhere or loaded from JSON/Dynamo
+    roles = league_roles.get(season, {})
+    return jsonify(roles)
 
-    # Get default starter list
-    selected_players = get_default_starters(season, team)
-
-    # Load raw data
-    _, team_data, _ = fetch_data(season, team)
-
-    # Create NetworkX graph
-    _, G = create_network(team_data, team, color, edge_info, selected_players)
-
-    # Build scoring lookup from stats
-    scoring_lookup = {
-        player: team_data[player]["stats"].get("PTS", 0)
-        for player in selected_players
-    }
-
-    # Calculate metrics
-    metrics = calculate_network_metrics(G, scoring_lookup)
-
-    # Print to console for dev
-    import pprint
-    pprint.pprint(metrics)
-
-    return jsonify(metrics)  # View in browser as JSON
-
-
+@application.route("/league")
+def league_explorer():
+    seasons = list(league_roles.keys())  # e.g., ["2022-23", "2023-24", "2024-25"]
+    latest = seasons[-1]
+    return render_template("league.html", available_seasons=seasons, selected_season=latest)
 if __name__ == "__main__":
     application.run(host="0.0.0.0", port=8080)
