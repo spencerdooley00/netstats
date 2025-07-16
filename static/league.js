@@ -29,10 +29,10 @@ function fetchLeagueRoles(season) {
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       return res.json();
     })
-    .then(data => {
-      console.log("✅ League role data received:", data);
-      renderLeagueTables(data);
-    })
+.then(data => {
+  console.log("✅ League role data received:", data);
+  renderLeagueTables(data, season);  // 👈 pass season here
+})
     .catch(err => {
       console.error("❌ Failed to fetch league roles:", err);
       const container = document.getElementById("league-role-tables");
@@ -40,7 +40,7 @@ function fetchLeagueRoles(season) {
     });
 }
 
-function renderLeagueTables(data) {
+function renderLeagueTables(data, season){
   const container = document.getElementById("league-role-tables");
   container.innerHTML = "";  // ✅ move this here
 
@@ -49,12 +49,17 @@ function renderLeagueTables(data) {
   container.appendChild(grid);
 
   const roles = [
-    { key: "top_hubs", label: "Top Hubs" },
-    { key: "distributors", label: "Distributors" },
-    { key: "finishers", label: "Finishers" },
-    { key: "black_holes", label: "Black Holes" }
+    { key: "top_hubs", label: "The Hubs" },
+    { key: "distributors", label: "The Distributors" },
+    { key: "finishers", label: "The Finishers" },
+    { key: "black_holes", label: "The Black Holes" }
   ];
-
+const roleScoreKeys = {
+  top_hubs: "hub",
+  distributors: "distributor",
+  finishers: "finisher",
+  black_holes: "black_hole"
+};
   roles.forEach(({ key, label }) => {
     const players = data[key];
     if (!players || players.length === 0) return;
@@ -92,9 +97,12 @@ const tbody = `
     ${players.map((p, i) => `
       <tr class="${i >= 10 ? 'extra-row' : ''}">
         <td>${p.team}</td>
-        <td>${p.player}</td>
-        <td>${p.score !== undefined ? p.score.toFixed(3) : "-"}</td>
-      </tr>
+<td><a href="/player/${season}/${p.team}/${encodeURIComponent(p.player)}">${p.player}</a></td>
+<td>${
+  p[`${roleScoreKeys[key]}_score`] !== undefined
+    ? p[`${roleScoreKeys[key]}_score`].toFixed(3)
+    : "-"
+}</td>      </tr>
     `).join("")}
   </tbody>
 `;

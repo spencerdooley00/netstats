@@ -1,0 +1,182 @@
+
+
+{% extends "base.html" %}
+
+{% block content %}
+<a href="/league" class="back-link">← Back to League Explorer</a>
+
+<div class="player-header">
+  <img src="{{ stats.img }}" class="headshot" alt="{{ player_name }} headshot">
+  <div class="player-meta">
+    <h1 class="player-name-page" id="player-name">{{ player_name }}</h1>
+    <p class="player-team" id="team">{{ team }}</p>
+    <span id="season" style="display:none;">{{ season }}</span>
+  </div>
+</div>
+
+<div class="player-stats">
+  <h2>Basic Stats</h2>
+  <ul>
+    <li><strong>Points:</strong> {{ stats.points }}</li>
+    <li><strong>FG%:</strong> {{ stats.fg_pct }}</li>
+    <li><strong>Minutes:</strong> {{ stats.minutes }}</li>
+    <li><strong>Passes Made:</strong> {{ stats.passes_made }}</li>
+    <li><strong>Passes Received:</strong> {{ stats.passes_received }}</li>
+    <li><strong>Pass Ratio:</strong>
+      {% if stats.passes_received %}
+        {{ (stats.passes_made / stats.passes_received) | round(2) }}
+      {% else %}
+        N/A
+      {% endif %}
+    </li>
+  </ul>
+</div>
+
+<div class="player-roles">
+  <h2>Role Scores</h2>
+  <ul>
+    {% for role in ['hub_score', 'finisher_score', 'distributor_score', 'black_hole_score'] %}
+      {% if stats.get(role) %}
+        <li><strong>{{ role.replace('_score', '').replace('_', ' ') | title }}:</strong> {{ stats[role] | round(2) }}</li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="player-network-container">
+  <h2>Passing Network (Player Only)</h2>
+  <div id="player-network"></div>
+</div>
+
+<div id="player-shot-chart-container">
+  <svg id="court-svg" width="431" height="405.14" viewBox="0 0 431 405.14"></svg>
+</div>
+
+<!-- Inject data into script tags -->
+<script id="player-edges-data" type="application/json">{{ edges | tojson }}</script>
+<script id="player-nodes-data" type="application/json">{{ nodes | tojson }}</script>
+
+<!-- Load player.js -->
+<script type="module" src="{{ url_for('static', filename='player.js') }}"></script>
+{% endblock %}
+<!-- <script id="player-edges-data" type="application/json">
+  {{ edges | tojson }}
+</script>
+<script id="player-name-data" type="application/json">
+  "{{ player_name }}"
+</script>
+<script id="player-nodes-data" type="application/json">
+  {{ nodes | tojson }}
+</script>
+
+<script>
+    import { courtSvgHtml } from './courtSvg.js';
+
+  const playerEdges = JSON.parse(document.getElementById("player-edges-data").textContent);
+  const player = JSON.parse(document.getElementById("player-name-data").textContent);
+function clean(str) {
+  return str.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").trim();
+}
+
+const nodes = JSON.parse(document.getElementById("player-nodes-data").textContent);
+
+// Log again just in case
+console.log("💡 Cleaned Nodes:", nodes.map(n => n.id));
+console.log("💡 Cleaned Edges:", playerEdges);
+  // STEP 3: DEBUG — log mismatches
+  playerEdges.forEach(e => {
+    if (!nodes.find(n => n.id === e.from)) {
+      console.warn("⚠️ Missing node for 'from':", e.from);
+    }
+    if (!nodes.find(n => n.id === e.to)) {
+      console.warn("⚠️ Missing node for 'to':", e.to);
+    }
+  });
+
+  console.log("✅ Nodes:", nodes.map(n => n.id));
+  console.log("✅ Edges:", playerEdges);
+const links = playerEdges.map(d => ({
+  source: d.from,
+  target: d.to,
+  passes: d.passes
+}));
+
+const width = 600, height = 600;
+
+const svg = d3.select("#player-network")
+  .append("svg")
+  .attr("width", width)
+  .attr("height", height);
+
+const simulation = d3.forceSimulation(nodes)
+  .force("link", d3.forceLink(links).id(d => d.id).distance(220))
+  .force("charge", d3.forceManyBody().strength(-300))
+  .force("center", d3.forceCenter(width / 2, height / 2)); 
+ 
+ 
+const link = svg.append("g")
+  .selectAll("path")
+  .data(links)
+  .join("path")
+  .attr("fill", "none")
+  .attr("stroke", "#aaa")
+      .attr("stroke-width", d => Math.max(2, d.passes ** 0.75));
+
+const node = svg.append("g")
+  .selectAll("image")
+  .data(nodes)
+  .join("image")
+  .attr("xlink:href", d => d.image)
+  .attr("width", 80)
+  .attr("height", 80)
+  .attr("x", d => d.x - 40)  // center image
+  .attr("y", d => d.y - 40)
+  .attr("clip-path", "circle(40px)")
+  .attr("cursor", "pointer");
+
+const label = svg.append("g")
+  .selectAll("text")
+  .data(nodes)
+  .join("text")
+  .text(d => d.id)
+  .attr("fill", "#fff")
+  .attr("font-size", "12px")
+  .attr("text-anchor", "middle");
+
+simulation.on("tick", () => {
+  link.attr("d", d => {
+    const dx = d.target.x - d.source.x;
+    const dy = d.target.y - d.source.y;
+    const dr = Math.sqrt(dx * dx + dy * dy);
+    return `M${d.source.x},${d.source.y} A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
+  });
+
+  node
+  .attr("x", d => d.x - 40)
+  .attr("y", d => d.y - 40);
+
+  label
+    .attr("x", d => d.x)
+    .attr("y", d => d.y + 30);
+});
+
+// SHOT CHART STUFF
+
+
+  const courtSvg = d3.select("#court-svg");
+  courtSvg.html(courtSvgHtml);  // inject court markup
+
+  fetch("/player_shots", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ player, season, team })
+  })
+  .then(res => res.json())
+  .then(data => {
+    window.shots = data;
+    renderShots(data, "#court-svg");  // reuses function from team.js
+  });
+  
+  </script> -->
+
+

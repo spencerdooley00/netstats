@@ -74,7 +74,7 @@ def compute_roles_by_percentile_scored(player_stats, edge_passes):
 
     strongest_connections = sorted(edge_passes.items(), key=lambda x: x[1], reverse=True)[:25]
 
-    def top_n(score_dict, n=20):
+    def top_n(score_dict, n=400):
         return sorted(score_dict.items(), key=lambda x: x[1], reverse=True)[:n]
 
     def player_row(p, score):
@@ -88,19 +88,22 @@ def compute_roles_by_percentile_scored(player_stats, edge_passes):
             "passes_received": round(s["passes_received"], 2),
             "minutes_per_game": round(s.get("minutes_per_game", 0.0), 1),
             "games_played": int(s.get("games_played", 0)),
-            "score": round(score, 4)
+            "hub_score": round(hub_score.get(p, 0.0), 4),
+            "distributor_score": round(distributor_score.get(p, 0.0), 4),
+            "finisher_score": round(finisher_score.get(p, 0.0), 4),
+            "black_hole_score": round(black_hole_score.get(p, 0.0), 4)
         }
 
 
     return {
-        "top_hubs": [player_row(p, score) for p, score in top_n(hub_score)],
-        "distributors": [player_row(p, score) for p, score in top_n(distributor_score)],
-        "finishers": [player_row(p, score) for p, score in top_n(finisher_score)],
+        "top_hubs": [player_row(p, hub_score) for p, hub_score in top_n(hub_score)],
+        "distributors": [player_row(p, distributor_score) for p, distributor_score in top_n(distributor_score)],
+        "finishers": [player_row(p, finisher_score) for p, finisher_score in top_n(finisher_score)],
         "strongest_connections": [
             {"from": f, "to": t, "passes": round(cnt, 2)}
             for (f, t), cnt in strongest_connections
         ],
-        "black_holes": [player_row(p, score) for p, score in top_n(black_hole_score)]
+        "black_holes": [player_row(p, black_hole_score) for p, black_hole_score in top_n(black_hole_score)]
     }
 
 def compute_roles_by_percentile(player_stats, edge_passes, minutes_threshold=25.0):

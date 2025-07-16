@@ -722,6 +722,19 @@ input[type="checkbox"]:checked + .toggle-pill {
   text-overflow: unset;
 }
 
+.league-role-table a {
+  color: #4aa1ff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.league-role-table a:hover {
+  color: #ffcc00;
+  text-decoration: underline;
+}
+
+
 .expand-button {
   margin-bottom: 0.75rem;
   background: #facc15;
@@ -841,4 +854,60 @@ input[type="checkbox"]:checked + .toggle-pill {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.player-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.headshot {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #888;
+}
+
+.player-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.player-name-page {
+  margin: 0;
+  font-size: 2rem;
+  color: #fff;
+}
+
+.player-team {
+  color: #ccc;
+  font-size: 1.1rem;
+}
+
+.player-stats ul,
+.player-roles ul {
+  list-style: none;
+  padding: 0;
+  margin-left: 0;
+}
+
+.player-stats li,
+.player-roles li {
+  margin-bottom: 0.4rem;
+  font-size: 1rem;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  color: #aaa;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.back-link:hover {
+  color: #ffd700;
 }

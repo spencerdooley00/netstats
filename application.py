@@ -373,5 +373,113 @@ def league_explorer():
     seasons = list(league_roles.keys())  # e.g., ["2022-23", "2023-24", "2024-25"]
     latest = seasons[-1]
     return render_template("league.html", available_seasons=seasons, selected_season=latest)
+
+
+def get_player_role_scores(data, season, player_name):
+    season_data = data.get(season)
+    if not season_data:
+        return None  # Season not found
+
+    roles = ["top_hubs", "distributors", "finishers", "black_holes"]
+
+    for role in roles:
+        for player in season_data.get(role, []):
+            if player.get("player") == player_name:
+                return {
+                    "hub_score": player.get("hub_score"),
+                    "distributor_score": player.get("distributor_score"),
+                    "finisher_score": player.get("finisher_score"),
+                    "black_hole_score": player.get("black_hole_score")
+                }
+
+    return None  # Player not found
+
+
+
+@application.route("/player/<season>/<team>/<player_name>")
+def player_detail(season, team, player_name):
+    players = get_all_stats(season, team)
+    if not players or player_name not in players:
+        return f"Player '{player_name}' not found for {team} in {season}", 404
+
+    data = players[player_name]
+    stats = data.get("stats", {})
+    points = float(stats.get("PTS", 0.0))
+    fg_pct = float(stats.get("FG_PCT", 0.0))
+    minutes = float(stats.get("MIN", 0.0))
+    team_abbrev = stats.get("TEAM_ABBREVIATION", team)
+
+    # Custom role scores (optional)
+    role_scores = get_player_role_scores(league_roles, season, player_name)
+
+    # Pass data for player-only network
+    passes = data.get("passes", {})
+    outgoing = [(player_name, to_player, val) for to_player, val in passes.items()]
+    incoming = []
+    for other_player, d in players.items():
+        if other_player != player_name and player_name in d.get("passes", {}):
+            incoming.append((other_player, player_name, d["passes"][player_name]))
+
+    edges = [{"from": src, "to": dst, "value": val} for src, dst, val in incoming + outgoing]
+
+    # Shot chart data (from your Dynamo/S3 lookup)
+    shot_data = get_player_shots(season, team, player_name)
+    print('passes')
+    edges = []
+
+    # Outgoing
+    for to_player, info in data.get("passes", {}).items():
+        edges.append({
+            "from": player_name,
+            "to": to_player,
+            "passes": float(info.get("passes", 0))
+            
+        })
+
+    # Incoming
+    for other_player, d in players.items():
+        if player_name in d.get("passes", {}):
+            info = d["passes"][player_name]
+            edges.append({
+                "from": other_player,
+                "to": player_name,
+                "passes": float(info.get("passes", 0))#,
+                # "player_img": d.get("img", ""),
+                # "other_player_img": data.get("img", "")
+            })
+            
+    node_names = set()
+    for edge in edges:
+        node_names.add(edge["from"])
+        node_names.add(edge["to"])
+
+    nodes = [
+        {
+            "id": name,
+            "image": players[name].get("img", "") if name in players else ""
+        }
+        for name in node_names
+    ]
+    return render_template("player.html",
+                           season=season,
+                           team=team,
+                           player_name=player_name,
+                           stats={
+                               "img": data.get("img"), 
+                               "points": points,
+                               "fg_pct": fg_pct,
+                               "minutes": minutes,
+                               "hub_score": role_scores["hub_score"],
+                               "distributor_score": role_scores["distributor_score"],
+                               "finisher_score": role_scores["finisher_score"],
+                               "black_hole_score": role_scores["black_hole_score"],
+                               "passes_made": sum(v.get("passes", 0) for v in passes.values()),
+                               "passes_received": sum(
+                                   d.get("passes", {}).get(player_name, {}).get("passes", 0)
+                                   for d in players.values()
+                               )
+                           },
+                           nodes = nodes, edges=edges)
+
 if __name__ == "__main__":
     application.run(host="0.0.0.0", port=8080)
