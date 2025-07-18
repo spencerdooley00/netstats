@@ -1,11 +1,11 @@
 /* ========== ROOT VARIABLES ========= */
 :root {
-  --bg: #111827;
+  --bg: #000000;
   --fg: #F9FAFB;
-  --accent: #facc15;
-  --secondary: #1f2937;
-  --highlight: #f97316;
-  --border: #374151;
+  --accent: #a9ceff;
+  --secondary: #171717;
+  --highlight: #676aff;
+  --border: #000000;
   --font: 'Inter', sans-serif;
 }
 
@@ -87,89 +87,137 @@ select, button, input[type="checkbox"] {
 
 /* ========== HEADER ========== */
 #main-header {
+  background: #0f172a; /* dark navy */
+  padding: 0.75rem 2rem;
+  border-bottom: 1px solid #1e293b;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
-  padding: 12px 24px;
-  background: var(--secondary);
-  border-bottom: 1px solid var(--border);
-  gap: 24px;
+  justify-content: space-between;
 }
 
-#main-header .logo img {
-  height: 48px;
+.logo img {
+  height: 60px;
+  transition: transform 0.2s ease;
 }
 
-#main-header .tab-button,
-#main-header .back-button {
-  font-size: 14px;
-  padding: 8px 12px;
-  background: none;
-  border: none;
-  color: var(--fg);
-  cursor: pointer;
-  text-decoration: none;
-  border-bottom: 2px solid transparent;
-  transition: color 0.2s, border-color 0.2s;
+.logo img:hover {
+  transform: scale(1.05);
 }
 
-#main-header .tab-button.active {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.back-button:hover,
-.tab-button:hover {
-  color: var(--accent);
-}
 .tab-bar {
   display: flex;
-  gap: 1rem;
-  padding: 1rem 2rem;
-  border-bottom: 1px solid #333;
-  background-color: #111827;
+  gap: 1.5rem;
+  position: relative;
 }
 
 .tab-button {
-  color: #ccc;
+  position: relative;
+  padding: 10px 0;
+  font-weight: 600;
+  color: #e2e8f0;
   text-decoration: none;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  transition: background 0.2s;
+  font-size: 1rem;
+  transition: color 0.2s ease;
 }
 
 .tab-button:hover {
-  background-color: #1f2937;
+  color: var(--accent);
 }
 
 .tab-button.active {
-  background-color: #374151;
-  color: #facc15;
+  color: --accent;
+}
+
+
+.tab-button:hover::after {
+  width: 80%;
+}
+
+/* 
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: --accent;
+  border-radius: 1px;
+  transition: width 0.2s ease;
+} */
+
+
+
+
+
+.team-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+}
+
+.nav-team-logo {
+  height: 36px;
 }
 
 .team-id-banner {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0.5rem;
 }
 
-.nav-team-logo {
-  height: 28px;
+.season-selector-wrapper {
+  margin-left: 0.5rem;
 }
 
-.team-abbr {
-  font-weight: bold;
-  font-size: 16px;
-}
-
-.season-selector-wrapper select {
-  background: var(--bg);
-  color: var(--fg);
-  border: 1px solid var(--border);
+.season-selector {
+  padding: 6px 10px;
+  background: #111;
+  color: #fff;
+  border: 1px solid #444;
   border-radius: 6px;
-  padding: 4px 8px;
-  font-size: 14px;
+  font-size: 1rem;
 }
+
+.team-tabs {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.team-tab {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  text-decoration: none;
+}
+
+.team-tab.active,
+.team-tab:hover {
+  color: --accent;
+}
+
+.back-button {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.back-button:hover {
+  text-decoration: underline;
+}
+
 
 /* ========== TEAM LOGO GRID ========== */
 .team-grid {
@@ -685,175 +733,123 @@ input[type="checkbox"]:checked + .toggle-pill {
     flex-direction: column;
   }
 }
+
+
+/* ========== LEAGUE EXPLORER ========== */
+/* League Explorer Layout */
+.league-controls {
+  margin: 1.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+}
+
+#season {
+  background: #111;
+  color: #fff;
+  border: 1px solid #444;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
 .role-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* was 260 */
   gap: 1.5rem;
-  padding: 1rem 0;
+  width: 100%;
 }
-
+/* Each Role Panel */
 .league-role-section {
-  background: #111827;
+  background: #1c1c1c;
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   border: 1px solid #333;
-  transition: all 0.3s ease;
-}
-
-.league-role-section h2 {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
 }
 
 .league-role-section.wide {
   grid-column: 1 / -1;
-  width: 100%;
 }
 
-/* Allow names to fully wrap in wide table */
-.league-role-section.wide .league-role-table {
-  table-layout: auto;
+.league-role-section h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+  color: #fff;
 }
-
-.league-role-section.wide .league-role-table td,
-.league-role-section.wide .league-role-table th {
-  white-space: normal;
-  overflow: visible;
-  text-overflow: unset;
-}
-
-.league-role-table a {
-  color: #4aa1ff;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.league-role-table a:hover {
-  color: #ffcc00;
-  text-decoration: underline;
-}
-
 
 .expand-button {
-  margin-bottom: 0.75rem;
-  background: #facc15;
+  background-color: var(--accent);
   color: #000;
-  font-weight: bold;
+  font-weight: 600;
   border: none;
-  padding: 0.4rem 0.8rem;
   border-radius: 6px;
+  padding: 4px 10px;
   cursor: pointer;
+  margin-bottom: 0.5rem;
   transition: background 0.2s;
 }
 
 .expand-button:hover {
-  background: #fde68a;
+  background-color: #fcd34d;
 }
 
-.table-wrapper.collapsed .extra-col,
-.table-wrapper.collapsed .extra-row {
-  display: none;
-}
-
+/* Table Styling */
 .league-role-table {
   width: 100%;
   border-collapse: collapse;
-  background: #111;
-  color: white;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
+}
+#league-role-tables {
+  width: 100%;
+  padding: 0 2rem; /* adjust as needed */
+  box-sizing: border-box;
 }
 
 .league-role-table th,
 .league-role-table td {
-  padding: 0.4rem 0.5rem;
+  /* padding: 8px 10px; */
   text-align: left;
   border-bottom: 1px solid #333;
+  color: #ddd;
+    padding: 10px 12px;
+  font-size: 0.98rem;
 }
 
-.league-role-section {
-  margin-bottom: 3rem;
+
+
+.league-role-table a {
+  color: #3b82f6;
+  text-decoration: none;
 }
 
-.league-role-section h2 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-  border-bottom: 2px solid #444;
-  padding-bottom: 0.25rem;
+.league-role-table a:hover {
+  text-decoration: underline;
 }
 
-.league-role-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #111;
-  color: white;
-  margin-top: 0.5rem;
-}
-
-.league-role-table th, .league-role-table td {
-  padding: 0.6rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid #333;
-}
-
-.league-role-table tbody tr:hover {
-  background: #1f1f1f;
-}
-
-.league-controls {
-  margin: 1rem 0;
-  padding: 0.5rem;
-}
-
-.table-wrapper.collapsed .extra-col,
 .table-wrapper.collapsed .extra-row {
   display: none;
 }
 
-.expand-button {
-  margin-bottom: 0.5rem;
-  background: #facc15;
-  color: #000;
-  font-weight: bold;
-  border: none;
-  padding: 0.3rem 0.8rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s;
+/* Wide variant for Strongest Connections */
+.league-role-section.wide {
+  grid-column: 1 / -1;
 }
 
-.expand-button:hover {
-  background: #fde68a;
+/* Optional: Hover row highlight */
+.league-role-table tr:hover {
+  background-color: #2a2a2a;
 }
 
-.league-role-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #111;
+
+/* ========== PLAYER PAGE ========== */
+.player-page {
+  padding: 1.5rem;
   color: white;
-}
-
-.league-role-table th, .league-role-table td {
-  padding: 0.4rem 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #333;
-  font-size: 0.875rem;
-}
-
-.league-role-section {
-  margin-bottom: 2rem;
-}
-
-.league-role-table {
-  table-layout: fixed;
-  width: 100%;
-}
-
-.league-role-table td,
-.league-role-table th {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .player-header {
@@ -863,42 +859,78 @@ input[type="checkbox"]:checked + .toggle-pill {
   margin-bottom: 2rem;
 }
 
-.headshot {
-  width: 120px;
-  height: 120px;
+.player-header img.headshot {
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #888;
+  border: 2px solid #999;
 }
 
-.player-meta {
+.player-meta .player-name-page {
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+
+.player-meta .player-team {
+  font-size: 1.1rem;
+  opacity: 0.8;
+}
+
+.player-stats-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background-color: #1f1f2e;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  flex: 1;
+  min-width: 280px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.card h2 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.3rem;
+}
+
+.card ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.card li {
+  margin: 0.3rem 0;
+}
+
+.player-visuals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(430px, 1fr));
+  gap: 2rem;
+  align-items: stretch;  /* Ensure full height */
+}
+
+.player-visuals-grid .card {
+  height: 600px;  /* Was 520px */
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
 }
 
-.player-name-page {
-  margin: 0;
-  font-size: 2rem;
-  color: #fff;
+
+#player-network,
+#court-svg {
+  flex-grow: 1;
+  width: 100%;
+  height: 100%;
 }
 
-.player-team {
-  color: #ccc;
-  font-size: 1.1rem;
-}
-
-.player-stats ul,
-.player-roles ul {
-  list-style: none;
-  padding: 0;
-  margin-left: 0;
-}
-
-.player-stats li,
-.player-roles li {
-  margin-bottom: 0.4rem;
-  font-size: 1rem;
-}
 
 .back-link {
   display: inline-block;

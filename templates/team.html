@@ -8,24 +8,41 @@
 {% endblock %}
 
 
-{% block nav_tabs %}
-<a href="{{ url_for('home') }}" class="back-button">← Back to Home</a>
 
-<div class="team-id-banner">
-  <img class="nav-team-logo" src="https://cdn.nba.com/logos/nba/{{ logo_map[team] }}/primary/L/logo.svg" alt="{{ team }}">
-  <span class="team-abbr">{{ team }}</span>
-  <div class="season-selector-wrapper">
-    <select id="season" class="season-selector">
-      {% for s in seasons %}
-        <option value="{{ s }}" {% if s == selected_season %}selected{% endif %}>{{ s }}</option>
-      {% endfor %}
-    </select>
+
+{% block nav_tabs %}
+<div class="team-header-row">
+  <a href="{{ url_for('home') }}" class="back-button">← Back to Home</a>
+
+  <div class="team-id-banner">
+    <img class="nav-team-logo" src="https://cdn.nba.com/logos/nba/{{ logo_map[team] }}/primary/L/logo.svg" alt="{{ team }}">
+    <span class="team-abbr">{{ team }}</span>
+    <div class="season-selector-wrapper">
+      <select id="season" class="season-selector">
+        {% for s in seasons %}
+          <option value="{{ s }}" {% if s == selected_season %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <!-- Keep these as class="tab-button" if team.js expects that -->
+  <div class="team-tabs">
+    <a class="tab-button team-tab {% if active_tab == 'passing' %}active{% endif %}" data-tab="passing" href="#">Passing Network</a>
+    <a class="tab-button team-tab {% if active_tab == 'lineup' %}active{% endif %}" data-tab="lineup" href="#">Lineup Explorer</a>
+  </div>
+
+  <!-- Important: Flow toggle might be expected by JS too -->
+  <div id="network-header">
+    <label class="toggle-label">
+      <input type="checkbox" id="flow-toggle" />
+      <span class="custom-toggle"></span>
+      Flow
+    </label>
   </div>
 </div>
-
-<a class="tab-button {% if active_tab == 'passing' %}active{% endif %}" data-tab="passing" href="#">Passing Network</a>
-<a class="tab-button {% if active_tab == 'lineup' %}active{% endif %}" data-tab="lineup" href="#">Lineup Explorer</a>
 {% endblock %}
+
 
 {% block content %}
 <div class="team-layout">
@@ -52,13 +69,7 @@
 
     <!-- PASSING NETWORK TAB -->
     <div class="tab-content" id="passing-tab" style="display: block;">
-<div id="network-header">
-  <label class="toggle-label">
-    <input type="checkbox" id="flow-toggle" />
-    <span class="custom-toggle"></span>
-    Flow
-  </label>
-</div>
+
       <div id="network"></div>
 
       <div class="right-panel" id="right-panel" style="display: none;">

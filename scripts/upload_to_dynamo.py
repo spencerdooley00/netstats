@@ -19,6 +19,7 @@ files_to_tables = {
     "top_lineups.json": "TopLineups"
 }
 
+files_to_update = []
 def create_table_if_not_exists(table_name, primary_key="id"):
     if table_name in client.list_tables()["TableNames"]:
         print(f"✅ Table {table_name} already exists.")

@@ -266,72 +266,6 @@ function renderFlowLinks(svgGroup, links) {
 }
 
 
-// function renderFlowLinks(svgGroup, links) {
-//   const tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
-
-//   // === Define Gradients ===
-//   const defs = svgGroup.append("defs");
-
-//   links.forEach((d, i) => {
-//     const id = `grad-${d.source.id}-${d.target.id}`.replace(/\s+/g, "-");
-//     const grad = defs.append("linearGradient")
-//       .attr("id", id)
-//       .attr("gradientUnits", "userSpaceOnUse")
-//       .attr("x1", 0)
-//       .attr("y1", 0)
-//       .attr("x2", 100)
-//       .attr("y2", 0); // Will be overridden dynamically per line
-
-//     const pctA = d.a2b / d.weight;
-//     const pctB = d.b2a / d.weight;
-
-//     grad.append("stop")
-//       .attr("offset", "0%")
-//       .attr("stop-color", pctA >= pctB ? "#007bff" : "#facc15");
-
-//     grad.append("stop")
-//       .attr("offset", `${Math.round(pctA * 100)}%`)
-//       .attr("stop-color", "#ffffff");
-
-//     grad.append("stop")
-//       .attr("offset", "100%")
-//       .attr("stop-color", pctA < pctB ? "#007bff" : "#facc15");
-//   });
-
-//   // === Draw gradient edges ===
-//   const link = svgGroup.append("g")
-//     .attr("class", "flow-links")
-//     .selectAll("line")
-//     .data(links)
-//     .enter().append("line")
-//     .attr("stroke-width", d => Math.max(1, d.weight ** 0.6))
-//     .attr("stroke-opacity", 0.95)
-//     .attr("stroke", d => `url(#grad-${d.source.id}-${d.target.id}`.replace(/\s+/g, "-") + ")");
-
-//   function formatTooltip(d) {
-//     const a = d.source.name || d.source;
-//     const b = d.target.name || d.target;
-//     return `
-//       <strong>${a} ↔ ${b}</strong><br>
-//       ${a} → ${b}: ${d.a2b.toFixed(1)}<br>
-//       ${b} → ${a}: ${d.b2a.toFixed(1)}<br>
-//       Total: ${d.weight.toFixed(1)}
-//     `;
-//   }
-
-//   link.on("mouseover", (event, d) => {
-//     tooltip.transition().duration(200).style("opacity", 0.95);
-//     tooltip.html(formatTooltip(d))
-//       .style("left", (event.pageX + 12) + "px")
-//       .style("top", (event.pageY - 20) + "px");
-//   }).on("mouseout", () => tooltip.transition().duration(200).style("opacity", 0));
-
-//   return {
-//     linkA: link, // reuse the same key so `simulation.on("tick")` still works
-//     linkB: link
-//   };
-// }
-
 
 
 function renderDirectionalLinks(svgGroup, links) {
@@ -1220,5 +1154,6 @@ if (activeTab === "assist") {
     updatePassingNetwork();
   }
 });
+
 
 });

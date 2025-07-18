@@ -30,17 +30,19 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function renderPlayerNetwork(nodes, links, player) {
-  const width = 600, height = 600;
-  const svg = d3.select("#player-network")
-    .append("svg")
-    .attr("width", width)
-    .attr("height", height);
+const width = 600, height = 600;  // match the card height
 
+const svg = d3.select("#player-network")
+  .append("svg")
+  .attr("width", "100%")
+  .attr("height", "100%")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("preserveAspectRatio", "xMidYMid meet");
   const simulation = d3.forceSimulation(nodes)
     .force("link", d3.forceLink(links).id(d => d.id).distance(220))
     .force("charge", d3.forceManyBody().strength(-300))
-    .force("center", d3.forceCenter(width / 2, height / 2));
-
+    .force("center", d3.forceCenter(width / 2, height / 2))
+    .force("collide", d3.forceCollide(60))  // Prevent overlapping
   const link = svg.append("g")
     .selectAll("path")
     .data(links)
