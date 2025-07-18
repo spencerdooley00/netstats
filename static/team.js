@@ -278,7 +278,7 @@ function renderDirectionalLinks(svgGroup, links) {
   .attr("class", "passing-link")  // ✅ Add this
   .attr("data-source", d => d.source.id || d.source)
   .attr("data-target", d => d.target.id || d.target)
-    .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)))
+    .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#FFFFFF")(Math.min(1, d.weight / 10)))
     .attr("stroke-width", d => d.weight ** 0.8)
     .attr("opacity", 0.9)
     .attr("fill", "none")
@@ -302,7 +302,7 @@ function renderDirectionalLinks(svgGroup, links) {
       d3.select(this)
         .transition()
         .duration(100)
-        .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)))
+    .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#FFFFFF")(Math.min(1, d.weight / 10)))
         .attr("stroke-width", d => d.weight ** 0.8 + 2.5)
         .attr("opacity", 0.9);
 
@@ -651,7 +651,7 @@ node.on("mouseout", () => {
   if (!isFlow) {
     d3.selectAll("path.passing-link")
       .attr("opacity", 0.9)
-      .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)));
+    .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#FFFFFF")(Math.min(1, d.weight / 10)))
   }
 });
 
@@ -793,7 +793,7 @@ console.log("Appending links and nodes", data.nodes.length, data.links.length);
   .selectAll("path")
     .data(data.links)
     .enter().append("path")
-.attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)))
+    .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#FFFFFF")(Math.min(1, d.weight / 10)))
 .attr("stroke-width", d => d.weight ** 0.5)
 .attr("opacity", 0.9)
 
@@ -807,7 +807,7 @@ console.log("Appending links and nodes", data.nodes.length, data.links.length);
     })
     .on("mouseout", function () {
       d3.select(this).transition().duration(100)
-      .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#facc15")(Math.min(1, d.weight / 10)))
+    .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#FFFFFF")(Math.min(1, d.weight / 10)))
 .attr("stroke-width", d => d.weight ** 0.5)
         // .attr("stroke", "rgba(96, 165, 250, 0.85)")  // Tailwind's `blue-400`
 
@@ -825,7 +825,7 @@ node.append("clipPath")
 node.append("circle")
   .attr("r", 40)
   .attr("fill", "none")
-  .attr("stroke", "#facc15")
+  .attr("stroke", "var(--accent)")
   .attr("stroke-width", 2);
 
 node.append("image")

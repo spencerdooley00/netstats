@@ -68,6 +68,7 @@ const svg = d3.select("#player-network")
     .data(nodes)
     .join("text")
     .text(d => d.id)
+    .attr("dy", 15)
     .attr("fill", "#fff")
     .attr("font-size", "12px")
     .attr("text-anchor", "middle");
