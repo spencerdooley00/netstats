@@ -338,17 +338,18 @@ function handleNodeClick(event, d) {
       <img src="${d.img}" class="player-card-img" />
       <h3 class="player-card-name">${d.name}</h3>
     </div>
-    <table class="player-card-table">
-      <tr><td><strong>PTS:</strong></td><td>${isFinite(stats.PTS) ? Number(stats.PTS).toFixed(1) : "-"}</td></tr>
-      <tr><td><strong>AST:</strong></td><td>${isFinite(stats.AST) ? Number(stats.AST).toFixed(1) : "-"}</td></tr>
-      <tr><td><strong>REB:</strong></td><td>${isFinite(stats.REB) ? Number(stats.REB).toFixed(1) : "-"}</td></tr>
-      <tr><td><strong>+/-:</strong></td><td>${isFinite(stats.PLUS_MINUS) ? Number(stats.PLUS_MINUS).toFixed(1) : "-"}</td></tr>
-      <tr><td><strong>MIN:</strong></td><td>${isFinite(stats.MIN) ? Number(stats.MIN).toFixed(1) : "-"}</td></tr>
-      <tr><td><strong>FG%:</strong></td><td>${isFinite(stats.FG_PCT) ? (Number(stats.FG_PCT) * 100).toFixed(1) + "%" : "-"}</td></tr>
-      <tr><td><strong>3FG%:</strong></td><td>${isFinite(stats.FG3_PCT) ? (Number(stats.FG3_PCT) * 100).toFixed(1) + "%" : "-"}</td></tr>
-    </table>
+
   `;
 
+    //   <table class="player-card-table">
+    //   <tr><td><strong>PTS:</strong></td><td>${isFinite(stats.PTS) ? Number(stats.PTS).toFixed(1) : "-"}</td></tr>
+    //   <tr><td><strong>AST:</strong></td><td>${isFinite(stats.AST) ? Number(stats.AST).toFixed(1) : "-"}</td></tr>
+    //   <tr><td><strong>REB:</strong></td><td>${isFinite(stats.REB) ? Number(stats.REB).toFixed(1) : "-"}</td></tr>
+    //   <tr><td><strong>+/-:</strong></td><td>${isFinite(stats.PLUS_MINUS) ? Number(stats.PLUS_MINUS).toFixed(1) : "-"}</td></tr>
+    //   <tr><td><strong>MIN:</strong></td><td>${isFinite(stats.MIN) ? Number(stats.MIN).toFixed(1) : "-"}</td></tr>
+    //   <tr><td><strong>FG%:</strong></td><td>${isFinite(stats.FG_PCT) ? (Number(stats.FG_PCT) * 100).toFixed(1) + "%" : "-"}</td></tr>
+    //   <tr><td><strong>3FG%:</strong></td><td>${isFinite(stats.FG3_PCT) ? (Number(stats.FG3_PCT) * 100).toFixed(1) + "%" : "-"}</td></tr>
+    // </table>
   // Close panel button listener
 
   document.getElementById("close-panel-button")?.addEventListener("click", () => {

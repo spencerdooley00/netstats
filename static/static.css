@@ -95,11 +95,13 @@ select, button, input[type="checkbox"] {
 
 /* ========== HEADER ========== */
 #main-header {
-  background: #0f172a; /* dark navy */
-  padding: 0.75rem 2rem;
-  border-bottom: 1px solid #1e293b;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  z-index: 1000;
+  background-color: #0c1220;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  border-bottom: 1px solid #1e2a40;
 }
 
 .header-inner {
@@ -121,31 +123,32 @@ select, button, input[type="checkbox"] {
 
 .tab-bar {
   display: flex;
-  gap: 1.5rem;
-  position: relative;
+  gap: 32px;
+  align-items: center;
 }
-
-/* .tab-button {
-  position: relative;
-  padding: 10px 0;
-  font-weight: 600;
-  font-size: 1rem;
-  color: #e2e8f0;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: color 0.2s ease;
-} */
-
 
 
 
 .tab-button:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-  color: var(--accent);
-  text-shadow: 0 0 4px var(--accent);
+  background-color: rgba(173, 216, 255, 0.1);
 }
+
+.tab-button.active {
+  background: rgba(173, 216, 255, 0.1);
+  color: #a4c8ff;
+  font-weight: 600;
+  text-decoration: none;       /* ← removes accidental underline */
+  box-shadow: 0 0 8px rgba(173, 216, 255, 0.3);
+}
+
+
+
+
+
+
+
+
+
 
 .tab-button::after {
   content: '';
@@ -162,9 +165,9 @@ select, button, input[type="checkbox"] {
   width: 100%;
 }
 
-.tab-button.active::after {
+/* .tab-button.active::after {
   width: 100%;
-}
+} */
 
 
 /* 
@@ -182,44 +185,43 @@ select, button, input[type="checkbox"] {
 } */
 
 
-
-
-
 .team-header-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 32px;
   flex-wrap: wrap;
-  gap: 1rem;
-  padding: 0.75rem 1.5rem;
+  width: 100%;
 }
 
-.nav-team-logo {
-  height: 36px;
-}
-
+/* LOGO + TEAM ID */
 .team-id-banner {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 12px;
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+}
+
+.nav-team-logo {
+  width: 32px;
+  height: 32px;
 }
 
 .season-selector-wrapper {
   margin-left: 0.5rem;
 }
-
 .season-selector {
-  padding: 6px 10px;
-  background: #111;
-  color: #fff;
-  border: 1px solid #444;
+  background-color: #161d2f;
+  color: #dbeaff;
+  border: 1px solid #2a395b;
   border-radius: 6px;
-  font-size: 1rem;
+  padding: 4px 12px;
+  font-size: 16px;
 }
-
 .team-tabs {
   display: flex;
-  gap: 1.25rem;
+  gap: 16px;
 }
 
 .team-tab {
@@ -243,16 +245,44 @@ select, button, input[type="checkbox"] {
   color: var(--accent);
   text-shadow: 0 0 4px var(--accent);}
 
+/* BACK BUTTON */
 .back-button {
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--accent);
+  font-size: 16px;
+  color: #dbeaff;
   text-decoration: none;
+  transition: opacity 0.2s ease;
 }
 
 .back-button:hover {
-  text-decoration: underline;
+  opacity: 0.8;
 }
+
+.team-id-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-team-logo {
+  height: 28px;
+}
+
+.team-abbr {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.season-selector-wrapper select {
+  background: #111;
+  color: var(--text-light);
+  border: 1px solid var(--stroke);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 14px;
+  appearance: none;
+}
+
 
 
 /* ========== TEAM LOGO GRID ========== */
@@ -351,7 +381,9 @@ select, button, input[type="checkbox"] {
   height: 100%;
   display: block;
 }
-
+/* .player-card-content {
+  background-color: var(--secondary);
+} */
 .player-card-header {
   display: flex;
   justify-content: flex-end;
@@ -391,25 +423,24 @@ select, button, input[type="checkbox"] {
 
 /* ========== TABS ========== */
 .tab-button {
-  font-family: var(--font);
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  padding: 10px 12px;
-  border-radius: 6px;
-  transition: all 0.25s ease;
-  color: #e2e8f0;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 8px;
+  color: #dbeaff;
   background: transparent;
+  border: none;
   cursor: pointer;
-  position: relative;
+  transition: all 0.3s ease;
   text-decoration: none;
 }
 
+
 .tab-button.active {
-  color: var(--accent);
-  text-shadow: 0 0 6px var(--accent);
-  box-shadow: 0 0 6px 1px var(--accent);
-  border-radius: 6px;
+  background: rgba(173, 216, 255, 0.08); /* subtle blue glow */
+  box-shadow: 0 0 8px rgba(173, 216, 255, 0.35);
+  color: #a4c8ff;
+  font-weight: 600;
 }
 
 /* ========== PLAYER CHECKBOXES ========== */
@@ -491,14 +522,18 @@ select, button, input[type="checkbox"] {
 }
 
 
-
 #network-header {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  z-index: 10;
+  margin-left: auto;
 }
+
 .toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #dbeaff;
+  font-size: 14px;
+}
+/* .toggle-label {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -506,7 +541,7 @@ select, button, input[type="checkbox"] {
   font-size: 14px;
   color: #eee;
   cursor: pointer;
-}
+} */
 
 .toggle-label input[type="checkbox"] {
   display: none;
@@ -595,7 +630,11 @@ input[type="checkbox"]:checked + .toggle-pill {
 
 
 
-
+text {
+  paint-order: stroke;
+  stroke: rgba(0, 0, 0, 0.6);
+  stroke-width: 1.5px;
+}
 
 .right-panel {
   position: absolute;
@@ -644,7 +683,7 @@ input[type="checkbox"]:checked + .toggle-pill {
 }
 
 #player-details {
-  background: #2b3544;
+  background: #000000;
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
