@@ -316,7 +316,11 @@ function handleNodeClick(event, d) {
   const season = document.getElementById("season").value;
   const team = document.getElementById("team").value;
   const rightPanel = document.getElementById("right-panel");
-
+  rightPanel.classList.remove("open");      // reset first
+  void rightPanel.offsetWidth;              // force reflow
+  requestAnimationFrame(() => {
+    rightPanel.classList.add("open");       // now animate in
+  });
   if (!rightPanel) {
     console.warn("⚠️ right-panel not found in DOM!");
     return;
@@ -346,8 +350,9 @@ function handleNodeClick(event, d) {
   `;
 
   // Close panel button listener
+
   document.getElementById("close-panel-button")?.addEventListener("click", () => {
-    document.getElementById("right-panel").style.display = "none";
+    document.querySelector('.right-panel').classList.remove('open');
   });
 
   let svgContainer = document.getElementById("court-svg-container");
@@ -526,18 +531,40 @@ function drawPassingNetwork(data) {
     .attr("width", width + 400)
     .attr("height", height - 100);
 
-  svg.append("defs").append("marker")
-    .attr("id", "arrow")
-    .attr("viewBox", "0 -5 10 10")
-    .attr("refX", 60)
-    .attr("refY", -4)
-    .attr("markerWidth", 8)
-    .attr("markerHeight", 8)
-    .attr("orient", "auto")
-    .attr("markerUnits", "userSpaceOnUse")
-    .append("path")
-    .attr("d", "M0,-5L10,0L0,5")
-    .attr("fill", "#666");
+ const defs = svg.append("defs");
+
+// marker first
+defs.append("marker")
+  .attr("id", "arrow")
+  .attr("viewBox", "0 -5 10 10")
+  .attr("refX", 60)
+  .attr("refY", -4)
+  .attr("markerWidth", 8)
+  .attr("markerHeight", 8)
+  .attr("orient", "auto")
+  .attr("markerUnits", "userSpaceOnUse")
+  .append("path")
+  .attr("d", "M0,-5L10,0L0,5")
+  .attr("fill", "#666");
+
+const glow = defs.append("filter")
+  .attr("id", "glow")
+  .attr("width", "300%")
+  .attr("height", "300%")
+  .attr("x", "-100%")
+  .attr("y", "-100%");
+
+glow.append("feGaussianBlur")
+  .attr("stdDeviation", "7")  // boost this if needed
+  .attr("result", "blur");
+
+glow.append("feMerge")
+  .selectAll("feMergeNode")
+  .data(["blur", "SourceGraphic"])
+  .enter()
+  .append("feMergeNode")
+  .attr("in", d => d);
+
 
   const svgGroup = svg.append("g").attr("transform", `translate(-70,70)`);
 
@@ -586,41 +613,55 @@ function drawPassingNetwork(data) {
   }
 
   // === NODES ===
-  const node = svgGroup.append("g")
-    .selectAll("g")
-    .data(data.nodes)
-    .enter().append("g");
-
-  node.append("clipPath")
-    .attr("id", d => `clip-${d.id.replace(/\s+/g, "-")}`)
-    .append("circle")
-  .attr("r", 40)            // increase radius to show more face
+const node = svgGroup.append("g")
+  .selectAll("g")
+  .data(data.nodes)
+  .enter().append("g");
+node.append("circle")
+  .attr("r", 44)
+  .attr("fill", "#3b82f6")  // 🔵 or team color
+  .attr("filter", "url(#glow)")
+  .attr("opacity", 0.25);
+node.append("clipPath")
+  .attr("id", d => `clip-${d.id.replace(/\s+/g, "-")}`)
+  .append("circle")
+  .attr("r", 40)
   .attr("cx", 0)
   .attr("cy", 0);
 
+node.append("circle")
+  .attr("r", 42)                     // tight glow
+  .attr("fill", "#3b82f6")          // soft blue
+  .attr("filter", "url(#glow)")     // keeps glow definition
+  .attr("opacity", 0.15);  
 node.append("image")
   .attr("xlink:href", d => d.img)
-  .attr("width", 80)        // match visible area
+  .attr("width", 80)
+  .attr("height", 80)
+  .attr("x", -40)
+  .attr("y", -40)
+  .attr("clip-path", d => `url(#clip-${d.id.replace(/\s+/g, "-")})`)
+  .attr("pointer-events", "visible");
 
-    .attr("height", 80)
-    .attr("x", -40)
-    .attr("y", -40)
-    .attr("clip-path", d => `url(#clip-${d.id.replace(/\s+/g, "-")})`)
-    .attr("pointer-events", "visible");
+node.append("text")
+  .text(d => d.name)
+  .attr("text-anchor", "middle")
+  .attr("dy", 50)
+  .attr("font-size", "12px")
+  .attr("font-family", "var(--font)")
+  .attr("fill", "#FFFFFF");
 
-  node.append("text")
-    .text(d => d.name)
-    .attr("text-anchor", "middle")
-    .attr("dy", 40)
-    .attr("font-size", "12px")
-    .attr("fill", "#FFFFFF");
 
+
+ 
   const tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
   // === ON NODE CLICK ===
   node.on("mouseover", (event, d) => {
+  d3.select(this).select("circle").attr("opacity", 0.3);  // glow visible
+
   if (!isFlow) {
     const playerId = d.id;
 
@@ -646,8 +687,9 @@ node.append("image")
 });
 
 node.on("mouseout", () => {
-  tooltip.transition().duration(300).style("opacity", 0);
+  d3.select(this).select("circle").attr("opacity", 0);    // fade out
 
+  tooltip.transition().duration(300).style("opacity", 0);
   if (!isFlow) {
     d3.selectAll("path.passing-link")
       .attr("opacity", 0.9)

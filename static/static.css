@@ -6,7 +6,7 @@
   --secondary: #171717;
   --highlight: #676aff;
   --border: #000000;
-  --font: 'Inter', sans-serif;
+--font: 'Manrope', sans-serif;
 }
 
 /* ========== GLOBAL RESET & BASE ========== */
@@ -20,9 +20,15 @@ html, body {
   overflow-y: auto !important;
 }
 
+
 html, body {
   height: 100%;
   width: 100%;
+}
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .page-layout {
@@ -37,7 +43,9 @@ html, body {
   flex-direction: column;
   overflow: hidden;
   height: calc(100vh - 60px); /* assumes header is 60px tall */
-  width: 100%
+  width: 100%;
+    background: radial-gradient(circle at center, #0d1117 0%, #000000 100%)
+
 }
 
 .team-view .main-content {
@@ -117,28 +125,47 @@ select, button, input[type="checkbox"] {
   position: relative;
 }
 
-.tab-button {
+/* .tab-button {
   position: relative;
   padding: 10px 0;
   font-weight: 600;
-  color: #e2e8f0;
-  text-decoration: none;
   font-size: 1rem;
+  color: #e2e8f0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
   transition: color 0.2s ease;
-}
+} */
+
+
+
 
 .tab-button:hover {
+    background-color: rgba(255, 255, 255, 0.05);
   color: var(--accent);
+  text-shadow: 0 0 4px var(--accent);
 }
 
-.tab-button.active {
-  color: --accent;
+.tab-button::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  background: var(--accent);
+  transition: width 0.3s ease;
 }
-
 
 .tab-button:hover::after {
-  width: 80%;
+  width: 100%;
 }
+
+.tab-button.active::after {
+  width: 100%;
+}
+
 
 /* 
 .tab-button.active::after {
@@ -196,16 +223,25 @@ select, button, input[type="checkbox"] {
 }
 
 .team-tab {
-  font-size: 1rem;
+  font-family: var(--font);
+  font-size: 15px;
   font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  transition: all 0.25s ease;
   color: #e2e8f0;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
   text-decoration: none;
 }
 
 .team-tab.active,
 .team-tab:hover {
-  color: --accent;
-}
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--accent);
+  text-shadow: 0 0 4px var(--accent);}
 
 .back-button {
   font-size: 1rem;
@@ -268,12 +304,16 @@ select, button, input[type="checkbox"] {
 }
 
 .team-layout .sidebar {
-  width: 220px;  
-  padding: 16px;
-  background: var(--secondary);
-  overflow-y: auto;
-  border-right: 1px solid var(--border);
+  width: 240px;
+  padding: 20px;
+  background: rgba(23, 23, 23, 0.6);
+  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.4);
+  transition: background 0.3s ease;
+
 }
+
 
 .team-layout .main-content {
   display: flex;
@@ -351,19 +391,25 @@ select, button, input[type="checkbox"] {
 
 /* ========== TABS ========== */
 .tab-button {
-  padding: 10px 16px;
-  margin-right: 8px;
-  color: var(--fg);
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  transition: all 0.25s ease;
+  color: #e2e8f0;
   background: transparent;
-  border: none;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: border-color 0.2s;
+  position: relative;
+  text-decoration: none;
 }
 
 .tab-button.active {
-  border-color: var(--accent);
   color: var(--accent);
+  text-shadow: 0 0 6px var(--accent);
+  box-shadow: 0 0 6px 1px var(--accent);
+  border-radius: 6px;
 }
 
 /* ========== PLAYER CHECKBOXES ========== */
@@ -385,19 +431,24 @@ select, button, input[type="checkbox"] {
   border-radius: 8px;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   background: transparent;
-}
-.player-checkbox.checked {
-  border: 1px solid var(--accent);
-  background: rgba(250, 204, 21, 0.07); /* subtle yellow tint */
-  box-shadow: 0 0 4px 1px var(--accent);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0.2px;
 }
 
 .player-checkbox:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.player-checkbox:hover {
+  background-color: rgba(255,255,255,0.04);
   border-color: var(--accent);
 }
+
 
 .player-checkbox input[type="checkbox"] {
   display: none;
@@ -405,14 +456,7 @@ select, button, input[type="checkbox"] {
 
 /* Custom checkbox */
 .custom-checkbox {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid var(--fg);
-  border-radius: 4px;
-  margin-right: 10px;
-  position: relative;
-  flex-shrink: 0;
+  display: none;
 }
 
 .player-checkbox input[type="checkbox"]:checked + .custom-checkbox::after {
@@ -429,12 +473,11 @@ select, button, input[type="checkbox"] {
 
 /* Text */
 .player-name {
-  color: var(--fg);
   font-size: 14px;
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: var(--fg);
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  font-family: var(--font);
 }
 .player-checkbox input[type="checkbox"]:checked + .custom-checkbox + .player-name {
   font-weight: bold;
@@ -468,14 +511,14 @@ select, button, input[type="checkbox"] {
 .toggle-label input[type="checkbox"] {
   display: none;
 }
-
 .custom-toggle {
   width: 36px;
   height: 20px;
   border-radius: 9999px;
   background-color: #666;
   position: relative;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.1);
 }
 
 .custom-toggle::before {
@@ -487,15 +530,18 @@ select, button, input[type="checkbox"] {
   height: 16px;
   background-color: white;
   border-radius: 50%;
-  transition: transform 0.3s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
 }
 
 .toggle-label input:checked + .custom-toggle {
-  background-color: #3b82f6; /* blue-500 */
+  background-color: var(--accent);
+  box-shadow: 0 0 8px 2px var(--accent);
 }
 
 .toggle-label input:checked + .custom-toggle::before {
   transform: translateX(16px);
+  background-color: #fff;
 }
 
 
@@ -553,10 +599,10 @@ input[type="checkbox"]:checked + .toggle-pill {
 
 .right-panel {
   position: absolute;
-  top: 80px; /* ✅ Push down below the navbar */
+  top: 80px;
   right: 0;
   width: 500px;
-  height: calc(100% - 64px); /* match */
+  height: calc(100% - 64px);
   background: var(--bg-panel);
   padding: 24px 20px 20px 20px;
   box-sizing: border-box;
@@ -567,7 +613,20 @@ input[type="checkbox"]:checked + .toggle-pill {
   display: flex;
   flex-direction: column;
   gap: 24px;
+
+  /* ADD THIS 👇 */
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.35s ease, opacity 0.3s ease;
 }
+
+.right-panel.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
 
 .right-panel .close-panel-button {
   position: absolute;
@@ -619,6 +678,10 @@ input[type="checkbox"]:checked + .toggle-pill {
 #assist-network svg {
   width: 100%;
   height: 100%;
+  
+}
+#network {
+  background: radial-gradient(circle at center, #0a0a0a, #000000);
 }
 
 .shot-chart-container,
@@ -942,4 +1005,16 @@ input[type="checkbox"]:checked + .toggle-pill {
 
 .back-link:hover {
   color: #ffd700;
+}
+
+
+/* ========== PLAYER PAGE - NETWORK ========== */
+.link {
+  stroke: var(--accent);
+  stroke-opacity: 0.3;
+  transition: stroke-opacity 0.25s ease;
+}
+
+.link.highlighted {
+  stroke-opacity: 0.8;
 }
