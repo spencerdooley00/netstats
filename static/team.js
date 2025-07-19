@@ -630,11 +630,7 @@ node.append("clipPath")
   .attr("cx", 0)
   .attr("cy", 0);
 
-node.append("circle")
-  .attr("r", 42)                     // tight glow
-  .attr("fill", "#3b82f6")          // soft blue
-  .attr("filter", "url(#glow)")     // keeps glow definition
-  .attr("opacity", 0.15);  
+
 node.append("image")
   .attr("xlink:href", d => d.img)
   .attr("width", 80)
@@ -866,10 +862,10 @@ node.append("clipPath")
   .append("circle").attr("r", 36).attr("cx", 0).attr("cy", 0);
 
 node.append("circle")
-  .attr("r", 40)
-  .attr("fill", "none")
-  .attr("stroke", "var(--accent)")
-  .attr("stroke-width", 2);
+  .attr("r", 44)
+  .attr("fill", "#3b82f6")  // 🔵 or team color
+  .attr("filter", "url(#glow)")
+  .attr("opacity", 0.25);
 
 node.append("image")
   .attr("xlink:href", d => d.img)
