@@ -16,16 +16,18 @@
 <header id="main-header">
   <div class="header-inner">
     <a href="/" class="logo">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="NetStats Logo" height="60">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="NetStats Logo" height="85">
     </a>
+
     {% block nav_tabs %}
-    <nav class="tab-bar">
+    <nav class="tab-bar center-tabs">
       <a href="/" class="tab-button {% if request.path == '/' %}active{% endif %}">Team Explorer</a>
       <a href="/league" class="tab-button {% if request.path.startswith('/league') %}active{% endif %}">League Explorer</a>
     </nav>
     {% endblock %}
   </div>
 </header>
+
 
 <div class="page-layout {% block page_class %}{% endblock %}">
 <main>

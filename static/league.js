@@ -121,33 +121,32 @@ grid.appendChild(section);  // Instead of container.appendChild
 
   // Strongest Connections — full table, no toggle
   const connections = data.strongest_connections;
-  if (connections?.length > 0) {
-const section = document.createElement("div");
-section.className = "league-role-section wide";
+ if (connections?.length > 0) {
+    const section = document.createElement("div");
+    section.className = "league-role-section strongest-connections";
+    
+    const heading = document.createElement("h2");
+    heading.textContent = "Strongest Connections";
+    section.appendChild(heading);
 
-const heading = document.createElement("h2");
-heading.textContent = "Strongest Connections";
-section.appendChild(heading);
-
-const table = document.createElement("table");
-table.className = "league-role-table";
-table.innerHTML = `
-  <thead><tr><th>Team</th><th>Passer</th><th>Receiver</th><th>Passes</th></tr></thead>
-  <tbody>
-    ${connections.map(d => `
-      <tr>
-        <td>${d.team || "—"}</td>
-        <td>${d.from}</td>
-        <td>${d.to}</td>
-        <td>${d.passes.toFixed(2)}</td>
-      </tr>
-    `).join("")}
-  </tbody>
-`;
-
-
+    const table = document.createElement("table");
+    table.className = "league-role-table";
+    table.innerHTML = `
+      <thead><tr><th>Team</th><th>Passer</th><th>Receiver</th><th>Passes</th></tr></thead>
+      <tbody>
+        ${connections.map(d => `
+          <tr>
+            <td>${d.team || "—"}</td>
+            <td>${d.from}</td>
+            <td>${d.to}</td>
+            <td>${d.passes.toFixed(2)}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    `;
     section.appendChild(table);
-grid.appendChild(section);  // Instead of container.appendChild
+    container.appendChild(section);  // ✅ correct!
   }
+
 }
 
