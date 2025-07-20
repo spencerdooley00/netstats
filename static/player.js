@@ -84,6 +84,18 @@ const svg = d3.select("#player-network")
     node.attr("x", d => d.x - 40).attr("y", d => d.y - 40);
     label.attr("x", d => d.x).attr("y", d => d.y + 30);
   });
+    // ✅ Call radar chart
+
+  if (window.roleStats) {
+    drawRadarChart(window.roleStats, false);  // default = raw
+
+const normalizeToggle = document.getElementById("normalize-toggle");
+if (normalizeToggle) {
+  normalizeToggle.addEventListener("change", () => {
+    drawRadarChart(window.roleStats, normalizeToggle.checked);
+  });
+}
+  }
 }
 
 function fetchAndRenderShotChart(player, team, season) {
@@ -103,4 +115,69 @@ function fetchAndRenderShotChart(player, team, season) {
     .catch(err => {
       console.error("Failed to fetch shot chart:", err);
     });
+
+
+
+    
 }
+let radarChartInstance = null;
+
+function drawRadarChart(roleStats, normalize = false) {
+  const ctx = document.getElementById('roleRadarChart');
+  if (!ctx) return;
+
+  const categories = ['hub', 'finisher', 'distributor', 'black_hole'];
+  const labels = ['Hub', 'Finisher', 'Distributor', 'Black Hole'];
+
+  const data = categories.map(role => {
+    const playerVal = roleStats.player?.[role] || 0;
+    const leagueAvg = roleStats.league?.[role] || 1;
+    return normalize ? playerVal / leagueAvg : playerVal;
+  });
+
+  // Destroy previous chart if it exists
+  if (radarChartInstance) {
+    radarChartInstance.destroy();
+  }
+
+  radarChartInstance = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [{
+        label: normalize ? 'Relative to League Avg' : 'Raw Score',
+        data,
+        backgroundColor: 'rgba(93, 173, 226, 0.2)',
+        borderColor: 'rgba(93, 173, 226, 1)',
+        pointBackgroundColor: 'rgba(93, 173, 226, 1)',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      scales: {
+        r: {
+          suggestedMin: 0,
+          suggestedMax: normalize ? 2 : 1,
+          ticks: {
+            stepSize: normalize ? 0.5 : 0.2,
+            backdropColor: 'transparent',
+            color: '#aaa'
+          },
+          pointLabels: {
+            color: 'white',
+            font: { size: 14 }
+          },
+          grid: { color: '#444' },
+          angleLines: { color: '#555' }
+        }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+}
+
+
+
+

@@ -1,6 +1,6 @@
 import json
 from collections import defaultdict
-from dynamo_cache import get_all_stats
+from scripts.dynamo_cache import get_all_stats
 # add all seasons 
 TEAMS = [
     "ATL", "BOS", "BKN", "CHA", "CHI", "CLE", "DAL", "DEN", "DET",
@@ -409,6 +409,40 @@ def compute_roles_for_season(season):
             player_stats[player]["passes_received"] = received
 
     return compute_roles_by_percentile_scored(player_stats, edge_passes)
+
+def get_league_averages_for_season(all_season_data, season):
+    if season not in all_season_data:
+        raise ValueError(f"Season '{season}' not found in data.")
+
+    role_data = all_season_data[season]
+
+    # Combine players across all role categories
+    combined_players = []
+    for players in role_data.values():
+        combined_players.extend(players)
+
+    # Deduplicate players by (name, team)
+    unique = {}
+    for player in combined_players:
+        try:
+            key = (player['player'], player['team'])
+            unique[key] = player
+        except KeyError as e:
+            continue
+
+    # Aggregate scores
+    totals = defaultdict(float)
+    count = 0
+    for player in unique.values():
+        for key in ['hub_score', 'distributor_score', 'finisher_score', 'black_hole_score']:
+            if key in player and isinstance(player[key], (int, float)):
+                totals[key] += player[key]
+        count += 1
+
+    if count == 0:
+        return {}
+
+    return {key: round(totals[key] / count, 4) for key in totals}
 
 if __name__ == "__main__":
     all_season_roles = {}

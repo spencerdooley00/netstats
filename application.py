@@ -21,7 +21,7 @@ import json
 import markdown
 import os
 from scripts.passing_networks import fetch_data, create_network, generate_d3_data, get_player_shot_chart, calculate_network_metrics, get_default_starters
-
+from scripts.computation import get_league_averages_for_season
 from functools import wraps
 from dotenv import load_dotenv
 load_dotenv()
@@ -44,6 +44,8 @@ class DecimalEncoder(json.JSONEncoder):
         if isinstance(obj, decimal.Decimal):
             return float(obj)
         return super().default(obj)
+
+
 
 
 @application.route("/")
@@ -411,6 +413,9 @@ def player_detail(season, team, player_name):
 
     # Custom role scores (optional)
     role_scores = get_player_role_scores(league_roles, season, player_name)
+    
+    league_avgs = get_league_averages_for_season(league_roles, season)
+
 
     # Pass data for player-only network
     passes = data.get("passes", {})
@@ -460,6 +465,7 @@ def player_detail(season, team, player_name):
         }
         for name in node_names
     ]
+    print(season, league_avgs)
     return render_template("player.html",
                            season=season,
                            team=team,
@@ -479,6 +485,7 @@ def player_detail(season, team, player_name):
                                    for d in players.values()
                                )
                            },
+                           league_avg=league_avgs,
                            nodes = nodes, edges=edges)
 
 if __name__ == "__main__":

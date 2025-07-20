@@ -33,17 +33,19 @@
         </li>
       </ul>
     </div>
-
-    <div class="card player-roles">
-      <h2>Role Scores</h2>
-      <ul>
-        {% for role in ['hub_score', 'finisher_score', 'distributor_score', 'black_hole_score'] %}
-          {% if stats.get(role) %}
-            <li><strong>{{ role.replace('_score', '').replace('_', ' ') | title }}:</strong> {{ stats[role] | round(2) }}</li>
-          {% endif %}
-        {% endfor %}
-      </ul>
-    </div>
+<div class="card player-roles">
+  <h2>Role Scores</h2>
+  <div class="toggle-container">
+  <label class="toggle-label flex">
+    <input type="checkbox" id="normalize-toggle">
+    <span class="custom-toggle"></span>
+    Normalize by League Avg
+  </label>
+  </div>
+  <div class="chart-container">
+    <canvas id="roleRadarChart"></canvas>
+  </div>
+</div>
   </div>
 
   <div class="player-visuals-grid">
@@ -61,7 +63,25 @@
 
 <script id="player-edges-data" type="application/json">{{ edges | tojson }}</script>
 <script id="player-nodes-data" type="application/json">{{ nodes | tojson }}</script>
+<script>
+  window.roleStats = {
+    player: {
+      hub: parseFloat("{{ stats.hub_score or 0 }}"),
+      distributor: parseFloat("{{ stats.distributor_score or 0 }}"),
+      finisher: parseFloat("{{ stats.finisher_score or 0 }}"),
+      black_hole: parseFloat("{{ stats.black_hole_score or 0 }}")
+    },
+    league: {
+      hub: parseFloat("{{ league_avg.hub_score or 1 }}"),
+      distributor: parseFloat("{{ league_avg.distributor_score or 1 }}"),
+      finisher: parseFloat("{{ league_avg.finisher_score or 1 }}"),
+      black_hole: parseFloat("{{ league_avg.black_hole_score or 1 }}")
+    }
+  };
+</script>
+
 <script type="module" src="{{ url_for('static', filename='player.js') }}"></script>
+
 {% endblock %}
 
 

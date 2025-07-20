@@ -530,7 +530,9 @@ select, button, input[type="checkbox"] {
 #network-header {
   margin-left: auto;
 }
-
+.toggle-container {
+  margin-bottom: 10px;
+}
 .toggle-label {
   display: flex;
   align-items: center;
