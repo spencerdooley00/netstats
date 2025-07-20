@@ -105,16 +105,15 @@ select, button, input[type="checkbox"] {
 
 .header-inner {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
   display: flex;
+  justify-content: center;  /* ⬅️ centers the tabs */
   align-items: center;
-  position: relative; /* ⬅️ important */
+  padding: 32px 0;
 }
-
 .logo {
   flex-shrink: 0;
 }
+
 
 /* This centers the tabs by absolute positioning */
 .center-tabs {
