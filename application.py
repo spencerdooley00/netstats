@@ -45,11 +45,11 @@ class DecimalEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-
-
 @application.route("/")
-def home():
-
+def homepage():
+    return render_template("homepage.html")
+@application.route("/team_explorer")
+def team_explorer():
     seasons = ["2024-25", "2023-24", "2022-23", "2021-22", "2020-21", "2019-20", "2018-19", "2017-18", "2016-17", "2015-16", "2014-15"]
     selected_season = seasons[0]
 
@@ -59,10 +59,7 @@ def home():
         "OKC", "ORL", "PHI", "PHX", "POR", "SAC", "SAS", "TOR", "UTA", "WAS"
     ]
     return render_template("home.html", season=selected_season, team_abbrs=team_abbrs)
-
-
-@application.route("/team/<team>")
-@application.route("/team/<team>")
+@application.route("/team_explorer/<team>")
 def team_view(team):
     # Manually define available seasons
     seasons = ["2024-25", "2023-24", "2022-23", "2021-22", "2020-21", "2019-20", "2018-19", "2017-18", "2016-17", "2015-16", "2014-15"]

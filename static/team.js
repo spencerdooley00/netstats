@@ -11,6 +11,40 @@ document.addEventListener("DOMContentLoaded", () => {
     SAC: 1610612758, SAS: 1610612759, TOR: 1610612761, UTA: 1610612762, WAS: 1610612764
   };
 
+  const TEAM_COLORS = {
+  ATL: "#E03A3E",
+  BOS: "#007A33",
+  BKN: "#000000",
+  CHA: "#00788C",
+  CHI: "#CE1141",
+  CLE: "#6F263D",
+  DAL: "#00538C",
+  DEN: "#0E2240",
+  DET: "#C8102E",
+  GSW: "#1D428A",
+  HOU: "#CE1141",
+  IND: "#002D62",
+  LAC: "#C8102E",
+  LAL: "#552583",
+  MEM: "#5D76A9",
+  MIA: "#98002E",
+  MIL: "#00471B",
+  MIN: "#0C2340",
+  NOP: "#0C2340",
+  NYK: "#006BB6",
+  OKC: "#007AC1",
+  ORL: "#0077C0",
+  PHI: "#006BB6",
+  PHX: "#1D1160",
+  POR: "#E03A3E",
+  SAC: "#5A2D81",
+  SAS: "#C4CED4",
+  TOR: "#CE1141",
+  UTA: "#002B5C",
+  WAS: "#002B5C"
+};
+
+
 
   document.querySelectorAll(".tab").forEach(tab => {
     tab.addEventListener("click", () => {
@@ -201,7 +235,7 @@ console.log("SHOT_MADE_FLAG values:", [...new Set(filtered.map(s => s.SHOT_MADE_
   heat ? drawHeatmap(filtered, selector) : drawHexbins(filtered, selector);
 }
 
-function renderFlowLinks(svgGroup, links) {
+function renderFlowLinks(svgGroup, links, team) {
   const tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
   const defs = svgGroup.append("defs");
 
@@ -217,10 +251,10 @@ function renderFlowLinks(svgGroup, links) {
     d.dominantSource = fromA ? d.source : d.target;
     d.dominantTarget = fromA ? d.target : d.source;
     d.dominantShare = fromA ? d.a2b / d.weight : d.b2a / d.weight;
-
+    const teamColor = TEAM_COLORS[team]
     grad.append("stop")
       .attr("offset", "0%")
-      .attr("stop-color", "#007bff");
+      .attr("stop-color", teamColor);
 
     grad.append("stop")
       .attr("offset", `${(d.dominantShare * 100).toFixed(1)}%`)
@@ -268,8 +302,9 @@ function renderFlowLinks(svgGroup, links) {
 
 
 
-function renderDirectionalLinks(svgGroup, links) {
+function renderDirectionalLinks(svgGroup, links, team) {
   const tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
+    const teamColor = TEAM_COLORS[team]
 
   const link = svgGroup.append("g")
     .selectAll("path")
@@ -278,7 +313,7 @@ function renderDirectionalLinks(svgGroup, links) {
   .attr("class", "passing-link")  // ✅ Add this
   .attr("data-source", d => d.source.id || d.source)
   .attr("data-target", d => d.target.id || d.target)
-    .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#FFFFFF")(Math.min(1, d.weight / 10)))
+    .attr("stroke", d => d3.interpolate(teamColor, "#FFFFFF")(Math.min(1, d.weight / 10)))
     .attr("stroke-width", d => d.weight ** 0.8)
     .attr("opacity", 0.9)
     .attr("fill", "none")
@@ -302,7 +337,7 @@ function renderDirectionalLinks(svgGroup, links) {
       d3.select(this)
         .transition()
         .duration(100)
-    .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#FFFFFF")(Math.min(1, d.weight / 10)))
+    .attr("stroke", d => d3.interpolate(teamColor, "#FFFFFF")(Math.min(1, d.weight / 10)))
         .attr("stroke-width", d => d.weight ** 0.8 + 2.5)
         .attr("opacity", 0.9);
 
@@ -474,12 +509,12 @@ renderShots(shots, "#court-svg");
       // Only draw network if tab is active
       const passingTab = document.querySelector(".tab-button[data-tab='passing']");
       if (passingTab && passingTab.classList.contains("active")) {
-        drawPassingNetwork(data);
+        drawPassingNetwork(data, team);
         window.currentNetworkData = data;
 document.getElementById("flow-toggle")?.addEventListener("change", () => {
   if (!window.currentNetworkData) return;
 
-  drawPassingNetwork(window.currentNetworkData);  // Rebuilds the network
+  drawPassingNetwork(window.currentNetworkData, team);  // Rebuilds the network
 
   // If player panel is open and we have shots, re-render chart
   const panelVisible = document.getElementById("right-panel")?.style.display !== "none";
@@ -520,9 +555,10 @@ document.getElementById("flow-toggle")?.addEventListener("change", () => {
     });
 }
 
-function drawPassingNetwork(data) {
+function drawPassingNetwork(data, team) {
   d3.select("#passing-tab").selectAll("svg").remove();
   const isFlow = document.getElementById("flow-toggle")?.checked;
+    const teamColor = TEAM_COLORS[team]
 
   let links = data.links;
   const width = document.getElementById("passing-tab").clientWidth;
@@ -608,9 +644,9 @@ glow.append("feMerge")
     });
 
     links = Array.from(combinedMap.values());
-    ({ linkA, linkB } = renderFlowLinks(svgGroup, links));
+    ({ linkA, linkB } = renderFlowLinks(svgGroup, links, team));
   } else {
-    link = renderDirectionalLinks(svgGroup, data.links);
+    link = renderDirectionalLinks(svgGroup, data.links, team);
   }
 
   // === NODES ===
@@ -620,7 +656,7 @@ const node = svgGroup.append("g")
   .enter().append("g");
 node.append("circle")
   .attr("r", 44)
-  .attr("fill", "#3b82f6")  // 🔵 or team color
+  .attr("fill", teamColor)  // 🔵 or team color
   .attr("filter", "url(#glow)")
   .attr("opacity", 0.25);
 node.append("clipPath")
@@ -671,8 +707,8 @@ node.append("text")
       .attr("stroke", l => {
         const source = l.source.id || l.source;
         const target = l.target.id || l.target;
-        if (source === playerId) return "#3b82f6";  // blue
-        if (target === playerId) return "#facc15";  // yellow
+        if (source === playerId) return teamColor;  // blue
+        if (target === playerId) return "#FFFFFF";  // white
         return "none";
       });
   }
@@ -690,7 +726,7 @@ node.on("mouseout", () => {
   if (!isFlow) {
     d3.selectAll("path.passing-link")
       .attr("opacity", 0.9)
-    .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#FFFFFF")(Math.min(1, d.weight / 10)))
+    .attr("stroke", d => d3.interpolate(teamColor, "#FFFFFF")(Math.min(1, d.weight / 10)))
   }
 });
 
@@ -743,14 +779,14 @@ function updateAssistNetwork(lineup) {
     .then(res => res.json())
     .then(data => {
       currentAssistNetworkData = data;
-      drawNetwork(data, "#assist-network"); // ✅ Provide correct selector
+      drawNetwork(data, team); // ✅ Provide correct selector
     })
     .catch(err => {
       console.error("Error fetching assist network:", err);
     });
 }
 
-function drawNetwork(data) {
+function drawNetwork(data, team) {
 d3.select("#assist-network").selectAll("*").remove();
 
 
@@ -827,12 +863,13 @@ simulation.alpha(1).restart();
   const tooltip = d3.select("body").append("div")
     .attr("class", "tooltip").style("opacity", 0);
 console.log("Appending links and nodes", data.nodes.length, data.links.length);
+    const teamColor = TEAM_COLORS[team]
 
   const link = svgGroup.append("g")
   .selectAll("path")
     .data(data.links)
     .enter().append("path")
-    .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#FFFFFF")(Math.min(1, d.weight / 10)))
+    .attr("stroke", d => d3.interpolate(teamColor, "#FFFFFF")(Math.min(1, d.weight / 10)))
 .attr("stroke-width", d => d.weight ** 0.5)
 .attr("opacity", 0.9)
 
@@ -846,7 +883,7 @@ console.log("Appending links and nodes", data.nodes.length, data.links.length);
     })
     .on("mouseout", function () {
       d3.select(this).transition().duration(100)
-    .attr("stroke", d => d3.interpolate("rgba(0, 135, 255, 1)", "#FFFFFF")(Math.min(1, d.weight / 10)))
+    .attr("stroke", d => d3.interpolate(teamColor, "#FFFFFF")(Math.min(1, d.weight / 10)))
 .attr("stroke-width", d => d.weight ** 0.5)
         // .attr("stroke", "rgba(96, 165, 250, 0.85)")  // Tailwind's `blue-400`
 
@@ -863,7 +900,7 @@ node.append("clipPath")
 
 node.append("circle")
   .attr("r", 44)
-  .attr("fill", "#3b82f6")  // 🔵 or team color
+  .attr("fill", teamColor)  // 🔵 or team color
   .attr("filter", "url(#glow)")
   .attr("opacity", 0.25);
 
@@ -1077,7 +1114,8 @@ async function fetchAndRenderTopLineups() {
 const fillLineupTable = (lineups) => {
   const wrapper = document.getElementById("lineup-table-wrapper");
   const tbody = document.getElementById("lineup-table-body");
-  
+  const team = document.getElementById("team")?.value;
+  const season = document.getElementById("season")?.value;
   // Hide the wrapper immediately
   if (wrapper) {
     wrapper.style.display = "none";
@@ -1121,7 +1159,11 @@ row.innerHTML = `
       const lineupId = lineup.id_key;
       updateAssistNetwork(lineupId);
       updateLineupShotChart(lineupId);
-
+      gtag('event', 'select_lineup', {
+        lineup_name: formattedLineupName,
+        team: team,
+        season: season
+      });
       document.getElementById("assist-network-container").style.display = "block";
       document.getElementById("lineup-results").style.display = "flex";
       document.getElementById('assist-network-container')?.classList.add('show-network');
@@ -1245,6 +1287,18 @@ if (activeTab === "assist") {
     console.log("➡️ Updating passing network...");
     updatePassingNetwork();
   }
+});
+
+document.getElementById("team").addEventListener("change", () => {
+  const team = document.getElementById("team")?.value;
+  const season = document.getElementById("season")?.value;
+
+  gtag('event', 'select_team', {
+    team: team,
+    season: season
+  });
+
+  handleTeamOrSeasonChange();
 });
 
 

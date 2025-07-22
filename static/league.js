@@ -97,7 +97,12 @@ const tbody = `
     ${players.map((p, i) => `
       <tr class="${i >= 10 ? 'extra-row' : ''}">
         <td>${p.team}</td>
-<td><a href="/player/${season}/${p.team}/${encodeURIComponent(p.player)}">${p.player}</a></td>
+        <td>
+  <a href="/player/${season}/${p.team}/${encodeURIComponent(p.player)}"
+     onclick="gtag('event', 'player_click', { player: '${p.player}', team: '${p.team}', season: '${season}' });">
+     ${p.player}
+  </a>
+</td>
 <td>${
   p[`${roleScoreKeys[key]}_score`] !== undefined
     ? p[`${roleScoreKeys[key]}_score`].toFixed(3)
@@ -106,6 +111,7 @@ const tbody = `
     `).join("")}
   </tbody>
 `;
+//<td><a href="/player/${season}/${p.team}/${encodeURIComponent(p.player)}">${p.player}</a></td>
 
 
     table.innerHTML = thead + tbody;

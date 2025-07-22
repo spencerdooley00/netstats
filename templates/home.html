@@ -20,7 +20,7 @@
 
   <div class="team-grid">
     {% for abbr in team_abbrs %}
-      <div class="team-card" onclick="location.href='/team/{{ abbr }}?season={{ season }}'">
+      <div class="team-card" onclick="location.href='/team_explorer/{{ abbr }}?season={{ season }}'">
         <img src="https://cdn.nba.com/logos/nba/{{ logo_map[abbr] }}/primary/L/logo.svg"
              alt="{{ abbr }}"
              class="team-logo" />

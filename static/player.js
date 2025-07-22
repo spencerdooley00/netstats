@@ -27,6 +27,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderPlayerNetwork(nodes, links, player);
   fetchAndRenderShotChart(player, team, season);
+  gtag('event', 'player_view', {
+  player: player,
+  team: team,
+  season: season
+});
 });
 
 function renderPlayerNetwork(nodes, links, player) {

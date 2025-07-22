@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>{% block title %}NetStats{% endblock %}</title>
@@ -9,7 +10,15 @@
   <script src="https://d3js.org/d3-hexbin.v0.2.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XBBTV2TDQL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
 
+    gtag('config', 'G-XBBTV2TDQL');
+  </script>
 
   {% block head_scripts %}{% endblock %}
 </head>
@@ -23,7 +32,8 @@
 
     {% block nav_tabs %}
     <nav class="tab-bar center-tabs">
-      <a href="/" class="tab-button {% if request.path == '/' %}active{% endif %}">Team Explorer</a>
+      <a href="/" class="tab-button {% if request.path == '/' %}active{% endif %}">Home</a>
+      <a href="/team_explorer" class="tab-button {% if request.path == '/team_explorer' %}active{% endif %}">Team Explorer</a>
       <a href="/league" class="tab-button {% if request.path.startswith('/league') %}active{% endif %}">League Explorer</a>
     </nav>
     {% endblock %}

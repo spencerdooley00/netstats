@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}NetStats Home{% endblock %}
+
+{% block content %}
+<div class="home-logo-section">
+  <img src="{{ url_for('static', filename='netstats_logo.png') }}" alt="NetStats Logo" class="logo" />
+  <h1 class="brand-name">netstats</h1>
+  <p class="tagline">NBA Player Networks. Visualized.</p>
+</div>
+
+<div class="home-description">
+  <p>
+    <strong>NetStats</strong> is an interactive basketball analytics platform that brings NBA player networks to life.
+    Explore how players pass, score, and connect across the league — one team or lineup at a time.
+  </p>
+
+  <h2>🔎 What can I do?</h2>
+  <ul>
+    <li><strong>Team Explorer:</strong> Select a team & season to explore player passing networks</li>
+    <li><strong>Lineup Explorer:</strong> Dive into specific lineups to see assist flows & shared shot charts</li>
+    <li><strong>League Explorer:</strong> Compare player styles and roles across the entire NBA</li>
+    <li><strong>Player Pages:</strong> View detailed stats, connections, and shooting patterns for any player</li>
+  </ul>
+
+</div>
+{% endblock %}

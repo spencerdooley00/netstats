@@ -1154,5 +1154,92 @@ body.league-explorer .role-grid {
   to { transform: rotate(360deg); }
 }
 
+/* ===== HOMEPAGE ===== */
+.home-logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 4rem 0 2rem;
+}
+
+.home-logo-section .logo {
+  max-width: 300px;
+  width: 90%;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.brand-name {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  margin: 0;
+}
+
+.tagline {
+  font-size: 1.1rem;
+  color: #aaaaaa;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.home-description {
+  max-width: 750px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #e0e0e0;
+}
+
+.home-description h2 {
+  margin-top: 2rem;
+  font-size: 1.4rem;
+  color: #ffffff;
+}
+
+.home-description ul {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+}
+
+.home-buttons {
+  margin-top: 2.5rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.cta-button,
+.secondary-button {
+  padding: 0.7rem 1.6rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.25s ease-in-out;
+}
+
+.cta-button {
+  background-color: #00dba0;
+  color: #1c1c1c;
+}
+
+.cta-button:hover {
+  background-color: #00c992;
+}
+
+.secondary-button {
+  background-color: transparent;
+  color: #00dba0;
+  border: 2px solid #00dba0;
+}
+
+.secondary-button:hover {
+  background-color: #00dba0;
+  color: #1c1c1c;
+}
 
 
