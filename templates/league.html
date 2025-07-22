@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}League Explorer – NetStats{% endblock %}
+
+
+
+{% block page_class %}league-explorer{% endblock %}
+
+{% block content %}
+<div class="league-controls">
+  <label for="season">Season:</label>
+  <select id="season">
+    {% for season in available_seasons %}
+      <option value="{{ season }}" {% if season == selected_season %}selected{% endif %}>
+        {{ season }}
+      </option>
+    {% endfor %}
+  </select>
+</div>
+
+<div id="league-role-tables"></div>
+{% endblock %}
+
+{% block head_scripts %}
+<script>
+  const selectedSeason = "{{ selected_season }}";
+</script>
+<script src="{{ url_for('static', filename='league.js') }}"></script>
+{% endblock %}

@@ -2,26 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>{% block title %}NetStats{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='static.css') }}">
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://d3js.org/d3-hexbin.v0.2.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
   {% block head_scripts %}{% endblock %}
 </head>
+
 <body>
 <header id="main-header">
-<a href="/" class="logo">
-  <img src="{{ url_for('static', filename='logo.png') }}" alt="NetStats" height="70">
-</a>
-  {% block nav_tabs %}{% endblock %}
+  <div class="header-inner">
+    <!-- <a href="/" class="logo">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="NetStats Logo" height="85">
+    </a> -->
+
+    {% block nav_tabs %}
+    <nav class="tab-bar center-tabs">
+      <a href="/" class="tab-button {% if request.path == '/' %}active{% endif %}">Team Explorer</a>
+      <a href="/league" class="tab-button {% if request.path.startswith('/league') %}active{% endif %}">League Explorer</a>
+    </nav>
+    {% endblock %}
+  </div>
 </header>
 
-  <div class="page-layout">
-    {% block sidebar %}{% endblock %}
-    <main class="main-content">
-      {% block content %}{% endblock %}
-    </main>
-  </div>
+
+<div class="page-layout {% block page_class %}{% endblock %}">
+<main>
+  {% block content %}{% endblock %}
+</main></div>
 </body>
 </html>
 

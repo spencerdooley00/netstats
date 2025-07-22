@@ -1,0 +1,14 @@
+__pycache__/
+.elasticbeanstalk/
+research/
+*.pyc
+*.pyo
+*.pyd
+*.DS_Store
+.env
+.vscode/
+*.png
+*.jpg
+*.jpeg
+.git
+*.ipynb
