@@ -1,18 +1,17 @@
-# The manifest for the "netstats" service.
+# The manifest for the "frontend" service.
 # Read the full specification for the "Load Balanced Web Service" type at:
 #  https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/
 
 # Your service name will be used in naming your resources like log groups, ECS services, etc.
-name: netstats
+name: frontend
 type: Load Balanced Web Service
 
 # Distribute traffic to your service.
 http:
-  # Requests to this path will be forwarded to your service.
-  # To match all requests you can use the "/" path.
   path: '/'
-  # You can specify a custom health check path. The default is "/".
-  # healthcheck: '/'
+  alias: 
+    - netstats.dev
+    - www.netstats.dev
 
 # Configuration for your containers and service.
 image:
@@ -21,6 +20,21 @@ image:
   # Port exposed through your container to route traffic to it.
   port: 8080
 
+permissions:
+  statements:
+    - effect: allow
+      actions: 
+        - dynamodb:GetItem
+        - dynamodb:Query
+        - dynamodb:Scan
+      resources: 
+        - arn:aws:dynamodb:us-east-2:740269538812:table/AllStats
+        - arn:aws:dynamodb:us-east-2:740269538812:table/AssistData
+        - arn:aws:dynamodb:us-east-2:740269538812:table/LineupShots
+        - arn:aws:dynamodb:us-east-2:740269538812:table/PlayerShots
+        - arn:aws:dynamodb:us-east-2:740269538812:table/Teams
+        - arn:aws:dynamodb:us-east-2:740269538812:table/TopLineups
+
 cpu: 256       # Number of CPU units for the task.
 memory: 512    # Amount of memory in MiB used by the task.
 platform: linux/x86_64  # See https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/#platform
@@ -28,13 +42,7 @@ count: 1       # Number of tasks that should be running in your service.
 exec: true     # Enable running commands in your container.
 network:
   connect: true # Enable Service Connect for intra-environment traffic between services.
-task_role:
-  statements:
-    - Effect: Allow
-      Action:
-        - s3:GetObject
-      Resource:
-        - arn:aws:s3:::netstats-data/*
+
 # storage:
   # readonly_fs: true       # Limit to read-only access to mounted root filesystems.
 

@@ -20,9 +20,8 @@ from flask import Flask, render_template, request, jsonify, abort, redirect, url
 import json
 import markdown
 import os
-from scripts.passing_networks import fetch_data, create_network, generate_d3_data, get_player_shot_chart, calculate_network_metrics, get_default_starters
+from scripts.passing_networks import create_network, generate_d3_data
 from scripts.computation import get_league_averages_for_season
-from functools import wraps
 from dotenv import load_dotenv
 load_dotenv()
 

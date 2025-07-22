@@ -12,9 +12,9 @@ def load_json_from_s3(bucket, key):
     obj = s3.get_object(Bucket=bucket, Key=key)
     return json.load(obj["Body"])
 
-team_info_all = load_json_from_s3("netstats-data", "teams.json")
+# team_info_all = load_json_from_s3("netstats-data", "teams.json")
 
-all_stats = load_json_from_s3("netstats-data", "all_stats_test.json")
+# all_stats = load_json_from_s3("netstats-data", "all_stats_test.json")
 # lineup_shots_data = load_json_from_s3("netstats-data", "lineup_shots.json")
 # top_lineups_data = load_json_from_s3("netstats-data", "top_lineups.json")
 # player_shots_data = load_json_from_s3("netstats-data", "player_shots.json")
@@ -40,11 +40,11 @@ def check_name_in_list(given_name, player_names, threshold=0.6):
 # Fetch data from loaded JSON
 
 
-def fetch_data(season, team):
-    season_data = all_stats[season]
-    team_data = season_data[team]
-    team_info = team_info_all[f"Season={season}"][team]
-    return season_data, team_data, team_info
+# def fetch_data(season, team):
+#     season_data = all_stats[season]
+#     team_data = season_data[team]
+#     # team_info = team_info_all[f"Season={season}"][team]
+#     return season_data, team_data
 
 # Create the network graph
 
@@ -130,8 +130,8 @@ def create_network(team_data, team_name, color, edge_info, selected_players):
 # Generate default starter list
 
 
-def get_default_starters(season, team):
-    return team_info_all[f"Season={season}"][team]["starter_info"]["starters"]
+# def get_default_starters(season, team):
+#     return team_info_all[f"Season={season}"][team]["starter_info"]["starters"]
 
 def generate_d3_data(G):
     def format_name_for_url(name):
@@ -154,20 +154,20 @@ def generate_d3_data(G):
     links = [{"source": u, "target": v, "weight": G[u][v].get("weight", 1)} for u, v in G.edges()]
     return {"nodes": nodes, "links": links}
   
-def get_player_shot_chart(player, team, season):
-  season_stripped = int(season[:4])
-  shot_data = noc.load_nba_data(seasons=season_stripped, data='shotdetail', in_memory=True, use_pandas=True)
-  # season = f"{season}-{int(str(season)[2:])+1}"
-  player_id = all_stats[season][team][player]['stats']['PLAYER_ID']
-  print(player_id)
-  # player_id = all_stats[]
-  player_shot_data = (
-                      shot_data
-                      .pipe(lambda df_: df_.loc[df_["PLAYER_ID"] == player_id])
-                      .loc[:, ['LOC_X','LOC_Y', 'SHOT_MADE_FLAG']]
-                      .reset_index(drop=True)
-                     )
-  return player_shot_data
+# def get_player_shot_chart(player, team, season, all_stats):
+#   season_stripped = int(season[:4])
+#   shot_data = noc.load_nba_data(seasons=season_stripped, data='shotdetail', in_memory=True, use_pandas=True)
+#   # season = f"{season}-{int(str(season)[2:])+1}"
+#   player_id = all_stats[season][team][player]['stats']['PLAYER_ID']
+#   print(player_id)
+#   # player_id = all_stats[]
+#   player_shot_data = (
+#                       shot_data
+#                       .pipe(lambda df_: df_.loc[df_["PLAYER_ID"] == player_id])
+#                       .loc[:, ['LOC_X','LOC_Y', 'SHOT_MADE_FLAG']]
+#                       .reset_index(drop=True)
+#                      )
+#   return player_shot_data
 
 def calculate_network_metrics(G, scoring_lookup=None):
     """
