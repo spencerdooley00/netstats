@@ -934,8 +934,10 @@ if (!container.querySelector("g.court-g")) {
   setTimeout(() => waitForCourtAndRender(currentLineupShots), 0);
 } else {
 waitForCourtAndRender(currentLineupShots, "#assist-court-svg", 10, "assist");
-}
 
+}
+  const assistChartControls = document.getElementById('assist-chart-controls');
+assistChartControls.classList.add('visible');
 document.getElementById("assist-chart-controls").style.display = "block";
 
 const heatToggle = document.getElementById("assist-heatmap-toggle");
@@ -966,6 +968,7 @@ document.getElementById("reset-filter-button").onclick = () => {
 
   // Redraw with full data
   renderShots(currentLineupShots, "#assist-court-svg", "assist");
+
 };
 
 }
@@ -988,9 +991,45 @@ function waitForCourtAndRender(shots, selector = "#assist-court-svg", maxTries =
 }
 
 
+// async function fetchAndRenderTopLineups() {
+//   const team = document.getElementById("team")?.value;
+//   const season = document.getElementById("season")?.value;
+
+//   if (!team || !season) {
+//     console.error("❌ Missing team or season", { team, season });
+//     return;
+//   }
+
+//   console.log("📤 Sending POST to /get_top_lineups with:", { team, season });
+
+//   try {
+//     const res = await fetch("/get_top_lineups", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ team, season })
+//     });
+
+//     if (!res.ok) {
+//       throw new Error(`❌ Server error: ${res.status}`);
+//     }
+
+    
+
+//     const result = await res.json();
+//     console.log("✅ Top lineups response:", result);
+
+// fillLineupTable(result); // use the fetched result
+//   } catch (error) {
+//     console.error("🔥 Error fetching top lineups:", error);
+//   }
+// }
+
 async function fetchAndRenderTopLineups() {
   const team = document.getElementById("team")?.value;
   const season = document.getElementById("season")?.value;
+
+  const spinner = document.getElementById("lineup-loading");
+  const tableWrapper = document.getElementById("lineup-table-wrapper");
 
   if (!team || !season) {
     console.error("❌ Missing team or season", { team, season });
@@ -998,6 +1037,11 @@ async function fetchAndRenderTopLineups() {
   }
 
   console.log("📤 Sending POST to /get_top_lineups with:", { team, season });
+
+  // ⏳ Show loading spinner, hide table
+  spinner.style.display = "block";
+  tableWrapper.style.display = "none";
+  tableWrapper.style.opacity = 0;
 
   try {
     const res = await fetch("/get_top_lineups", {
@@ -1010,16 +1054,25 @@ async function fetchAndRenderTopLineups() {
       throw new Error(`❌ Server error: ${res.status}`);
     }
 
-    
-
     const result = await res.json();
     console.log("✅ Top lineups response:", result);
 
-fillLineupTable(result); // use the fetched result
+    // ✅ Fill the table
+    fillLineupTable(result);
+
+    // ✅ Hide spinner, show table with fade-in
+    spinner.style.display = "none";
+    tableWrapper.style.display = "block";
+
+    requestAnimationFrame(() => {
+      tableWrapper.style.opacity = 1;
+    });
   } catch (error) {
     console.error("🔥 Error fetching top lineups:", error);
+    spinner.style.display = "none"; // Ensure spinner hides on failure too
   }
 }
+
 
 const fillLineupTable = (lineups) => {
   const wrapper = document.getElementById("lineup-table-wrapper");

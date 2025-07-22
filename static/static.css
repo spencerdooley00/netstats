@@ -789,6 +789,8 @@ text {
     width: 100%;
   overflow-x: auto;
   margin-bottom: 16px;
+    transition: opacity 0.4s ease;
+
 }
 
 .lineup-table {
@@ -1124,3 +1126,33 @@ body.league-explorer .role-grid {
 .link.highlighted {
   stroke-opacity: 0.8;
 }
+
+#assist-chart-controls {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#assist-chart-controls.visible {
+  display: flex; /* or block depending on layout */
+  opacity: 1;
+}
+
+#lineup-loading {
+  display: none;
+  margin: 32px auto;
+  width: 36px;
+  height: 36px;
+  border: 4px solid rgba(255, 255, 255, 0.15);
+  border-top: 4px solid #50b7f5;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  box-shadow: 0 0 8px rgba(80, 183, 245, 0.4);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+
+
