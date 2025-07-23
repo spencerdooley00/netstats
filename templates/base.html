@@ -36,6 +36,25 @@
   {% block head_scripts %}{% endblock %}
 </head>
 
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add("visible");
+          }, 200);  // ← delay in ms
+        }
+      });
+    });
+
+    document.querySelectorAll('.fade-in-on-scroll').forEach(el => {
+      observer.observe(el);
+    });
+  });
+</script>
+
 <body>
 <header id="main-header">
   <div class="header-inner">

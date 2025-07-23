@@ -1466,3 +1466,19 @@ select#season,
   background-color: #333 !important;
   color: white !important;
 }
+
+
+
+
+
+.fade-in-on-scroll {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  transition-delay: 0.2s; /* add delay to soften entrance */
+}
+
+.fade-in-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}

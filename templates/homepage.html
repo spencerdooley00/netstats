@@ -4,10 +4,14 @@
 {% block content %}
 <div class="home-logo-section">
   <img src="{{ url_for('static', filename='netstats_logo-removebg-preview.png') }}" alt="NetStats Logo" class="logo" />
-  <!-- <h1 class="brand-name">netstats</h1> -->
   <p class="tagline">Visualizing the NBA.</p>
-</div>
 
+  <div class="home-buttons">
+    <a href="{{ url_for('team_explorer') }}" class="cta-button">Explore Teams</a>
+  </div>
+</div>
+<div class="fade-in-on-scroll" id="learn-more">
+ 
 <div class="home-description">
   <p>
     <strong>NetStats</strong> is an interactive basketball analytics platform that aims to visualize player roles and
@@ -43,5 +47,6 @@ The roles defined thus far are:
     <li><strong>Player Pages:</strong> Click on any player in one of the League tables to view player stats, the individual player's passing network, their role-score calculations, and their shot chart.</li>
   </ul>
 
+</div>
 </div>
 {% endblock %}
