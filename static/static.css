@@ -1286,6 +1286,22 @@ body.league-explorer .role-grid {
 
 
 /* === FILTER CONTAINER === */
+
+/* Prevent white flash before Choices initializes */
+#team-filter,
+#player-search,
+#season {
+  background-color: #1c1c1e;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: var(--font);
+  height: 40px;
+  box-sizing: border-box;
+  padding: 6px 10px;
+}
+
 .league-controls {
   display: flex;
   flex-wrap: wrap;
