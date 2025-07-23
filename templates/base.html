@@ -1,7 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  
+  <meta property="og:type" content="website" />
+<meta property="og:title" content="{% block og_title %}NetStats | NBA Passing & Assist Networks{% endblock %}" />
+<meta property="og:description" content="{% block og_description %}Explore interactive NBA networks, shot charts, and lineup insights on NetStats.{% endblock %}" />
+<meta property="og:image" content="{% block og_image %}https://netstats.dev/static/netstats_logo-removebg-preview.png{% endblock %}" />
+<meta property="og:url" content="{{ request.url }}" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="{% block twitter_title %}NetStats | NBA Passing & Assist Networks{% endblock %}" />
+<meta name="twitter:description" content="{% block twitter_description %}Explore interactive NBA networks, shot charts, and lineup insights on NetStats.{% endblock %}" />
+<meta name="twitter:image" content="{% block twitter_image %}https://netstats.dev/static/netstats_logo-removebg-preview.png{% endblock %}" />
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>{% block title %}NetStats | NBA Analytics{% endblock %}</title>

@@ -3,6 +3,14 @@
 {% block page_class %}team-view{% endblock %}
 {% block title %}NetStats | {{ team }} - {{ season }} Passing Network{% endblock %}
 {% block meta_description %}Explore passing and assist networks for the {{ team }} in the {{ season }} NBA season, including top lineups and shot charts.{% endblock %}
+
+{% block og_title %}NetStats | {{ team }} - {{ season }} Passing Network{% endblock %}
+{% block og_description %}Explore passing and assist networks for the {{ team }} in the {{ season }} NBA season, including top lineups and shot charts.{% endblock %}
+{% block og_image %}https://netstats.dev/static/previews/netstats_logo-removebg-preview.png{% endblock %}
+
+{% block twitter_title %}NetStats | {{ team }} - {{ season }} Passing Network{% endblock %}
+{% block twitter_description %}Explore {{ team }}’s top players, passing connections, assists, and shot chart data from the {{ season }} NBA season.{% endblock %}
+{% block twitter_image %}https://netstats.dev/static/previews/netstats_logo-removebg-preview.png{% endblock %}
 {% block head_scripts %}
 <script type="module" src="{{ url_for('static', filename='team.js') }}"></script>
 {% endblock %}
