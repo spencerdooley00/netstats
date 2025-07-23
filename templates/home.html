@@ -17,7 +17,14 @@
     "POR": 1610612757,  "SAC": 1610612758,  "SAS": 1610612759,
     "TOR": 1610612761,  "UTA": 1610612762,  "WAS": 1610612764
   } %}
-
+<div class="team-grid-intro">
+  <p>
+    Select a team below to explore its passing networks along with lineup-level assist networks and shot charts. 
+    Within the selected team's page, the passing network will be loaded with the top 8 players by minutes played. 
+    By navigating to the <strong>Lineup Explorer</strong> tab, you can view the assist networks and shot charts for the selected team
+    along with lineup stats.
+  </p>
+</div>
   <div class="team-grid">
     {% for abbr in team_abbrs %}
       <div class="team-card" onclick="location.href='/team_explorer/{{ abbr }}?season={{ season }}'">

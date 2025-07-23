@@ -290,7 +290,6 @@ select, button, input[type="checkbox"] {
 }
 
 
-
 /* ========== TEAM LOGO GRID ========== */
 .team-grid {
   display: flex;
@@ -299,36 +298,62 @@ select, button, input[type="checkbox"] {
   gap: 32px;
   padding: 20px;
 }
+
+/* REMOVE background and box styling */
 .team-card {
-  background: var(--secondary);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, border-color 0.2s;
   cursor: pointer;
-  height: 100px;
-  width: 100px;
+  transition: transform 0.2s ease;
 }
 
-.team-card:hover {
-  transform: scale(1.05);
-  border-color: var(--accent);
+/* Optional glow effect on hover */
+.team-card:hover .team-logo {
+  box-shadow: 0 0 16px 6px rgba(255, 255, 255, 0.25);
+  transform: scale(1.08);
 }
 
+/* Circular logos with soft transitions */
 .team-logo {
-  max-width: 60px;
-  max-height: 60px;
-  margin-bottom: 6px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: black;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
 
+/* Optional: hide or soften team abbreviation */
 .team-name {
-  font-size: 13px;
-  color: var(--fg);
-  font-weight: 500;
+  font-size: 12px;
+  color: #888;
+  margin-top: 6px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.team-card:hover .team-name {
+  opacity: 1;
+  color: #fff;
+}
+
+.team-grid-intro {
+  max-width: 800px;
+  margin: 40px auto 20px;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.team-grid-intro p {
+  font-size: 16px;
+  color: #ccc;
+  line-height: 1.6;
+  font-weight: 400;
 }
 
 /* ========== PAGE LAYOUT ========== */
