@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://netstats.dev/sitemap.xml

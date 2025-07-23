@@ -16,7 +16,7 @@ import boto3
 import re
 import nba_api.stats.static.teams as teams
 import nba_api.stats.endpoints as nba
-from flask import Flask, render_template, request, jsonify, abort, redirect, url_for, flash, session
+from flask import Flask, render_template, request, jsonify, abort, redirect, url_for, flash, session, send_from_directory
 import json
 import markdown
 import os
@@ -486,6 +486,18 @@ def player_detail(season, team, player_name):
                            },
                            league_avg=league_avgs,
                            nodes = nodes, edges=edges)
-
+@application.route("/robots.txt")
+def robots():
+    return (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Sitemap: https://netstats.dev/sitemap.xml\n",
+        200,
+        {"Content-Type": "text/plain"}
+    )
+    
+@application.route("/sitemap.xml")
+def sitemap():
+    return send_from_directory("static", "sitemap.xml", mimetype="application/xml")
 if __name__ == "__main__":
     application.run(host="0.0.0.0", port=8080)
