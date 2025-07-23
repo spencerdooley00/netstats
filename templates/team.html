@@ -76,12 +76,15 @@
         <div class="shot-chart-container">
           <div id="court-svg-container"></div>
           <svg id="court-svg" viewBox="0 0 431 405.14"></svg>
-<div class="toggle-group chart-controls">
-  <input type="checkbox" id="heatmap-toggle" hidden>
-  <label for="heatmap-toggle" class="toggle-pill">Heatmap</label>
+<div class="toggle-group chart-mode-toggle">
+  <input type="radio" id="chart-mode-circle" name="chart-mode" value="circle" checked hidden>
+  <label for="chart-mode-circle" class="toggle-pill chart-mode-button" data-mode="circle">Circles</label>
 
-  <input type="checkbox" id="makes-only-toggle" hidden>
-  <label for="makes-only-toggle" class="toggle-pill">Makes Only</label>
+  <input type="radio" id="chart-mode-hexbin" name="chart-mode" value="hexbin" hidden>
+  <label for="chart-mode-hexbin" class="toggle-pill chart-mode-button" data-mode="hexbin">Hexbin</label>
+
+  <input type="radio" id="chart-mode-heatmap" name="chart-mode" value="heatmap" hidden>
+  <label for="chart-mode-heatmap" class="toggle-pill chart-mode-button" data-mode="heatmap">Heatmap</label>
 </div>
 
 
@@ -121,16 +124,26 @@
 
 
 <div class="assist-toggle-wrapper">
-  <div class="toggle-group chart-controls" id="assist-chart-controls">
-    <input type="checkbox" id="assist-heatmap-toggle" hidden>
-    <label for="assist-heatmap-toggle" class="toggle-pill">Heatmap</label>
+  <div class="toggle-group chart-mode-toggle-assist" id="assist-chart-controls">
+    <!-- Mutually exclusive mode buttons -->
+    <input type="radio" id="assist-chart-mode-circle" name="assist-chart-mode" value="circle" checked hidden>
+    <label for="assist-chart-mode-circle" class="toggle-pill chart-mode-button" data-mode="circle">Circles</label>
 
+    <input type="radio" id="assist-chart-mode-hexbin" name="assist-chart-mode" value="hexbin" hidden>
+    <label for="assist-chart-mode-hexbin" class="toggle-pill chart-mode-button" data-mode="hexbin">Hexbin</label>
+
+    <input type="radio" id="assist-chart-mode-heatmap" name="assist-chart-mode" value="heatmap" hidden>
+    <label for="assist-chart-mode-heatmap" class="toggle-pill chart-mode-button" data-mode="heatmap">Heatmap</label>
+
+    <!-- Independent toggle (makes-only) -->
     <input type="checkbox" id="assist-makes-only-toggle" hidden>
     <label for="assist-makes-only-toggle" class="toggle-pill">Makes Only</label>
-    <button id="reset-filter-button">Reset</button>
 
+    <!-- Reset button -->
+    <button id="reset-filter-button">Reset</button>
   </div>
 </div>
+
 
           </div>
         </div>

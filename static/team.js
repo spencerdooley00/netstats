@@ -127,6 +127,40 @@ function handleTeamOrSeasonChange() {
 
 // document.getElementById("team").addEventListener("change", handleTeamOrSeasonChange);
 // document.getElementById("season").addEventListener("change", handleTeamOrSeasonChange);
+function drawCircles(data, selector) {
+  const g = d3.select(selector).select("g.court-g");
+  if (g.empty()) {
+    console.warn(`❌ drawCircles aborted — ${selector} g.court-g not found`);
+    return;
+  }
+
+  g.selectAll(".shot").remove();
+
+  const tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
+
+  g.selectAll("circle.shot")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("class", "shot")
+    .attr("cx", d => (d.LOC_X * 0.86) + 215.5)
+    .attr("cy", d => (d.LOC_Y * 0.86) + 41.4)
+    .attr("r", 4)
+    .attr("fill", d => Number(d.SHOT_MADE_FLAG) === 1 ? "#f97316" : "#999")
+    .attr("opacity", 0.65)
+    .on("mouseover", function (event, d) {
+      tooltip.transition().duration(200).style("opacity", 1);
+      tooltip.html(`
+        <strong>${d.PLAYER_NAME || ""}</strong><br/>
+        <strong>Made:</strong> ${d.SHOT_MADE_FLAG == 1 ? "Yes" : "No"}
+      `)
+        .style("left", (event.pageX + 12) + "px")
+        .style("top", (event.pageY - 28) + "px");
+    })
+    .on("mouseout", function () {
+      tooltip.transition().duration(200).style("opacity", 0);
+    });
+}
 
 
 // NEW
@@ -232,7 +266,21 @@ function renderShots(data, selector, togglePrefix = null) {
 console.log("heat:", heat, "makes:", makes, "filtered length:", filtered.length);
 console.log("SHOT_MADE_FLAG values:", [...new Set(filtered.map(s => s.SHOT_MADE_FLAG))]);
 
-  heat ? drawHeatmap(filtered, selector) : drawHexbins(filtered, selector);
+  // heat ? drawHeatmap(filtered, selector) : drawHexbins(filtered, selector);
+const modeButton = document.querySelector(
+  togglePrefix
+    ? `.chart-mode-toggle-${togglePrefix} .chart-mode-button.active`
+    : `.chart-mode-toggle .chart-mode-button.active`
+);
+const mode = modeButton?.dataset.mode || "circle";
+console.log("mode", mode)
+if (mode === "heatmap") {
+  drawHeatmap(filtered, selector);
+} else if (mode === "hexbin") {
+  drawHexbins(filtered, selector);
+} else {
+  drawCircles(filtered, selector);
+}
 }
 
 function renderFlowLinks(svgGroup, links, team) {
@@ -444,6 +492,25 @@ if (makesToggle && !makesToggle.dataset.bound) {
   makesToggle.addEventListener("change", () => renderShots(shots, "#court-svg"));
   makesToggle.dataset.bound = "true";
 }
+document.querySelectorAll(".chart-mode-button").forEach(button => {
+  if (!button.dataset.bound) {
+    button.addEventListener("click", () => {
+      const group = button.closest(".chart-mode-toggle") || button.closest(".chart-mode-toggle-assist");
+      if (!group) return;
+
+      group.querySelectorAll(".chart-mode-button").forEach(btn => btn.classList.remove("active"));
+      button.classList.add("active");
+
+      if (group.id === "assist-chart-controls") {
+        renderShots(currentLineupShots, "#assist-court-svg", "assist");
+      } else {
+        renderShots(shots, "#court-svg");
+      }
+    });
+    button.dataset.bound = "true";
+  }
+});
+
 
 // 🔥 DO NOT reset the .checked values — preserve toggle state
 renderShots(shots, "#court-svg");
@@ -989,6 +1056,25 @@ if (makesToggle && !makesToggle.dataset.bound) {
   makesToggle.addEventListener("change", () => renderShots(currentLineupShots, "#assist-court-svg", "assist"));
   makesToggle.dataset.bound = "true";
 }
+document.querySelectorAll(".chart-mode-button").forEach(button => {
+  if (!button.dataset.bound) {
+    button.addEventListener("click", () => {
+      const group = button.closest(".chart-mode-toggle") || button.closest(".chart-mode-toggle-assist");
+      if (!group) return;
+
+      group.querySelectorAll(".chart-mode-button").forEach(btn => btn.classList.remove("active"));
+      button.classList.add("active");
+
+      if (group.id === "assist-chart-controls") {
+        renderShots(currentLineupShots, "#assist-court-svg", "assist");
+      } else {
+        renderShots(shots, "#court-svg");
+      }
+    });
+    button.dataset.bound = "true";
+  }
+});
+
 
 // Explicit render based on current toggle state
 renderShots(currentLineupShots, "#assist-court-svg", "assist");

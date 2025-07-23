@@ -76,6 +76,41 @@ export function drawHexbins(data, selector) {
     });
 }
 
+export function drawCircles(data, selector) {
+  const g = d3.select(selector).select("g.court-g");
+  if (g.empty()) {
+    console.warn(`❌ drawCircles aborted — ${selector} g.court-g not found`);
+    return;
+  }
+
+  g.selectAll(".shot").remove();
+
+  const tooltip = d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
+
+  g.selectAll("circle.shot")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("class", "shot")
+    .attr("cx", d => (d.LOC_X * 0.86) + 215.5)
+    .attr("cy", d => (d.LOC_Y * 0.86) + 41.4)
+    .attr("r", 4)
+    .attr("fill", d => Number(d.SHOT_MADE_FLAG) === 1 ? "#f97316" : "#999")
+    .attr("opacity", 0.65)
+    .on("mouseover", function (event, d) {
+      tooltip.transition().duration(200).style("opacity", 1);
+      tooltip.html(`
+        <strong>${d.PLAYER_NAME || ""}</strong><br/>
+        <strong>Made:</strong> ${d.SHOT_MADE_FLAG == 1 ? "Yes" : "No"}
+      `)
+        .style("left", (event.pageX + 12) + "px")
+        .style("top", (event.pageY - 28) + "px");
+    })
+    .on("mouseout", function () {
+      tooltip.transition().duration(200).style("opacity", 0);
+    });
+}
+
 export function renderShots(data, selector, togglePrefix = null, playerName = null) {
   const heatToggleId = togglePrefix ? `#${togglePrefix}-heatmap-toggle` : "#heatmap-toggle";
   const makesToggleId = togglePrefix ? `#${togglePrefix}-makes-only-toggle` : "#makes-only-toggle";

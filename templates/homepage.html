@@ -4,23 +4,43 @@
 
 {% block content %}
 <div class="home-logo-section">
-  <img src="{{ url_for('static', filename='netstats_logo.png') }}" alt="NetStats Logo" class="logo" />
-  <h1 class="brand-name">netstats</h1>
-  <p class="tagline">NBA Player Networks. Visualized.</p>
+  <img src="{{ url_for('static', filename='netstats_logo-removebg-preview.png') }}" alt="NetStats Logo" class="logo" />
+  <!-- <h1 class="brand-name">netstats</h1> -->
+  <p class="tagline">Visualizing the NBA.</p>
 </div>
 
 <div class="home-description">
   <p>
-    <strong>NetStats</strong> is an interactive basketball analytics platform that brings NBA player networks to life.
-    Explore how players pass, score, and connect across the league — one team or lineup at a time.
+    <strong>NetStats</strong> is an interactive basketball analytics platform that aims to visualize player roles and
+    team dynamics. By viewing NBA teams as networks, team dynamics are visualized in a way not done with tradtional
+    statistics. Using simple metrics that take into account a player's place in the network, player roles can be defined 
+    that quantitatively describes a player's role within the team. 
   </p>
 
-  <h2>🔎 What can I do?</h2>
+  <h2>Interacting with <strong>NetStats</strong></h2>
   <ul>
-    <li><strong>Team Explorer:</strong> Select a team & season to explore player passing networks</li>
-    <li><strong>Lineup Explorer:</strong> Dive into specific lineups to see assist flows & shared shot charts</li>
-    <li><strong>League Explorer:</strong> Compare player styles and roles across the entire NBA</li>
-    <li><strong>Player Pages:</strong> View detailed stats, connections, and shooting patterns for any player</li>
+    <li><strong>Team Explorer:</strong> Select a team & season to explore the passing network where the edges of the network represent 
+    pass frequency (per game) between players. Hover over a player to see only that player's pass edges. Clicking on a player
+in the network will open that players shot chart. The <strong>Flow</strong> toggle in the upper right corner will show a cleaner view of
+the team's network. The edges in this view are the combined passes between players, where the player on the white side of the edge recieves
+more passes in the duo. </li>
+    <li><strong>Lineup Explorer:</strong> Examine the table of a team's top 10 5-man lineups and click on one to visualiz that lineup's 
+    assist network and shot chart. Both the assist network and shot chart are conditional to that lineup so assists and 
+    shots are unique to when those 5 players were sharing the court. Click on any player in the assist network to view that player's
+shot chart within that lineup.</li>
+    <li><strong>League Explorer:</strong> Explore different player's roles which account for passes made and recieved as well as the 
+    distribution of passes made and recieved along with other descriptive metrics such as touches, dribbles, and time of possession. 
+The roles defined thus far are:
+<ul>
+      <li><strong>The Hubs:</strong> Players who are the offensive engines of their team. High number of passes made and recieved along with high number of touches, time of posession, and scoring</li>
+      <li><strong>The Distributors:</strong> Players with a high number of passes made, while fewer passes recieved. Less emphasis on scoring than a Hub. Important that they make a lot of passes to several players (wide distribution of high-frequency outgoing pass frequencies)</li>
+      <li><strong>The Finishers:</strong> Players who score in an efficient manner and do not make a lot of passes. This doesn't mean they 
+    don't pass or they don't get a lot of assists, but it does imply they typically are on the recieving end of passes.</li>
+      <li><strong>The Black Holes:</strong> An offensive black hole, a player that takes many shots at a low efficiency and may have a high number of passes recieved contrasting a very low number of passes made.</li>
+    </ul>
+    </li>
+
+    <li><strong>Player Pages:</strong> Click on any player in one of the League tables to view player stats, the individual player's passing network, their role-score calculations, and their shot chart.</li>
   </ul>
 
 </div>
