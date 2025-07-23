@@ -10,7 +10,87 @@
     <a href="{{ url_for('team_explorer') }}" class="cta-button">Explore Teams</a>
   </div>
 </div>
-<div class="fade-in-on-scroll" id="learn-more">
+
+<div class="home-description">
+
+  <div class="fade-in-on-scroll scroll-section">
+    <h2>Team Explorer</h2>
+    <p>
+      Interact with teams through two core lenses: the passing network and lineup-based insights.
+    </p>
+
+    <div class="fade-in-on-scroll subsection">
+      <h3>Passing Network</h3>
+      <p>
+        Visualize the frequency and direction of passes between players. Hover to isolate a player’s edges. Click to see shot charts.
+        Toggle <strong>Flow</strong> for a simplified directional view.
+      </p>
+    </div>
+
+    <div class="fade-in-on-scroll subsection">
+      <h3>Lineup Explorer</h3>
+      <p>
+        View assist networks and shot charts filtered to specific 5-man lineups. Click a player within that lineup to drill down further.
+      </p>
+    </div>
+  </div>
+
+  <div class="fade-in-on-scroll scroll-section">
+    <h2>League Explorer</h2>
+    <p>
+      Explore player roles using network-informed metrics like passes made/received, touches, and shot profiles.
+    </p>
+
+    <div class="fade-in-on-scroll expandable-role">
+      <button class="expand-btn">Hubs</button>
+      <div class="expand-content">
+        <p>
+          Offensive engines of a team — high passing activity, touches, and scoring responsibility.
+        </p>
+      </div>
+
+      <button class="expand-btn">Sources</button>
+      <div class="expand-content">
+        <p>
+          Distributors who initiate ball movement. High passes made, low received — more setup than scoring.
+        </p>
+      </div>
+
+      <button class="expand-btn">Conduits</button>
+      <div class="expand-content">
+        <p>
+          Constantly involved — high passes made and received. Low isolation/scoring burden.
+        </p>
+      </div>
+
+      <button class="expand-btn">Sinks</button>
+      <div class="expand-content">
+        <p>
+          Efficient finishers. Few passes made, but often the final scoring option.
+        </p>
+      </div>
+
+      <button class="expand-btn">Black Holes</button>
+      <div class="expand-content">
+        <p>
+          High usage, low efficiency. Receive many passes but rarely redistribute.
+        </p>
+      </div>
+    </div>
+        <div class="fade-in-on-scroll subsection">
+      <h3>Player pages</h3>
+      <p>
+        View player pages, with individual passing networks, role scores, and shot charts.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+
+
+
+<!-- <div class="fade-in-on-scroll" id="learn-more">
  
 <div class="home-description">
   <p>
@@ -48,5 +128,5 @@ The roles defined thus far are:
   </ul>
 
 </div>
-</div>
+</div> -->
 {% endblock %}

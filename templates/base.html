@@ -36,15 +36,13 @@
   {% block head_scripts %}{% endblock %}
 </head>
 
-
 <script>
   document.addEventListener("DOMContentLoaded", () => {
+    // scroll fade-ins
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.classList.add("visible");
-          }, 200);  // ← delay in ms
+          entry.target.classList.add("visible");
         }
       });
     });
@@ -52,8 +50,18 @@
     document.querySelectorAll('.fade-in-on-scroll').forEach(el => {
       observer.observe(el);
     });
+
+    // expandable roles
+    const buttons = document.querySelectorAll('.expand-btn');
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const content = button.nextElementSibling;
+        content.classList.toggle('open');
+      });
+    });
   });
 </script>
+
 
 <body>
 <header id="main-header">
