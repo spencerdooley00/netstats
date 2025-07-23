@@ -8,15 +8,35 @@
 
 {% block content %}
 <div class="league-controls">
-  <label for="season">Season:</label>
-  <select id="season">
-    {% for season in available_seasons %}
-      <option value="{{ season }}" {% if season == selected_season %}selected{% endif %}>
-        {{ season }}
-      </option>
-    {% endfor %}
-  </select>
+  <div class="filter-row">
+    <div class="filter-group">
+      <label for="season">Season:</label>
+      <select id="season">
+        {% for season in available_seasons %}
+          <option value="{{ season }}" {% if season == selected_season %}selected{% endif %}>
+            {{ season }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="team-filter">Teams:</label>
+      <select id="team-filter" multiple></select>
+    </div>
+
+    <div class="filter-group wide-player-select">
+      <label for="player-search">Players:</label>
+      <select id="player-search" multiple></select>
+    </div>
+
+    <div class="filter-group reset-wrapper">
+      <label style="visibility: hidden;">Reset</label>
+      <button id="reset-filters" class="reset-filter-button">Reset Filters</button>
+    </div>
+  </div>
 </div>
+
 
 <div id="league-role-tables"></div>
 {% endblock %}

@@ -1258,3 +1258,170 @@ body.league-explorer .role-grid {
 }
 
 
+
+
+/* === FILTER CONTAINER === */
+.league-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  padding: 1rem 0;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 180px;
+}
+
+.filter-group.wide-player-select {
+  width: 240px;
+}
+
+.filter-group label {
+  font-size: 13px;
+  color: #ccc;
+  margin-bottom: 4px;
+  line-height: 1;
+}
+
+.filter-group select,
+.filter-group .choices {
+  width: 100%;
+  height: 40px;
+}
+
+/* === RESET BUTTON === */
+.reset-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 64px;
+}
+
+.reset-wrapper label {
+  visibility: hidden;
+  height: 18px;
+  margin-bottom: 4px;
+}
+
+#reset-filters {
+  height: 40px;
+  width: 140px;
+  background-color: #1c1c1e;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-family: var(--font);
+}
+
+#reset-filters:hover {
+  background-color: #333;
+}
+/* === FILTER INPUT STYLES (UNIFIED LOOK) === */
+select#season,
+.choices {
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  background-color: #1c1c1e;
+  border: 1px solid #444;
+  font-size: 14px;
+  font-family: var(--font);
+  color: white;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+/* Remove double-box effect by making inner fill full height */
+.choices__inner {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 6px 10px !important;
+  min-height: unset !important;
+  height: 100% !important;
+  display: flex;
+  align-items: center;
+  border-radius: 8px !important;
+}
+
+/* Tokens (tags) inside multiselect */
+.choices__list--multiple {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  overflow: hidden;
+}
+.choices__list--multiple .choices__item {
+  background-color: #2c2c2e !important;
+  color: #eee !important;
+  border: 1px solid #444 !important;  /* override teal border */
+  border-radius: 16px !important;
+  padding: 4px 8px;
+  font-size: 13px;
+  margin: 2px;
+  box-shadow: none !important;
+}
+
+
+
+
+/* Input inside multiselect */
+.choices__input {
+  background-color: transparent !important;
+  color: white !important;
+  border: none !important;
+  outline: none !important;
+  font-size: 14px;
+  height: 30px;
+  line-height: 30px;
+  padding: 0;
+  margin: 0;
+  min-width: 10px;
+  flex: 1 0 auto;
+  box-shadow: none !important;
+}
+
+/* Placeholder text */
+.choices__placeholder {
+  color: #aaa !important;
+}
+
+.choices__input::placeholder {
+  color: #aaa !important;
+}
+
+/* Dropdown menu items */
+.choices__list--dropdown,
+.choices__list[aria-expanded] {
+  background-color: #121212;
+  color: white;
+  border: 1px solid #333;
+  border-radius: 6px;
+}
+
+.choices__item--selectable {
+  background-color: #121212;
+  color: white;
+}
+
+.choices__item--selectable.is-highlighted {
+  background-color: #333 !important;
+  color: white !important;
+}

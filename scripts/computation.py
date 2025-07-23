@@ -122,7 +122,7 @@ def compute_roles_by_percentile_scored(player_stats, edge_passes):
     # Filter for players with meaningful minutes
     filtered_stats = {
         p: s for p, s in player_stats.items()
-        if s.get("games_played", 0) >= 10 and s.get("minutes_per_game", 0) >= 25
+        if s.get("games_played", 0) >= 41 and s.get("minutes_per_game", 0) >= 20
     }
 
     if not filtered_stats:
