@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}{{ team }} | NetStats{% endblock %}
 {% block page_class %}team-view{% endblock %}
-
+{% block title %}NetStats | {{ team }} - {{ season }} Passing Network{% endblock %}
+{% block meta_description %}Explore passing and assist networks for the {{ team }} in the {{ season }} NBA season, including top lineups and shot charts.{% endblock %}
 {% block head_scripts %}
 <script type="module" src="{{ url_for('static', filename='team.js') }}"></script>
 {% endblock %}

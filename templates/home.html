@@ -1,6 +1,7 @@
 {% extends "base.html" %}
+{% block title %}NetStats | Team Explorer{% endblock %}
+{% block meta_description %}Explore passing and assist networks for the {{ team }} in the {{ season }} NBA season, including top lineups and shot charts.{% endblock %}
 
-{% block title %}NetStats Home{% endblock %}
 
 {% block content %}
 <div class="home-container" style="padding: 24px 40px;">
@@ -27,7 +28,7 @@
 </div>
   <div class="team-grid">
     {% for abbr in team_abbrs %}
-      <div class="team-card" onclick="location.href='/team_explorer/{{ abbr }}?season={{ season }}'">
+<div class="team-card" onclick="location.href='/team_explorer/{{ abbr }}/{{ season }}'">
         <img src="https://cdn.nba.com/logos/nba/{{ logo_map[abbr] }}/primary/L/logo.svg"
              alt="{{ abbr }}"
              class="team-logo" />

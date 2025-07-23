@@ -1350,30 +1350,43 @@ if (activeTab === "assist") {
 }
 
   const seasonDropdown = document.getElementById("season");
- seasonDropdown.addEventListener("change", () => {
-  console.log("🔥 Season change detected!");
-
+  seasonDropdown.addEventListener("change", () => {
   const selectedSeason = seasonDropdown.value;
   const team = document.getElementById("team")?.value;
-  const activeTab = document.querySelector(".tab-button.active")?.dataset.tab;
 
-  console.log("🌍 Selected team:", team);
-  console.log("📅 Selected season:", selectedSeason);
-  console.log("🧩 Active tab:", activeTab);
-
-  if (!team) {
-    console.warn("⚠️ No team selected");
+  if (!team || !selectedSeason) {
+    console.warn("⚠️ Missing team or season");
     return;
   }
 
-  if (activeTab === "lineup") {
-    console.log("➡️ Fetching top lineups...");
-    fetchAndRenderTopLineups(); // verify this is being called
-  } else {
-    console.log("➡️ Updating passing network...");
-    updatePassingNetwork();
-  }
+  // Redirect to new route with correct season in path
+  window.location.href = `/team_explorer/${team}/${selectedSeason}`;
 });
+
+//  seasonDropdown.addEventListener("change", () => {
+//   console.log("🔥 Season change detected!");
+
+//   const selectedSeason = seasonDropdown.value;
+//   const team = document.getElementById("team")?.value;
+//   const activeTab = document.querySelector(".tab-button.active")?.dataset.tab;
+
+//   console.log("🌍 Selected team:", team);
+//   console.log("📅 Selected season:", selectedSeason);
+//   console.log("🧩 Active tab:", activeTab);
+
+//   if (!team) {
+//     console.warn("⚠️ No team selected");
+//     return;
+//   }
+
+//   if (activeTab === "lineup") {
+//     console.log("➡️ Fetching top lineups...");
+//     fetchAndRenderTopLineups(); // verify this is being called
+//   } else {
+//     console.log("➡️ Updating passing network...");
+//     updatePassingNetwork();
+//   }
+// });
 
 document.getElementById("team").addEventListener("change", () => {
   const team = document.getElementById("team")?.value;

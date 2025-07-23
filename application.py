@@ -59,13 +59,14 @@ def team_explorer():
         "OKC", "ORL", "PHI", "PHX", "POR", "SAC", "SAS", "TOR", "UTA", "WAS"
     ]
     return render_template("home.html", season=selected_season, team_abbrs=team_abbrs)
-@application.route("/team_explorer/<team>")
-def team_view(team):
+@application.route("/team_explorer/<team>/<season>")
+def team_view(team, season):
     # Manually define available seasons
     seasons = ["2024-25", "2023-24", "2022-23", "2021-22", "2020-21", "2019-20", "2018-19", "2017-18", "2016-17", "2015-16", "2014-15"]
 
     # Get selected season from query parameter, fallback to latest
-    selected_season = request.args.get("season", seasons[0])
+    selected_season = season
+
     # season_str is just the short year string used in your Dynamo keys
     season_str = selected_season  # keep this short form for use in Dynamo
 

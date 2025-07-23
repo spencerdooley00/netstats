@@ -4,8 +4,9 @@
   
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <title>{% block title %}NetStats{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='static.css') }}">
+<title>{% block title %}NetStats | NBA Analytics{% endblock %}</title>
+<meta name="description" content="{% block meta_description %}Explore interactive NBA networks and shot charts by team, season, or player.{% endblock %}">  
+<link rel="stylesheet" href="{{ url_for('static', filename='static.css') }}">
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://d3js.org/d3-hexbin.v0.2.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
