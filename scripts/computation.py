@@ -1,6 +1,8 @@
 import json
 from collections import defaultdict
+# from dynamo_cache import get_all_stats
 from scripts.dynamo_cache import get_all_stats
+
 # add all seasons 
 TEAMS = [
     "ATL", "BOS", "BKN", "CHA", "CHI", "CLE", "DAL", "DEN", "DET",
@@ -31,46 +33,37 @@ def compute_pass_degrees(edge_passes, players, threshold=6):
     return pass_out_degree, pass_in_degree
 
 
-def compute_hub_score(p, percentiles):
-    return (
-        0.15 * percentiles["points"][p] +
-        0.125 * percentiles["passes_made"][p] +
-        0.125 * percentiles["passes_received"][p] +
-        # 0.125 * (1 - abs(percentiles["pass_ratio"][p] - 1)) +  # balanced passing
-        0.125 * percentiles["touches"][p] +
-        # 0.10 * percentiles["pts_per_touch"][p] +
-        0.10 * percentiles["time_of_possession"][p] +
-        0.125 * percentiles['pass_out_degree'][p] +
-        0.125 * percentiles['pass_in_degree'][p]
-        # 0.05 * percentiles["fg_pct"][p] +
-        # 0.05 * (percentiles["avg_drib_per_touch"][p]) 
-        # 0.05 * (1 - percentiles["avg_sec_per_touch"][p])
-    )
+# def compute_hub_score(p, percentiles):
+#     return (
+#         0.15 * percentiles["points"][p] +
+#         0.125 * percentiles["passes_made"][p] +
+#         0.125 * percentiles["passes_received"][p] +
+#         0.125 * percentiles["touches"][p] +
+#         0.10 * percentiles["time_of_possession"][p] +
+#         0.125 * percentiles['pass_out_degree'][p] +
+#         0.125 * percentiles['pass_in_degree'][p]
 
-def compute_distributor_score(p, percentiles):
-    return (
-        0.25 * percentiles["passes_made"][p] +
-        0.15 * (1 - percentiles["passes_received"][p]) +
-        0.1 * (1 - percentiles["points"][p]) +
-        # 0.15 * percentiles["touches"][p] +
-        0.20 * percentiles["pass_ratio"][p] +  # skewed toward made passes
-        # 0.05 * percentiles["time_of_possession"][p] +
-        # 0.05 * percentiles["avg_drib_per_touch"][p]+
-        0.15 * percentiles["pass_out_degree"][p] +
-        0.15 * percentiles["pass_in_degree"][p]
-    )
+#     )
 
-def compute_finisher_score(p, percentiles):
-    return (
-        0.30 * percentiles["points"][p] +
-        0.25 * percentiles["passes_received"][p] +
-        0.15 * (1 - percentiles["passes_made"][p]) +
-        # 0.10 * percentiles["fg_pct"][p] +
-        0.15 * percentiles["pass_in_degree"][p] +
-        0.10 * percentiles["pts_per_touch"][p] +
-        0.05 * percentiles["touches"][p] 
-        # 0.05 * (1 / (percentiles["pass_ratio"][p] + 1e-5))  # or 1 - percentile(pass_ratio)
-    )
+# def compute_distributor_score(p, percentiles):
+#     return (
+#         0.25 * percentiles["passes_made"][p] +
+#         0.15 * (1 - percentiles["passes_received"][p]) +
+#         0.1 * (1 - percentiles["points"][p]) +
+#         0.20 * percentiles["pass_ratio"][p] +  
+#         0.15 * percentiles["pass_out_degree"][p] +
+#         0.15 * percentiles["pass_in_degree"][p]
+#     )
+
+# def compute_finisher_score(p, percentiles):
+#     return (
+#         0.30 * percentiles["points"][p] +
+#         0.25 * percentiles["passes_received"][p] +
+#         0.15 * (1 - percentiles["passes_made"][p]) +
+#         0.15 * percentiles["pass_in_degree"][p] +
+#         0.10 * percentiles["pts_per_touch"][p] +
+#         0.05 * percentiles["touches"][p] 
+#     )
 
 def compute_black_hole_score(p, percentiles):
     return (
@@ -83,6 +76,48 @@ def compute_black_hole_score(p, percentiles):
     )
 
 
+def compute_hub_score(p, percentiles):
+    return (
+        0.15 * percentiles["points"][p] +
+        0.125 * percentiles["passes_made"][p] +
+        0.125 * percentiles["passes_received"][p] +
+        0.125 * percentiles["touches"][p] +
+        0.10 * percentiles["time_of_possession"][p] +
+        0.125 * percentiles['pass_out_degree'][p] +
+        0.125 * percentiles['pass_in_degree'][p]
+    )
+
+def compute_source_score(p, percentiles):
+    return (
+        0.25 * percentiles["passes_made"][p] +
+        0.15 * (1 - percentiles["passes_received"][p]) +  # initiator, not receiver
+        0.10 * (1 - percentiles["points"][p]) +
+        0.20 * percentiles["pass_ratio"][p] +  
+        0.15 * percentiles["pass_out_degree"][p] +
+        0.15 * (1 - percentiles["time_of_possession"][p])  # quick ball movement
+    )
+
+def compute_conduit_score(p, percentiles):
+    return (
+        0.20 * percentiles["passes_made"][p] +
+        0.20 * percentiles["passes_received"][p] +
+        0.15 * percentiles["pass_out_degree"][p] +
+        0.15 * percentiles["pass_in_degree"][p] +
+        0.15 * (1 - percentiles["points"][p]) +
+        0.15 * (1 - percentiles["time_of_possession"][p])  # low-usage router
+    )
+
+def compute_sink_score(p, percentiles):
+    return (
+        0.30 * percentiles["points"][p] +
+        0.25 * percentiles["passes_received"][p] +
+        0.15 * (1 - percentiles["passes_made"][p]) +
+        0.15 * percentiles["pass_in_degree"][p] +
+        0.10 * percentiles["pts_per_touch"][p] +
+        0.05 * percentiles["touches"][p] 
+    )
+
+
 def compute_roles_by_percentile_scored(player_stats, edge_passes):
     # Filter for players with meaningful minutes
     filtered_stats = {
@@ -92,8 +127,8 @@ def compute_roles_by_percentile_scored(player_stats, edge_passes):
 
     if not filtered_stats:
         return {
-            "top_hubs": [], "distributors": [],
-            "finishers": [], "strongest_connections": [],
+            "top_hubs": [], "sources": [], "conduits": [],
+            "sinks": [], "strongest_connections": [],
             "black_holes": []
         }
 
@@ -141,8 +176,9 @@ def compute_roles_by_percentile_scored(player_stats, edge_passes):
 
     # Compute role scores using helper functions
     hub_score = {p: compute_hub_score(p, percentiles) for p in filtered_stats}
-    distributor_score = {p: compute_distributor_score(p, percentiles) for p in filtered_stats}
-    finisher_score = {p: compute_finisher_score(p, percentiles) for p in filtered_stats}
+    source_score = {p: compute_source_score(p, percentiles) for p in filtered_stats}
+    conduit_score = {p: compute_conduit_score(p, percentiles) for p in filtered_stats}
+    sink_score = {p: compute_sink_score(p, percentiles) for p in filtered_stats}
     black_hole_score = {p: compute_black_hole_score(p, percentiles) for p in filtered_stats}
 
     # Top 400 or however many you want
@@ -162,8 +198,9 @@ def compute_roles_by_percentile_scored(player_stats, edge_passes):
             "minutes_per_game": round(s.get("minutes_per_game", 0.0), 1),
             "games_played": int(s.get("games_played", 0)),
             "hub_score": round(hub_score[p], 4),
-            "distributor_score": round(distributor_score[p], 4),
-            "finisher_score": round(finisher_score[p], 4),
+            "source_score": round(source_score[p], 4),
+            "conduit_score": round(conduit_score[p], 4),
+            "sink_score": round(sink_score[p], 4),
             "black_hole_score": round(black_hole_score[p], 4)
         }
 
@@ -171,9 +208,10 @@ def compute_roles_by_percentile_scored(player_stats, edge_passes):
     strongest_connections = sorted(edge_passes.items(), key=lambda x: x[1], reverse=True)[:25]
 
     return {
-        "top_hubs": [player_row(p) for p, _ in top_n(hub_score)],
-        "distributors": [player_row(p) for p, _ in top_n(distributor_score)],
-        "finishers": [player_row(p) for p, _ in top_n(finisher_score)],
+        "hubs": [player_row(p) for p, _ in top_n(hub_score)],
+        "sources": [player_row(p) for p, _ in top_n(source_score)],
+        "sinks": [player_row(p) for p, _ in top_n(sink_score)],
+        "conduits": [player_row(p) for p, _ in top_n(conduit_score)],
         "black_holes": [player_row(p) for p, _ in top_n(black_hole_score)],
         "strongest_connections": [
             {"from": f, "to": t, "passes": round(cnt, 2)}
@@ -286,8 +324,9 @@ def compute_roles_by_percentile(player_stats, edge_passes, minutes_threshold=25.
     if not filtered_stats:
         return {
             "top_hubs": [],
-            "distributors": [],
-            "finishers": [],
+            "sources": [],
+            "conduits": [],
+            "sinks": [],
             "strongest_connections": [],
             "black_holes": []
         }
@@ -324,14 +363,14 @@ def compute_roles_by_percentile(player_stats, edge_passes, minutes_threshold=25.
            abs(s["passes_made"] - s["passes_received"]) < 0.25 * max(s["passes_made"], s["passes_received"])
     ]
 
-    distributors = [
+    sources = [
         p for p, s in filtered_stats.items()
         if s["passes_made"] >= pm_thresh and
            s["passes_received"] < pr_low and
            s["points"] < pt_low
     ]
 
-    finishers = [
+    sinks = [
         p for p, s in filtered_stats.items()
         if s["passes_received"] >= pr_thresh and
            s["passes_made"] < pm_low and
@@ -349,8 +388,8 @@ def compute_roles_by_percentile(player_stats, edge_passes, minutes_threshold=25.
 
     return {
         "top_hubs": [player_row(p) for p in top_hubs],
-        "distributors": [player_row(p) for p in distributors],
-        "finishers": [player_row(p) for p in finishers],
+        "sources": [player_row(p) for p in sources],
+        "sinks": [player_row(p) for p in sinks],
         "strongest_connections": [
             {"from": f, "to": t, "passes": round(cnt, 2)}
             for (f, t), cnt in strongest_connections
@@ -434,7 +473,7 @@ def get_league_averages_for_season(all_season_data, season):
     totals = defaultdict(float)
     count = 0
     for player in unique.values():
-        for key in ['hub_score', 'distributor_score', 'finisher_score', 'black_hole_score']:
+        for key in ['hub_score', 'source_score', 'sink_score', 'black_hole_score']:
             if key in player and isinstance(player[key], (int, float)):
                 totals[key] += player[key]
         count += 1

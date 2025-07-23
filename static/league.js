@@ -49,15 +49,18 @@ function renderLeagueTables(data, season){
   container.appendChild(grid);
 
   const roles = [
-    { key: "top_hubs", label: "The Hubs" },
-    { key: "distributors", label: "The Distributors" },
-    { key: "finishers", label: "The Finishers" },
-    { key: "black_holes", label: "The Black Holes" }
+    { key: "hubs", label: "Hubs" },
+    { key: "sources", label: "Sources" },
+    { key: "conduits", label: "Conduits" },
+        { key: "sinks", label: "Sinks" },
+
+    { key: "black_holes", label: "Black Holes" }
   ];
 const roleScoreKeys = {
-  top_hubs: "hub",
-  distributors: "distributor",
-  finishers: "finisher",
+  hubs: "hub",
+  sources: "source",
+  conduits: "conduit",
+  sinks: "sink",
   black_holes: "black_hole"
 };
   roles.forEach(({ key, label }) => {

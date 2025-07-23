@@ -116,6 +116,38 @@ function fetchAndRenderShotChart(player, team, season) {
     .then(data => {
       window.shots = data;
       renderShots(data, "#court-svg");
+
+      // Just attach event listeners if not already added
+const heatToggle = document.getElementById("heatmap-toggle");
+const makesToggle = document.getElementById("makes-only-toggle");
+
+if (heatToggle && !heatToggle.dataset.bound) {
+  heatToggle.addEventListener("change", () => renderShots(shots, "#court-svg"));
+  heatToggle.dataset.bound = "true";
+}
+
+if (makesToggle && !makesToggle.dataset.bound) {
+  makesToggle.addEventListener("change", () => renderShots(shots, "#court-svg"));
+  makesToggle.dataset.bound = "true";
+}
+document.querySelectorAll(".chart-mode-button").forEach(button => {
+  if (!button.dataset.bound) {
+    button.addEventListener("click", () => {
+      const group = button.closest(".chart-mode-toggle") || button.closest(".chart-mode-toggle-assist");
+      if (!group) return;
+
+      group.querySelectorAll(".chart-mode-button").forEach(btn => btn.classList.remove("active"));
+      button.classList.add("active");
+
+      if (group.id === "assist-chart-controls") {
+        renderShots(currentLineupShots, "#assist-court-svg", "assist");
+      } else {
+        renderShots(shots, "#court-svg");
+      }
+    });
+    button.dataset.bound = "true";
+  }
+});
     })
     .catch(err => {
       console.error("Failed to fetch shot chart:", err);
@@ -131,8 +163,8 @@ function drawRadarChart(roleStats, normalize = false) {
   const ctx = document.getElementById('roleRadarChart');
   if (!ctx) return;
 
-  const categories = ['hub', 'finisher', 'distributor', 'black_hole'];
-  const labels = ['Hub', 'Finisher', 'Distributor', 'Black Hole'];
+  const categories = ['hub', 'source', 'sink', 'conduit', 'black_hole'];
+  const labels = ['Hub', 'Source', 'Sink', 'Conduit', 'Black Hole'];
 
   const data = categories.map(role => {
     const playerVal = roleStats.player?.[role] || 0;

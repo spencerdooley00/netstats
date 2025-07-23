@@ -378,15 +378,16 @@ def get_player_role_scores(data, season, player_name):
     if not season_data:
         return None  # Season not found
 
-    roles = ["top_hubs", "distributors", "finishers", "black_holes"]
+    roles = ["hubs", "sources", "conduits", "sinks", "black_holes"]
 
     for role in roles:
         for player in season_data.get(role, []):
             if player.get("player") == player_name:
                 return {
                     "hub_score": player.get("hub_score"),
-                    "distributor_score": player.get("distributor_score"),
-                    "finisher_score": player.get("finisher_score"),
+                    "source_score": player.get("source_score"),
+                    "conduit_score": player.get("conduit_score"),
+                    "sink_score": player.get("sink_score"),
                     "black_hole_score": player.get("black_hole_score")
                 }
 
@@ -472,8 +473,9 @@ def player_detail(season, team, player_name):
                                "fg_pct": fg_pct,
                                "minutes": minutes,
                                "hub_score": role_scores["hub_score"],
-                               "distributor_score": role_scores["distributor_score"],
-                               "finisher_score": role_scores["finisher_score"],
+                               "source_score": role_scores["source_score"],
+                               "conduit_score": role_scores["conduit_score"],
+                               "sink_score": role_scores["sink_score"],
                                "black_hole_score": role_scores["black_hole_score"],
                                "passes_made": sum(v.get("passes", 0) for v in passes.values()),
                                "passes_received": sum(

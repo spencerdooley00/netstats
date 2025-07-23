@@ -56,6 +56,17 @@
     <div class="card">
       <h2>Shot Chart</h2>
       <svg id="court-svg" width="431" height="405.14" viewBox="0 0 431 405.14"></svg>
+<div class="toggle-group chart-mode-toggle">
+  <input type="radio" id="chart-mode-circle" name="chart-mode" value="circle" hidden checked>
+  <label for="chart-mode-circle" class="toggle-pill chart-mode-button active" data-mode="circle">Circles</label>
+
+  <input type="radio" id="chart-mode-hexbin" name="chart-mode" value="hexbin" hidden>
+  <label for="chart-mode-hexbin" class="toggle-pill chart-mode-button" data-mode="hexbin">Hexbin</label>
+
+  <input type="radio" id="chart-mode-heatmap" name="chart-mode" value="heatmap" hidden>
+  <label for="chart-mode-heatmap" class="toggle-pill chart-mode-button" data-mode="heatmap">Heatmap</label>
+</div>
+
     </div>
   </div>
 
@@ -67,14 +78,16 @@
   window.roleStats = {
     player: {
       hub: parseFloat("{{ stats.hub_score or 0 }}"),
-      distributor: parseFloat("{{ stats.distributor_score or 0 }}"),
-      finisher: parseFloat("{{ stats.finisher_score or 0 }}"),
+      source: parseFloat("{{ stats.source_score or 0 }}"),
+      conduit: parseFloat("{{ stats.conduit_score or 0 }}"),
+      sink: parseFloat("{{ stats.sink_score or 0 }}"),
       black_hole: parseFloat("{{ stats.black_hole_score or 0 }}")
     },
     league: {
       hub: parseFloat("{{ league_avg.hub_score or 1 }}"),
-      distributor: parseFloat("{{ league_avg.distributor_score or 1 }}"),
-      finisher: parseFloat("{{ league_avg.finisher_score or 1 }}"),
+      source: parseFloat("{{ league_avg.source_score or 1 }}"),
+      conduit: parseFloat("{{ league_avg.conduit_score or 1 }}"),
+      sink: parseFloat("{{ league_avg.sink_score or 1 }}"),
       black_hole: parseFloat("{{ league_avg.black_hole_score or 1 }}")
     }
   };

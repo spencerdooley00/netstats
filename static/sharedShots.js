@@ -111,7 +111,7 @@ export function drawCircles(data, selector) {
     });
 }
 
-export function renderShots(data, selector, togglePrefix = null, playerName = null) {
+export function renderShots(data, selector, togglePrefix = null) {
   const heatToggleId = togglePrefix ? `#${togglePrefix}-heatmap-toggle` : "#heatmap-toggle";
   const makesToggleId = togglePrefix ? `#${togglePrefix}-makes-only-toggle` : "#makes-only-toggle";
 
@@ -119,14 +119,49 @@ export function renderShots(data, selector, togglePrefix = null, playerName = nu
   const makes = document.querySelector(makesToggleId)?.checked;
 
   let filtered = data;
-
-  if (playerName) {
-    filtered = filtered.filter(d => d.PLAYER_NAME?.trim().toLowerCase() === playerName.trim().toLowerCase());
+  if (typeof currentPlayerFilter !== "undefined" && currentPlayerFilter) {
+    filtered = filtered.filter(d =>
+      d.PLAYER_NAME?.trim().toLowerCase() === currentPlayerFilter.trim().toLowerCase()
+    );
   }
-
   if (makes) {
-    filtered = filtered.filter(d => Number(d.SHOT_MADE_FLAG) === 1);
+  filtered = filtered.filter(d => Number(d.SHOT_MADE_FLAG) === 1);
   }
+console.log("heat:", heat, "makes:", makes, "filtered length:", filtered.length);
+console.log("SHOT_MADE_FLAG values:", [...new Set(filtered.map(s => s.SHOT_MADE_FLAG))]);
 
-  heat ? drawHeatmap(filtered, selector) : drawHexbins(filtered, selector);
+  // heat ? drawHeatmap(filtered, selector) : drawHexbins(filtered, selector);
+const modeButton = document.querySelector(
+  togglePrefix
+    ? `.chart-mode-toggle-${togglePrefix} .chart-mode-button.active`
+    : `.chart-mode-toggle .chart-mode-button.active`
+);
+const mode = modeButton?.dataset.mode || "circle";
+console.log("mode", mode)
+if (mode === "heatmap") {
+  drawHeatmap(filtered, selector);
+} else if (mode === "hexbin") {
+  drawHexbins(filtered, selector);
+} else {
+  drawCircles(filtered, selector);
 }
+}
+// export function renderShots(data, selector, togglePrefix = null, playerName = null) {
+//   const heatToggleId = togglePrefix ? `#${togglePrefix}-heatmap-toggle` : "#heatmap-toggle";
+//   const makesToggleId = togglePrefix ? `#${togglePrefix}-makes-only-toggle` : "#makes-only-toggle";
+
+//   const heat = document.querySelector(heatToggleId)?.checked;
+//   const makes = document.querySelector(makesToggleId)?.checked;
+
+//   let filtered = data;
+
+//   if (playerName) {
+//     filtered = filtered.filter(d => d.PLAYER_NAME?.trim().toLowerCase() === playerName.trim().toLowerCase());
+//   }
+
+//   if (makes) {
+//     filtered = filtered.filter(d => Number(d.SHOT_MADE_FLAG) === 1);
+//   }
+
+//   heat ? drawHeatmap(filtered, selector) : drawHexbins(filtered, selector);
+// }
