@@ -6,41 +6,16 @@ slug: "how-we-built-netstats"
 image_url: "/static/article_thumbs/netstats-preview-final.jpg"
 ---
 
-# How We Built NetStats
 
-NetStats started with a simple idea: **pass tracking should be beautiful**.
-
-As fans and analysts, we often focus on assists — but what about **all the other passes** that shape the flow of a game? NetStats sets out to visualize **every pass between players** over a full season, and reveal the hidden architecture of team offense.
-
----
-
-## The Stack
-
-To make this happen, we built a stack that’s fast, flexible, and scalable:
-
-- 🐍 **Python** for data scraping, processing, and backend
-- 🔥 **D3.js** for interactive player networks and shot charts
-- ☁️ **AWS (S3 + DynamoDB)** for static data storage and lightning-fast lookups
-- 🧪 **NBA Stats API** for official play-by-play, lineup, and player data
-
-We started by scraping **player-level passing data** using the `nba_api` Python package. We structured each season into nested JSON files grouped by team and player.
-
----
-
-## From Data to Network
+## Netstats Overview
 
 The heart of NetStats is the **passing network**.
 
-We built each network using:
+Each network consists of:
 
-- **Nodes** for players
-- **Edges** weighted by pass frequency
-- **Tooltips** showing stats like touches, assists, and FG%
+- **Nodes** for players which have **attributes** holding the player's statistics
+- **Edges (weighted)** representing pass frequency and are directional from the passing player to the recieving player
 
-Using **NetworkX** and custom logic, we transform raw passing counts into a D3-friendly force-directed graph. The final visualization is:
-- Fully interactive
-- Styled by team
-- Toggled by player selection or flow mode
 
 ---
 
