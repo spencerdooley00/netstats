@@ -496,6 +496,58 @@ def robots():
         {"Content-Type": "text/plain"}
     )
     
+    
+@application.route('/about')
+def about():
+    return render_template('about.html')
+    
+
+import os
+import markdown
+import yaml
+
+def load_articles():
+    articles_dir = "articles"
+    articles = []
+    for filename in os.listdir(articles_dir):
+        if filename.endswith(".md"):
+            path = os.path.join(articles_dir, filename)
+            with open(path, "r") as f:
+                raw = f.read()
+                _, fm_block, content = raw.split("---", 2)
+                meta = yaml.safe_load(fm_block)
+                meta["html"] = markdown.markdown(content)
+                meta["slug"] = filename.replace(".md", "")
+
+                articles.append(meta)
+    # Sort by date descending
+    articles.sort(key=lambda x: x["date"], reverse=True)
+    return articles
+
+@application.route("/articles")
+def article_index():
+    articles = load_articles()
+    return render_template("articles.html", articles=articles)
+
+
+@application.route("/articles/<slug>")
+def article_detail(slug):
+    path = f"articles/{slug}.md"
+    if not os.path.exists(path):
+        abort(404)
+
+    with open(path, "r", encoding="utf-8") as f:
+        raw = f.read()
+        _, fm_block, content = raw.split("---", 2)
+        meta = yaml.safe_load(fm_block)
+        html = markdown.markdown(content, extensions=["fenced_code", "tables", "codehilite"])
+
+    return render_template(
+        "article.html",
+        content=html,
+        title=meta.get("title", slug.replace("-", " ").title())
+    )
+
 @application.route("/sitemap.xml")
 def sitemap():
     return send_from_directory("static", "sitemap.xml", mimetype="application/xml")

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}About - NetStats{% endblock %}
+
+{% block content %}
+<div class="about-page">
+  <div class="about-header">
+    <img src="{{ url_for('static', filename='images/headshot.jpg') }}" alt="Spencer Dooley" class="headshot">
+    <div class="about-text">
+      <h1>Hi, I'm Spencer</h1>
+      <p>
+        I'm a data scientist and basketball analytics nerd. I created NetStats to visualize the NBA through passing networks, lineup analysis, and interactive shot charts.
+      </p>
+      <p>
+        I love exploring the intersection of sports, data, and storytelling — and I'm always open to collaborating or talking hoops and data science.
+      </p>
+    </div>
+  </div>
+
+  <div class="contact-cards">
+    <a class="contact-card" href="mailto:spencer.dooley00@gmail.com" target="_blank">
+      <i class="fas fa-envelope"></i>
+      <span>Email</span>
+    </a>
+    <a class="contact-card" href="https://www.linkedin.com/in/spencer-dooley-989934198" target="_blank">
+      <i class="fab fa-linkedin"></i>
+      <span>LinkedIn</span>
+    </a>
+    <a class="contact-card" href="https://github.com/spencerdooley00?tab=repositories" target="_blank">
+      <i class="fab fa-github"></i>
+      <span>GitHub</span>
+    </a>
+  </div>
+</div>
+{% endblock %}

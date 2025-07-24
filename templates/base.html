@@ -19,6 +19,8 @@
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://d3js.org/d3-hexbin.v0.2.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
@@ -35,6 +37,8 @@
 
   {% block head_scripts %}{% endblock %}
 </head>
+
+
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -75,6 +79,10 @@
       <a href="/" class="tab-button {% if request.path == '/' %}active{% endif %}">Home</a>
       <a href="/team_explorer" class="tab-button {% if request.path == '/team_explorer' %}active{% endif %}">Team Explorer</a>
       <a href="/league" class="tab-button {% if request.path.startswith('/league') %}active{% endif %}">League Explorer</a>
+      <a href="/articles" class="tab-button {% if request.path.startswith('/articles') %}active{% endif %}">Articles</a>
+
+<a href="{{ url_for('about') }}" class="tab-button {% if request.path.startswith('/about') %}active{% endif %}">About</a>
+
     </nav>
     {% endblock %}
   </div>

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} | NetStats Articles{% endblock %}
+
+{% block content %}
+<div class="article-page">
+  <h1>{{ title }}</h1>
+  <div class="article-body">
+    {{ content|safe }}
+  </div>
+</div>
+{% endblock %}
