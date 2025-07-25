@@ -1767,3 +1767,12 @@ color: #fff;
 opacity: 0.6;
   margin-bottom: 1.2rem;
 }
+
+
+.team-metrics-container {
+  padding: 2rem;
+  margin: 0 auto;
+  max-width: 1200px;
+  background-color: #0f0f0f; /* optional */
+  border-radius: 8px;        /* optional */
+}
