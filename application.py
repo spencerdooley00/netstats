@@ -553,11 +553,12 @@ def article_detail(slug):
         _, fm_block, content = raw.split("---", 2)
         meta = yaml.safe_load(fm_block)
         html = markdown.markdown(content, extensions=["fenced_code", "tables", "codehilite"])
-
     return render_template(
         "article.html",
         content=html,
-        title=meta.get("title", slug.replace("-", " ").title())
+        title=meta.get("title", slug.replace("-", " ").title()),
+        author=meta.get("author", None),   # ← Add this line
+        date=meta.get("date", None),       # ← Optional, but you might want date too
     )
 
 @application.route("/sitemap.xml")

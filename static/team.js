@@ -1313,30 +1313,70 @@ document.querySelectorAll(".lineup-row").forEach(row => {
   });
 });
 }
-  const tabButtons = document.querySelectorAll(".tab-button");
-  const lineupTab = document.getElementById("lineup-tab");
-  const passingTab = document.getElementById("passing-tab");
+  // const tabButtons = document.querySelectorAll(".tab-button");
+  // const lineupTab = document.getElementById("lineup-tab");
+  // const passingTab = document.getElementById("passing-tab");
 
-  tabButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      const tab = btn.dataset.tab;
+  // tabButtons.forEach(btn => {
+  //   btn.addEventListener("click", () => {
+  //     const tab = btn.dataset.tab;
 
-      // Toggle visible tab
-      if (tab === "lineup") {
-        lineupTab.style.display = "block";
-        passingTab.style.display = "none";
-        document.body.classList.add("lineup-mode");
-      } else {
-        lineupTab.style.display = "none";
-        passingTab.style.display = "block";
-        document.body.classList.remove("lineup-mode");
-      }
+  //     // Toggle visible tab
+  //     if (tab === "lineup") {
+  //       lineupTab.style.display = "block";
+  //       passingTab.style.display = "none";
+  //       document.body.classList.add("lineup-mode");
+  //     } else {
+  //       lineupTab.style.display = "none";
+  //       passingTab.style.display = "block";
+  //       document.body.classList.remove("lineup-mode");
+  //     }
 
-      // Active tab highlighting
-      tabButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-    });
+  //     // Active tab highlighting
+  //     tabButtons.forEach(b => b.classList.remove("active"));
+  //     btn.classList.add("active");
+  //   });
+  // });
+const tabButtons = document.querySelectorAll(".tab-button");
+const lineupTab = document.getElementById("lineup-tab");
+const passingTab = document.getElementById("passing-tab");
+
+// Main tab switch function
+function switchToTab(tab) {
+  if (tab === "lineup") {
+    lineupTab.style.display = "block";
+    passingTab.style.display = "none";
+    document.body.classList.add("lineup-mode");
+    fetchAndRenderTopLineups();
+  } else {
+    passingTab.style.display = "block";
+    lineupTab.style.display = "none";
+    document.body.classList.remove("lineup-mode");
+    updatePassingNetwork();
+  }
+
+  tabButtons.forEach(b => b.classList.remove("active"));
+  document.querySelector(`.tab-button[data-tab="${tab}"]`)?.classList.add("active");
+
+  // Update the URL without reloading
+  const url = new URL(window.location.href);
+  url.searchParams.set("tab", tab);
+  window.history.replaceState({}, "", url);
+}
+
+// Hook up button clicks
+tabButtons.forEach(btn => {
+  btn.addEventListener("click", e => {
+    e.preventDefault();
+    const tab = btn.dataset.tab;
+    if (tab) switchToTab(tab);
   });
+});
+
+// Determine starting tab from URL
+const urlParams = new URLSearchParams(window.location.search);
+const initialTab = urlParams.get("tab") || "passing";
+switchToTab(initialTab);
 
   const activeTab = document.querySelector(".tab-button.active")?.dataset.tab;
 if (activeTab === "assist") {

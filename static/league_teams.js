@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 function renderTeamMetricsTable(data) {
-  const headers = ["Team", "Entropy", "Flux", "Clustering", "Centralization", "Avg Path", "Passes"];
+  const headers = ["Team", "Entropy", "Flux", "Clustering", "Centralization", "Passes"];
   let html = `<table id="team-metrics" class="league-role-table sortable"><thead><tr>`;
 
   headers.forEach(h => {
@@ -35,7 +35,6 @@ function renderTeamMetricsTable(data) {
     <td>${metrics.flux.toFixed(2)}</td>
     <td>${metrics.clustering.toFixed(3)}</td>
     <td>${metrics.centralization.toFixed(2)}</td>
-    <td>${metrics.avg_path_len?.toFixed(2) ?? "-"}</td>
     <td>${metrics.num_passes.toFixed(0)}</td>
   </tr>`;
 });

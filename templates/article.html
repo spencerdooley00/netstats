@@ -5,8 +5,17 @@
 {% block content %}
 <div class="article-page">
   <h1>{{ title }}</h1>
+
+  {% if author or date %}
+  <p class="byline">
+    {% if author %}{{ author }}{% endif %}
+    {% if author and date %} • {% endif %}
+    {% if date %}{{ date }}{% endif %}
+  </p>
+  {% endif %}
+
   <div class="article-body">
-    {{ content|safe }}
+    {{ content | safe }}
   </div>
 </div>
 {% endblock %}

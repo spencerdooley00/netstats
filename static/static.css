@@ -1758,3 +1758,12 @@ th {
 th:hover {
   background-color: #1c1c1c;
 }
+
+
+.byline {
+  font-size: 0.95rem;
+  font-style: italic;
+color: #fff;
+opacity: 0.6;
+  margin-bottom: 1.2rem;
+}
