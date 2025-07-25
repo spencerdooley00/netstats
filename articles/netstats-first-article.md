@@ -1,3 +1,12 @@
+---
+title: "Netstats Origin"
+date: "2025-07-25"
+author: "Spencer Dooley"
+description: ""
+slug: "netstats-first-article"
+image_url: "/static/article_thumbs/netstats-preview-final.jpg"
+---
+
 I understand it will sound wrong for me to say this, being too young to
 have experienced many eras of basketball, but I already feel as if I
 grew up in the golden era of basketball. The early 2010's had it all in
