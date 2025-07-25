@@ -1,16 +1,21 @@
 {% extends "base.html" %}
 {% block title %}Articles | NetStats{% endblock %}
 {% block content %}
-<div class="article-list">
+<div class="article-grid">
   {% for article in articles %}
-<a href="{{ url_for('article_detail', slug=article.slug) }}" class="article-card">
+    <a href="{{ url_for('article_detail', slug=article.slug) }}" class="article-card">
       <img src="{{ article.image_url }}" alt="Thumbnail" class="article-thumb" />
       <div class="article-info">
         <h2 class="article-title">{{ article.title }}</h2>
-        <p class="article-summary">{{ article.summary }}</p>
         <p class="article-date">{{ article.date }}</p>
+        <p class="article-snippet">
+          {{ article.summary or article.html|striptags|truncate(150, True) }}
+        </p>
+<div class="article-cta">Read more →</div>
+
       </div>
     </a>
   {% endfor %}
 </div>
 {% endblock %}
+

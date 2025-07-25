@@ -41,7 +41,7 @@ html {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   height: calc(100vh - 60px); /* assumes header is 60px tall */
   width: 100%;
     background: radial-gradient(circle at center, #0d1117 0%, #000000 100%)
@@ -101,6 +101,8 @@ select, button, input[type="checkbox"] {
   justify-content: center; /* center the .header-inner */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
   border-bottom: 1px solid #1e2a40;
+    position: relative;
+  z-index: 10000;
 }
 
 .header-inner {
@@ -1621,24 +1623,6 @@ body {
 
 
 
-.articles-index {
-  padding: 40px;
-  max-width: 800px;
-  margin: auto;
-}
-
-.article-card {
-  display: flex;
-  gap: 20px;
-  border-bottom: 1px solid #444;
-  padding: 16px 0;
-}
-
-.article-card img.thumb {
-  width: 120px;
-  height: auto;
-  border-radius: 6px;
-}
 
 .article-card h2 {
   margin: 0;
@@ -1657,57 +1641,117 @@ body {
 }
 
 
+/* Surrounding card layout */
+.articles-index,
 .article-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding: 2rem;
+  padding: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #0e0e0e;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    position: relative; /* just in case */
+  z-index: auto;  
 }
 
-.article-card {
+/* Article container grid */
+.article-grid {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  background-color: #111;
-  padding: 1rem;
-  border-radius: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32px;
+  padding: 32px;
+}
+
+/* Article card itself */
+.article-card {
+  background-color: #181818;
+  width: 320px;
+  height: auto;
+  overflow: hidden;
   text-decoration: none;
-  transition: background 0.2s;
-  border: 1px solid #222;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #2a2a2a;
+  background-color: #181818;
+  border-radius: 16px;
+  overflow: hidden;
+    position: relative;
+  z-index: 1;
 }
 
 .article-card:hover {
-  background-color: #1a1a1a;
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
 }
 
+/* Integrated thumbnail with rounded top corners */
 .article-thumb {
-  width: 80px;
-  height: 80px;
+  width: 100%;
+  height: 150px;
   object-fit: cover;
-  border-radius: 6px;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+
+  /* this creates a shadow or divider under the image */
+  box-shadow: inset 0 -2px 0 rgba(255, 255, 255, 0.06), 
+              0 1px 0 #333;
+                position: relative;
+  transition: filter 0.3s ease;
 }
 
+/* Main card content */
 .article-info {
-  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  flex-grow: 1;
 }
 
 .article-title {
-  color: white;
-  margin: 0;
-  font-size: 1.2rem;
-}
-
-.article-summary {
-  color: #aaa;
-  font-size: 0.95rem;
-  margin: 0.3rem 0;
+  font-size: 1.15em;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
 }
 
 .article-date {
-  font-size: 0.8rem;
-  color: #666;
+  font-size: 0.85em;
+  color: #999;
+  margin-bottom: 10px;
 }
 
+.article-snippet {
+  color: #ccc;
+  font-size: 0.95em;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.article-cta {
+  font-size: 0.9em;
+  color: #58a6ff;
+  font-weight: 500;
+  margin-top: auto;
+  margin-bottom: 4px;  /* spacing below */
+  transition: color 0.2s ease;
+}
+
+.article-card:hover .article-cta {
+  color: #7db9ff;
+}
+
+.article-card:hover .article-thumb {
+  filter: brightness(0.85);
+}
 
 
 .dropdown-wrapper {
@@ -1716,7 +1760,6 @@ body {
 }
 
 .dropdown-content {
-  position: absolute;
   background-color: #121212;
   border: 1px solid #2c2c2c;
   border-radius: 6px;
@@ -1724,8 +1767,11 @@ body {
   left: 0;
   padding: 0.5rem 0;
   min-width: 160px;
-  z-index: 999;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  position: absolute;
+  z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: translateY(5px);
 }
 
 .dropdown-content li {
@@ -1745,6 +1791,10 @@ body {
   color: white;
 }
 
+.dropdown-wrapper:hover .dropdown-content {
+  opacity: 1;
+  transform: translateY(0);
+}
 .hidden {
   display: none;
 }
