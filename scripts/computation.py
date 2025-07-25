@@ -2,6 +2,8 @@ import json
 from collections import defaultdict
 # from dynamo_cache import get_all_stats
 from scripts.dynamo_cache import get_all_stats
+import networkx as nx
+import math
 
 # add all seasons 
 TEAMS = [
@@ -483,14 +485,170 @@ def get_league_averages_for_season(all_season_data, season):
 
     return {key: round(totals[key] / count, 4) for key in totals}
 
+
+
+def compute_team_entropy(G):
+    """Aggregated Shannon entropy of outgoing edges for all players."""
+    entropy = 0
+    for node in G.nodes():
+        out_edges = G.out_edges(node, data="weight")
+        total = sum(weight for _, _, weight in out_edges)
+        if total == 0:
+            continue
+        for _, _, weight in out_edges:
+            p_ij = weight / total
+            entropy -= p_ij * math.log2(p_ij)
+    return entropy
+
+
+def compute_flux(G):
+    """Average change in shooting percentage per pass (weighted)."""
+    flux = 0
+    for u, v, data in G.edges(data=True):
+        p_ij = data.get("weight", 0)
+        x_i = G.nodes[u].get("fg_pct", 0)
+        x_j = G.nodes[v].get("fg_pct", 0)
+        flux += p_ij * (x_j - x_i)
+    return flux
+
+def compute_team_clustering(G):
+    if G.number_of_edges() == 0:
+        return 0.0
+    weights = [data["weight"] for _, _, data in G.edges(data=True)]
+    if max(weights) == 0:
+        return 0.0  # avoid division by zero
+    return nx.average_clustering(G.to_undirected(), weight="weight")
+
+def compute_degree_centralization(G):
+    degrees = dict(G.degree(weight="weight"))
+    max_deg = max(degrees.values())
+    centralization = sum(max_deg - deg for deg in degrees.values())
+    norm = (len(G.nodes) - 1) * (len(G.nodes) - 2)
+    return centralization / norm if norm > 0 else 0
+
+
+def compute_avg_path_length(G):
+    try:
+        return nx.average_shortest_path_length(G, weight=None)
+    except nx.NetworkXError:
+        return None  # graph not connected
+    
+def compute_path_flow_rate(num_passes, total_time_seconds):
+    """Returns passes per second."""
+    return num_passes / total_time_seconds if total_time_seconds > 0 else None
+
+def compute_deviation_from_optimal(team_shots, player_eff_curves):
+    """
+    team_shots: dict {player_id: shots}
+    player_eff_curves: dict {player_id: function or callable}
+    
+    Returns: deviation between observed and optimal efficiency.
+    """
+    observed_eff = sum(player_eff_curves[p](team_shots[p]) for p in team_shots)
+    # Optimal would solve argmax allocation (hard)
+    # Placeholder: assume equalized usage
+    avg_shots = sum(team_shots.values()) / len(team_shots)
+    optimal_eff = sum(player_eff_curves[p](avg_shots) for p in team_shots)
+    return optimal_eff - observed_eff
+
+import boto3
+import networkx as nx
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('AllStats')
+def load_team_graph_from_dynamo(season, team):
+    key = f"{season}-{team}"
+    response = table.get_item(Key={'id': key})
+    item = response.get('Item')
+    if not item:
+        return None
+
+    players = item.get("players", {})
+    
+    # Step 1: Get top 10 players by MIN
+    min_by_player = []
+    for player, pdata in players.items():
+        stats = pdata.get("stats", {})
+        try:
+            min_played = float(stats.get("MIN", 0))
+        except:
+            min_played = 0
+        min_by_player.append((player, min_played))
+
+    top_players = set([p for p, _ in sorted(min_by_player, key=lambda x: -x[1])[:10]])
+
+    G = nx.DiGraph()
+
+    # Step 2: Add only top players as nodes with fg_pct
+    for player in top_players:
+        stats = players[player].get("stats", {})
+        fg_pct = float(stats.get("FG_PCT", 0.0))
+        G.add_node(player, fg_pct=fg_pct)
+
+    # Step 3: Add edges only if both players are in the top 10
+    for passer in top_players:
+        passes = players[passer].get("passes", {})
+        for recipient, detail in passes.items():
+            if recipient not in top_players:
+                continue
+            count = detail.get("passes", 0)
+            try:
+                count = float(count)
+                if count <= 0:
+                    continue
+            except:
+                continue
+            G.add_edge(passer, recipient, weight=count)
+
+    return G
+
+
+
+from collections import defaultdict
+
+def compute_team_metrics(seasons, teams):
+    metrics_by_season = defaultdict(dict)
+
+    for season in seasons:
+        print(season)
+        for team in teams:
+            G = load_team_graph_from_dynamo(season, team)
+            print(G)
+            if not G or G.number_of_edges() == 0:
+                continue
+
+            metrics_by_season[season][team] = {
+                "entropy": compute_team_entropy(G),
+                "flux": compute_flux(G),
+                "clustering": compute_team_clustering(G),
+                "centralization": compute_degree_centralization(G),
+                "avg_path_len": compute_avg_path_length(G),
+                "num_passes": sum(data["weight"] for _, _, data in G.edges(data=True))
+            }
+
+    return metrics_by_season
+
+
+
 if __name__ == "__main__":
-    all_season_roles = {}
+    # all_season_roles = {}
 
-    for season in SEASONS:
-        print(f"🔍 Computing roles for {season}...")
-        all_season_roles[season] = compute_roles_for_season(season)
+    # for season in SEASONS:
+    #     print(f"🔍 Computing roles for {season}...")
+    #     all_season_roles[season] = compute_roles_for_season(season)
 
-    with open("league_roles_by_season.json", "w") as f:
-        json.dump(all_season_roles, f, indent=2)
+    # with open("league_roles_by_season.json", "w") as f:
+    #     json.dump(all_season_roles, f, indent=2)
 
-    print("✅ Saved to league_roles_by_season.json")
+    # print("✅ Saved to league_roles_by_season.json")
+    
+    
+    seasons = [f"{y}-{str(y+1)[2:]}" for y in range(2014, 2025)]
+    teams = ["ATL", "BOS", "BRK", "CHI", "CLE", "DAL", "DEN", "DET",
+            "GSW", "HOU", "IND", "LAC", "LAL", "MEM", "MIA", "MIL",
+            "MIN", "NOP", "NYK", "OKC", "ORL", "PHI", "PHX", "POR",
+            "SAC", "SAS", "TOR", "UTA", "WAS"]
+
+    metrics = compute_team_metrics(seasons, teams)
+    with open("team_metrics.json", "w") as f:
+        json.dump(metrics, f, indent=2)

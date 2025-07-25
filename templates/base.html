@@ -78,7 +78,14 @@
     <nav class="tab-bar center-tabs">
       <a href="/" class="tab-button {% if request.path == '/' %}active{% endif %}">Home</a>
       <a href="/team_explorer" class="tab-button {% if request.path == '/team_explorer' %}active{% endif %}">Team Explorer</a>
-      <a href="/league" class="tab-button {% if request.path.startswith('/league') %}active{% endif %}">League Explorer</a>
+<div class="tab-button dropdown-wrapper" onmouseover="toggleLeagueDropdown(true)" onmouseleave="toggleLeagueDropdown(false)">
+  <span class="nav-link">League Explorer ▾</span>
+  <ul id="league-dropdown" class="dropdown-content hidden">
+    <li><a href="{{ url_for('league_explorer') }}" class="tab-button">Player Metrics</a></li>
+    <li><a href="{{ url_for('league_team_explorer') }}" class="tab-button">Team Metrics</a></li>
+  </ul>
+</div>
+
       <a href="/articles" class="tab-button {% if request.path.startswith('/articles') %}active{% endif %}">Articles</a>
 
 <a href="{{ url_for('about') }}" class="tab-button {% if request.path.startswith('/about') %}active{% endif %}">About</a>
@@ -87,6 +94,27 @@
     {% endblock %}
   </div>
 </header>
+
+<script>
+  let leagueDropdownTimeout;
+
+  function toggleLeagueDropdown(show) {
+    const dropdown = document.getElementById("league-dropdown");
+    if (!dropdown) return;
+
+    clearTimeout(leagueDropdownTimeout);
+
+    if (show) {
+      dropdown.classList.remove("hidden");
+    } else {
+      leagueDropdownTimeout = setTimeout(() => {
+        dropdown.classList.add("hidden");
+      }, 200); // 200ms grace period to prevent flicker
+    }
+  }
+</script>
+
+
 
 
 <div class="page-layout {% block page_class %}{% endblock %}">

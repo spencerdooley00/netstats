@@ -13,3 +13,4 @@ Markdown==3.8
 dotenv==0.9.9
 boto3==1.38.45
 scipy==1.16.0
+PyYAML==6.0.2

@@ -17,11 +17,14 @@ ENV PATH="/opt/venv/bin:$PATH"
 WORKDIR /app
 COPY ./templates ./templates
 COPY ./static ./static
-RUN echo "=== STATIC FILES ===" && ls -l /app/static
 COPY ./scripts ./scripts
+COPY ./articles ./articles
 COPY ./nba_on_court ./nba_on_court
 COPY league_roles_by_season.json .
+COPY team_metrics.json .
 COPY application.py .
+COPY robots.txt .
+
 
 EXPOSE 8080
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "application:application"]

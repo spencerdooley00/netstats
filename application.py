@@ -18,8 +18,9 @@ import nba_api.stats.static.teams as teams
 import nba_api.stats.endpoints as nba
 from flask import Flask, render_template, request, jsonify, abort, redirect, url_for, flash, session, send_from_directory
 import json
-import markdown
 import os
+import markdown
+import yaml
 from scripts.passing_networks import create_network, generate_d3_data
 from scripts.computation import get_league_averages_for_season
 from dotenv import load_dotenv
@@ -395,6 +396,19 @@ def get_player_role_scores(data, season, player_name):
     return None  # Player not found
 
 
+with open('team_metrics.json', 'r') as f:
+    league_team_metrics = json.load(f)
+
+@application.route("/league_teams")
+def league_team_explorer():
+    seasons = list(league_team_metrics.keys())
+    latest = seasons[-1]
+    return render_template("league_teams.html", available_seasons=seasons, selected_season=latest)
+
+@application.route("/team_metrics", methods=["POST"])
+def get_team_metrics():
+    season = request.json.get("season")
+    return jsonify(league_team_metrics.get(season, {}))
 
 @application.route("/player/<season>/<team>/<player_name>")
 def player_detail(season, team, player_name):
@@ -502,9 +516,7 @@ def about():
     return render_template('about.html')
     
 
-import os
-import markdown
-import yaml
+
 
 def load_articles():
     articles_dir = "articles"

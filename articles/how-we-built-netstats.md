@@ -6,6 +6,8 @@ slug: "how-we-built-netstats"
 image_url: "/static/article_thumbs/netstats-preview-final.jpg"
 ---
 
+## Why Netstats
+
 
 ## Netstats Overview
 

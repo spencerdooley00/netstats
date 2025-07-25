@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}NetStats | Team Metrics{% endblock %}
+{% block meta_description %}Explore team-level network metrics like entropy, centralization, and passing structure across seasons.{% endblock %}
+{% block og_title %}NetStats | Team Network Metrics{% endblock %}
+{% block og_description %}Explore team-level network metrics like entropy, centralization, and passing structure across seasons.{% endblock %}
+{% block og_image %}https://netstats.dev/static/previews/netstats-preview-final.jpg{% endblock %}
+
+{% block twitter_title %}NetStats | Team Network Metrics{% endblock %}
+{% block twitter_description %}Explore team-level passing metrics including entropy, clustering, and role centralization.{% endblock %}
+{% block twitter_image %}https://netstats.dev/static/previews/netstats-preview-final.jpg{% endblock %}
+
+{% block page_class %}league-teams{% endblock %}
+
+{% block content %}
+<div class="league-controls">
+  <div class="filter-row">
+    <div class="filter-group">
+      <label for="season">Season:</label>
+      <select id="season">
+        {% for season in available_seasons %}
+          <option value="{{ season }}" {% if season == selected_season %}selected{% endif %}>
+            {{ season }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-group reset-wrapper">
+      <label style="visibility: hidden;">Reset</label>
+      <button id="reset-filters" class="reset-filter-button">Reset Filters</button>
+    </div>
+  </div>
+</div>
+
+<div id="team-metrics-table"></div>
+{% endblock %}
+
+{% block head_scripts %}
+<script>
+  const selectedSeason = "{{ selected_season }}";
+</script>
+<script src="{{ url_for('static', filename='league_teams.js') }}"></script>
+{% endblock %}
