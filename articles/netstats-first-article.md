@@ -1,5 +1,5 @@
 ---
-title: "Netstats Origin"
+title: "I understand it will sound wrong for me to say this, being too young to"
 date: "2025-07-25"
 author: "Spencer Dooley"
 description: ""
