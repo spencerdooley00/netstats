@@ -1776,3 +1776,56 @@ opacity: 0.6;
   background-color: #0f0f0f; /* optional */
   border-radius: 8px;        /* optional */
 }
+
+
+.tooltip-icon {
+  margin-left: 6px;
+  cursor: help;
+  font-size: 0.85em;
+  vertical-align: middle;
+  color: #888;
+}
+
+.tooltip-icon:hover {
+  color: #ccc;
+}
+
+
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+  margin-left: 6px;
+  font-size: 0.85em;
+  color: #888;
+}
+
+.tooltip-wrapper:hover {
+  color: #ccc;
+}
+
+.custom-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  width: max-content;
+  max-width: 200px;
+  background-color: #111;
+  color: #fff;
+  text-align: left;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  position: absolute;
+  z-index: 10;
+  top: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: normal;
+  transition: opacity 0.1s ease-in-out;
+}
+
+.tooltip-wrapper:hover .custom-tooltip {
+  visibility: visible;
+  opacity: 1;
+}

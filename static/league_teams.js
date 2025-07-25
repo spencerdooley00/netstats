@@ -1,7 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
   const seasonSelect = document.getElementById("season");
   const tableContainer = document.getElementById("team-metrics-table");
-
+const tooltips = {
+  "Entropy": "Unpredictability of passing. Higher = more evenly distributed ball movement.",
+  "Flux": "Change in shooting efficiency per pass. Positive = passes to better shooters.",
+  "Clustering": "How often players form passing triangles. Higher = tighter ball movement.",
+  "Centralization": "How much the offense runs through one player. Higher = heliocentric.",
+  "Passes": "Total number of passes tracked in the network for this team."
+};
   function fetchTeamMetrics(season) {
     fetch("/team_metrics", {
       method: "POST",
@@ -22,9 +28,21 @@ function renderTeamMetricsTable(data) {
   const headers = ["Team", "Entropy", "Flux", "Clustering", "Centralization", "Passes"];
   let html = `<table id="team-metrics" class="league-role-table sortable"><thead><tr>`;
 
-  headers.forEach(h => {
+headers.forEach(h => {
+  if (tooltips[h]) {
+    html += `
+      <th data-sort="${h.toLowerCase().replace(" ", "_")}">
+        ${h}
+        <span class="tooltip-wrapper">
+          <i class="fas fa-info-circle"></i>
+          <span class="custom-tooltip">${tooltips[h]}</span>
+        </span>
+      </th>`;
+  } else {
     html += `<th data-sort="${h.toLowerCase().replace(" ", "_")}">${h}</th>`;
-  });
+  }
+});
+
   html += `</tr></thead><tbody>`;
 
  Object.entries(data).forEach(([team, metrics]) => {
